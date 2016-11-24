@@ -15,25 +15,27 @@ class Program
 
     DiscordSocketClient _client;
     CommandService _commands;
+    public BotConfiguration config;
 
     public async Task RunBot()
     {
-        BotConfiguration config;
         if (!File.Exists("config.json"))
         {
-            Console.Write("Please enter a bot token:");
+            Console.Write("Please enter a bot token: ");
             string token = Console.ReadLine();
-            config = BotConfiguration.CreateBotConfigWithToken("config.json", token, new DiscordSocketConfig
-            {
-                AudioMode = Discord.Audio.AudioMode.Disabled,
-                LogLevel = Discord.LogSeverity.Info
-            });
+            config = BotConfiguration.CreateBotConfigWithToken("config.json", token);
         }
         else
             config = BotConfiguration.ProcessBotConfig("config.json");
 
-        _client = new DiscordSocketClient(config as DiscordSocketConfig);
+        _client = new DiscordSocketClient(new DiscordSocketConfig
+        {
+            AudioMode = Discord.Audio.AudioMode.Disabled,
+            LogLevel = Discord.LogSeverity.Info
+        });
+        _commands = new CommandService();
 
+        _client.Log += _client_Log;
         _client.Ready += _client_Ready;
         _client.MessageReceived += _client_MessageReceived;
 
@@ -43,6 +45,8 @@ class Program
 
         await Task.Delay(-1);
     }
+
+    private async Task _client_Log(Discord.LogMessage arg) => Console.WriteLine(arg.ToString());
 
     private async Task ApplyCommands()
     {
@@ -56,7 +60,7 @@ class Program
 
         int argPos = 0;
 
-        if(message.HasCharPrefix('~', ref argPos) || message.HasMentionPrefix(_client.CurrentUser, ref argPos))
+        if(message.HasCharPrefix(config.PrefixCharacter, ref argPos) || message.HasMentionPrefix(_client.CurrentUser, ref argPos))
         {
             var context = new CommandContext(_client, message);
 
