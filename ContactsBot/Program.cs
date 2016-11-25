@@ -32,7 +32,7 @@ class Program
         _client = new DiscordSocketClient(new DiscordSocketConfig
         {
             AudioMode = Discord.Audio.AudioMode.Disabled,
-            LogLevel = Discord.LogSeverity.Info
+            LogLevel = Discord.LogSeverity.Debug
         });
         _commands = new CommandService();
         
@@ -79,7 +79,32 @@ class Program
         }
         else
         {
-            // todo, filter messages we don't like like discord.gg links
+            var authorAsGuildUser = message.Author as SocketGuildUser;
+            if (authorAsGuildUser == null) return;
+
+            var roles = authorAsGuildUser.Guild.Roles;
+            string role = roles.First(r => authorAsGuildUser.RoleIds.Any(gr => r.Id == gr)).Name;
+
+            var validRoles = new[] { /*"Regulars",*/ "Moderators", "Founders" };
+            if (!validRoles.Any(v => v == role))
+            {
+                if (message.Content.Contains("https://discord.gg/"))
+                {
+                    string removedLinks = message.Content;
+                    while (removedLinks.Contains("https://discord.gg/"))
+                    {
+                        int linkStartIndex = message.Content.IndexOf("https://discord.gg/");
+                        int linkEndIndex = message.Content.IndexOf(" ", linkStartIndex);
+                        if (linkEndIndex == -1) linkEndIndex = message.Content.Length - linkStartIndex;
+                        removedLinks = removedLinks.Remove(linkStartIndex, linkStartIndex - linkEndIndex);
+                        removedLinks.Insert(linkStartIndex, "<REMOVED>");
+                    }
+                    await message.ModifyAsync(mods => new ModifyMessageParams
+                    {
+                        Content = removedLinks
+                    });
+                }
+            }
         }
     }
 }
