@@ -40,6 +40,7 @@ class Program
 
         _client.Log += _client_Log;
         _client.MessageReceived += _client_MessageReceived;
+        _client.MessageDeleted += _client_MessageDeleted;
 
         await _client.LoginAsync(Discord.TokenType.Bot, config.Token);
 
@@ -53,6 +54,11 @@ class Program
         await _client.SetGame("Helping you C#");
 
         await Task.Delay(-1);
+    }
+
+    private Task _client_MessageDeleted(ulong msgId, Discord.Optional<SocketMessage> msgDeleted)
+    {
+        throw new NotImplementedException();
     }
 
     private async Task _client_Log(Discord.LogMessage arg) => Console.WriteLine(arg.ToString());
@@ -85,24 +91,14 @@ class Program
             var roles = authorAsGuildUser.Guild.Roles;
             string role = roles.First(r => authorAsGuildUser.RoleIds.Any(gr => r.Id == gr)).Name;
 
-            var validRoles = new[] { /*"Regulars",*/ "Moderators", "Founders" };
+            var validRoles = new[] { "Regulars", "Moderators", "Founders" };
             if (!validRoles.Any(v => v == role))
             {
                 if (message.Content.Contains("https://discord.gg/"))
                 {
-                    string removedLinks = message.Content;
-                    while (removedLinks.Contains("https://discord.gg/"))
-                    {
-                        int linkStartIndex = message.Content.IndexOf("https://discord.gg/");
-                        int linkEndIndex = message.Content.IndexOf(" ", linkStartIndex);
-                        if (linkEndIndex == -1) linkEndIndex = message.Content.Length - linkStartIndex;
-                        removedLinks = removedLinks.Remove(linkStartIndex, linkStartIndex - linkEndIndex);
-                        removedLinks.Insert(linkStartIndex, "<REMOVED>");
-                    }
-                    await message.ModifyAsync(mods => new ModifyMessageParams
-                    {
-                        Content = removedLinks
-                    });
+                    await message.Channel.DeleteMessagesAsync(new[] { message });
+                    var dmChannel = await authorAsGuildUser.CreateDMChannelAsync();
+                    await dmChannel.SendMessageAsync("Your Discord invite link was removed. Please ask a staff member or regular to post it.");
                 }
             }
         }
