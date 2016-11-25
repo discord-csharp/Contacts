@@ -4,6 +4,7 @@ using Discord.API.Rest;
 using Discord.Commands;
 using Discord.WebSocket;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -15,7 +16,7 @@ class Program
 
     DiscordSocketClient _client;
     CommandService _commands;
-    public BotConfiguration config;
+    BotConfiguration config;
 
     public async Task RunBot()
     {
@@ -34,14 +35,22 @@ class Program
             LogLevel = Discord.LogSeverity.Info
         });
         _commands = new CommandService();
+        
+        await ApplyCommands();
 
         _client.Log += _client_Log;
-        _client.Ready += _client_Ready;
         _client.MessageReceived += _client_MessageReceived;
 
         await _client.LoginAsync(Discord.TokenType.Bot, config.Token);
 
         await _client.ConnectAsync();
+        
+        await _client.CurrentUser.ModifyAsync((ModifyCurrentUserParams mod) => 
+        {
+            mod.Avatar = new Image(new FileStream("Assets/contacts.png", FileMode.Open));
+        });
+
+        await _client.SetGame("Helping you C#");
 
         await Task.Delay(-1);
     }
@@ -70,15 +79,7 @@ class Program
         }
         else
         {
-            // todo, work on filtering messages
+            // todo, filter messages we don't like like discord.gg links
         }
-    }
-
-    private async Task _client_Ready()
-    {
-        await _client.CurrentUser.ModifyAsync(mod => new ModifyCurrentUserParams
-        {
-            Avatar = new Image(new FileStream("Assets/contacts.png", FileMode.Open))
-        });
     }
 }
