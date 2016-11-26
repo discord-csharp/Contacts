@@ -22,7 +22,7 @@ namespace ContactsBot
             if (guildUser == null) return;
 
             if (!IsCorrectRole(Context, new[] { "Founders", "Moderators", "Regulars" }))
-            {
+             {
                 await ReplyAsync("Couldn't mute user: Insufficient role");
                 return;
             }
@@ -32,7 +32,7 @@ namespace ContactsBot
             var muteRole = guildUser.Guild.Roles.FirstOrDefault(r => r.Id == mutedRoleId);
             if (muteRole == null)
             {
-                await ReplyAsync("Couldn't mute user: The specified role doesn't exist");
+1                await ReplyAsync("Couldn't mute user: The specified role doesn't exist");
             }
             else
                 await guildUser.AddRolesAsync(muteRole);
@@ -42,7 +42,7 @@ namespace ContactsBot
             Global.MutedUsers.Add(user, timer);
 
             await ReplyAsync($"Muted {guildUser.Nickname ?? guildUser.Username} for {time} minutes");
-        }
+-        }
 
         public async void TimerCallback(object user)
         {
@@ -52,7 +52,7 @@ namespace ContactsBot
         [Command("unmute"), Summary("Unmutes a user")]
         public async Task Unmute([Summary("The user to unmute")] IGuildUser user, bool isCallback = false)
         {
-            if(!isCallback && !IsCorrectRole(Context, new[] { "Founders", "Moderators", "Regulars" }))
+             if(!isCallback && !IsCorrectRole(Context, new[] { "Founders", "Moderators", "Regulars" }))
             {
                 await ReplyAsync("Couldn't unmute user: Insufficient role");
                 return;
@@ -113,7 +113,7 @@ namespace ContactsBot
                 var messageList = (await Context.Channel.GetMessagesAsync(500).Flatten()).ToList();
                 int startIndex = messageList.IndexOf(messageList.FirstOrDefault(m => m.Id == startMessage));
                 int endIndex = messageList.IndexOf(messageList.FirstOrDefault(m => m.Id == endMessage), startIndex);
-                await Context.Channel.DeleteMessagesAsync(messageList.GetRange(startIndex, endIndex - startIndex));
+                await Context.Channel.DeleteMessagesAsync(messageList.GetRange(startIndex - 1, endIndex - startIndex));
 
                 await ReplyAsync($"Deleted {endIndex - startIndex} messages");
             }
