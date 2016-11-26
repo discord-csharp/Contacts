@@ -40,7 +40,6 @@ class Program
 
         _client.Log += _client_Log; // console info
         _client.MessageReceived += _client_MessageReceived; // filtering and commands
-        _client.MessageDeleted += _client_MessageDeleted; // logging
 
         await _client.LoginAsync(Discord.TokenType.Bot, config.Token);
 
@@ -54,11 +53,6 @@ class Program
         await _client.SetGame("Helping you C#");
 
         await Task.Delay(-1);
-    }
-
-    private async Task _client_MessageDeleted(ulong msgId, Discord.Optional<SocketMessage> msgDeleted)
-    {
-        
     }
 
     private async Task _client_Log(Discord.LogMessage arg)

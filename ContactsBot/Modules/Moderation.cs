@@ -16,7 +16,7 @@ namespace ContactsBot
         const ulong mutedRoleId = 251734975727009793;
 
         [Command("mute"), Summary("Mutes a user for the specified amount of time")]
-        public async Task Mute(IGuildUser user, double time = 30)
+        public async Task Mute([Summary("The user to mute")] IGuildUser user, [Summary("The time in minutes to mute the user")] double time = 30)
         {
             var guildUser = user as SocketGuildUser;
             if (guildUser == null) return;
@@ -50,7 +50,7 @@ namespace ContactsBot
         }
 
         [Command("unmute"), Summary("Unmutes a user")]
-        public async Task Unmute(IGuildUser user, bool isCallback = false)
+        public async Task Unmute([Summary("The user to unmute")] IGuildUser user, bool isCallback = false)
         {
             if(!isCallback && !IsCorrectRole(Context, new[] { "Founders", "Moderators", "Regulars" }))
             {
@@ -92,7 +92,7 @@ namespace ContactsBot
     public class Messages : ModuleBase
     {
         [Command("deleterange")]
-        public async Task Delete(int range)
+        public async Task Delete([Summary("The range of messages to delete")] int range)
         {
             if (Moderation.IsCorrectRole(Context, new[] { "Founders", "Moderators", "Regulars" }))
             {
@@ -103,6 +103,22 @@ namespace ContactsBot
             }
             else
                 await ReplyAsync("Couldn't delete messages: Insufficient role");
+        }
+
+        [Command("deleterange")]
+        public async Task Delete([Summary("The most recent message ID to start deleting at")] ulong startMessage, [Summary("The last message ID to delete")] ulong endMessage)
+        {
+            if (Moderation.IsCorrectRole(Context, new[] { "Founders", "Moderators", "Regulars" })) // todo: replace this array with something better
+            {
+                var messageList = (await Context.Channel.GetMessagesAsync(500).Flatten()).ToList();
+                int startIndex = messageList.IndexOf(messageList.FirstOrDefault(m => m.Id == startMessage));
+                int endIndex = messageList.IndexOf(messageList.FirstOrDefault(m => m.Id == endMessage), startIndex);
+                await Context.Channel.DeleteMessagesAsync(messageList.GetRange(startIndex, endIndex - startIndex));
+
+                await ReplyAsync($"Deleted {endIndex - startIndex} messages");
+            }
+            else
+                await ReplyAsync("Couldn't delete message: Insufficient role");
         }
     }
 }
