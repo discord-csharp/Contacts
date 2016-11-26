@@ -111,14 +111,20 @@ namespace ContactsBot
             if (Moderation.IsCorrectRole(Context, new[] { "Founders", "Moderators", "Regulars" })) // todo: replace this array with something better
             {
                 var messageList = (await Context.Channel.GetMessagesAsync(500).Flatten()).ToList();
-                int startIndex = messageList.IndexOf(messageList.FirstOrDefault(m => m.Id == startMessage)) + 1;
-                int endIndex = messageList.IndexOf(messageList.FirstOrDefault(m => m.Id == endMessage), startIndex);
-                await Context.Channel.DeleteMessagesAsync(messageList.GetRange(startIndex, endIndex - startIndex));
+                int startIndex = messageList.FindIndex(m => m.Id == startMessage);
+                int endIndex = messageList.FindIndex(m => m.Id == endMessage);
+                if(startIndex == -1 || endIndex == -1)
+                {
+                    await ReplyAsync("Couldn't delete messages: The start or end message ID couldn't be found");
+                    return;
+                }
+                var messageRange = (startIndex > endIndex) ? messageList.GetRange(endIndex - 1, (startIndex - endIndex) + 1) : messageList.GetRange(startIndex, (endIndex - startIndex) + 1);
+                await Context.Channel.DeleteMessagesAsync(messageRange);
 
-                await ReplyAsync($"Deleted {endIndex - startIndex} messages");
+                await ReplyAsync($"Deleted {Math.Abs(endIndex - startIndex) + 1} messages");
             }
             else
-                await ReplyAsync("Couldn't delete message: Insufficient role");
+                await ReplyAsync("Couldn't delete messages: Insufficient role");
         }
     }
 }
