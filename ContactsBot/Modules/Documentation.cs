@@ -108,7 +108,7 @@ namespace ContactsBot.Modules
             var embed = new Discord.EmbedBuilder
             {
                 Title = response.Title,
-                Description = response.Description,
+                Description = WebUtility.HtmlDecode(response.Description),
                 Url = response.Url,
                 Color = new Discord.Color(104, 33, 122),
                 Thumbnail = new Discord.EmbedThumbnailBuilder()
