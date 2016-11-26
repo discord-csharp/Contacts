@@ -111,9 +111,9 @@ namespace ContactsBot
             if (Moderation.IsCorrectRole(Context, new[] { "Founders", "Moderators", "Regulars" })) // todo: replace this array with something better
             {
                 var messageList = (await Context.Channel.GetMessagesAsync(500).Flatten()).ToList();
-                int startIndex = messageList.IndexOf(messageList.FirstOrDefault(m => m.Id == startMessage));
+                int startIndex = messageList.IndexOf(messageList.FirstOrDefault(m => m.Id == startMessage)) + 1;
                 int endIndex = messageList.IndexOf(messageList.FirstOrDefault(m => m.Id == endMessage), startIndex);
-                await Context.Channel.DeleteMessagesAsync(messageList.GetRange(startIndex + 1, endIndex - startIndex));
+                await Context.Channel.DeleteMessagesAsync(messageList.GetRange(startIndex, endIndex - startIndex));
 
                 await ReplyAsync($"Deleted {endIndex - startIndex} messages");
             }
