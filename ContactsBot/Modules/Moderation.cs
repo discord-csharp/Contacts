@@ -32,7 +32,7 @@ namespace ContactsBot
             var muteRole = guildUser.Guild.Roles.FirstOrDefault(r => r.Id == mutedRoleId);
             if (muteRole == null)
             {
-1                await ReplyAsync("Couldn't mute user: The specified role doesn't exist");
+                await ReplyAsync("Couldn't mute user: The specified role doesn't exist");
             }
             else
                 await guildUser.AddRolesAsync(muteRole);
@@ -42,7 +42,7 @@ namespace ContactsBot
             Global.MutedUsers.Add(user, timer);
 
             await ReplyAsync($"Muted {guildUser.Nickname ?? guildUser.Username} for {time} minutes");
--        }
+        }
 
         public async void TimerCallback(object user)
         {
