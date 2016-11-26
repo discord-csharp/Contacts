@@ -113,7 +113,7 @@ namespace ContactsBot
                 var messageList = (await Context.Channel.GetMessagesAsync(500).Flatten()).ToList();
                 int startIndex = messageList.IndexOf(messageList.FirstOrDefault(m => m.Id == startMessage));
                 int endIndex = messageList.IndexOf(messageList.FirstOrDefault(m => m.Id == endMessage), startIndex);
-                await Context.Channel.DeleteMessagesAsync(messageList.GetRange(startIndex - 1, endIndex - startIndex));
+                await Context.Channel.DeleteMessagesAsync(messageList.GetRange(startIndex + 1, endIndex - startIndex));
 
                 await ReplyAsync($"Deleted {endIndex - startIndex} messages");
             }
