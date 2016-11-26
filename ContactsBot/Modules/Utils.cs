@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace ContactsBot.Modules
 {
+    [Name("Utils Module")]
     public class Utils : ModuleBase
     {
         [Command("roleid")]
