@@ -43,7 +43,7 @@ namespace ContactsBot.Modules
                 }
             }
 
-            var replyChannel = await Context.User.GetDMChannelAsync();
+            var replyChannel = await Context.User.GetDMChannelAsync() ?? await Context.User.CreateDMChannelAsync();
             await replyChannel.SendMessageAsync(response.ToString());
             await ReplyAsync("Check your DM's. I sent you a message.");
         }

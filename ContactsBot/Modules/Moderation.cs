@@ -9,7 +9,7 @@ using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace ContactsBot
+namespace ContactsBot.Modules
 {
     [Name("Moderation Module")]
     public class Moderation : ModuleBase
