@@ -15,14 +15,16 @@ namespace ContactsBot.Modules
 {
     public class Documentation : ModuleBase
     {
-        private const string MSDNIcon = "http://i.imgur.com/LCr4b6P.png";
+        private string GetRssUrl(string query) => $"https://social.msdn.microsoft.com/search/en-US/feed?query={Uri.EscapeDataString(query)}&format=RSS";
+        private string GetHtmlUrl(string query) => $"https://social.msdn.microsoft.com/Search/en-US?query={Uri.EscapeDataString(query)}";
 
         [Command("docs")]
+        [Alias("msdn")]
         public async Task Msdn([Summary("The query to search for")] [Remainder] string query)
         {
             try
             {
-                var request = HttpWebRequest.CreateHttp($"https://social.msdn.microsoft.com/search/en-US/feed?query={Uri.EscapeDataString(query)}&format=RSS");
+                var request = HttpWebRequest.CreateHttp(GetRssUrl(query));
 
                 var xmlDoc = XDocument.Load((await request.GetResponseAsync()).GetResponseStream());
 
@@ -37,6 +39,12 @@ namespace ContactsBot.Modules
                     })
                     .FirstOrDefault();
 
+                if (item == null)
+                {
+                    await ReplyAsync($"No results for **{query}**.");
+                    return;
+                }
+
                 await ReplyWithResponse(item);
             }
             catch (WebException)
@@ -47,9 +55,9 @@ namespace ContactsBot.Modules
             {
                 await ReplyAsync("There was a problem parsing the XML response from MSDN.");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                await ReplyAsync("Something weird happened.");
+                await ReplyAsync($"Something weird happened. {ex.Message}");
             }
         }
 
@@ -61,9 +69,10 @@ namespace ContactsBot.Modules
                 Description = WebUtility.HtmlDecode(response.Description),
                 Url = response.Url,
                 Color = new Discord.Color(104, 33, 122),
-                Thumbnail = new Discord.EmbedThumbnailBuilder
+                Author = new Discord.EmbedAuthorBuilder
                 {
-                    Url = MSDNIcon
+                    Name = $"{new Uri(response.Url).Host} (click for more)",
+                    Url = GetHtmlUrl(response.OriginalQuery)
                 }
             };
 
