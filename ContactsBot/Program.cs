@@ -1,4 +1,5 @@
 ﻿using Contacts;
+using ContactsBot;
 using Discord.API;
 using Discord.API.Rest;
 using Discord.Commands;
@@ -50,10 +51,11 @@ class Program
 
         await _client.ConnectAsync();
         
-        await _client.CurrentUser.ModifyAsync((ModifyCurrentUserParams mod) => 
-        {
-            mod.Avatar = new Image(new FileStream("Assets/contacts.png", FileMode.Open));
-        });
+        if(File.Exists("Assets/contacts.png"))
+            await _client.CurrentUser.ModifyAsync((ModifyCurrentUserParams mod) => 
+            {
+                mod.Avatar = new Image(new FileStream("Assets/contacts.png", FileMode.Open));
+            });
 
         await _client.SetGame("Helping you C#");
 
@@ -94,8 +96,7 @@ class Program
             var roles = authorAsGuildUser.Guild.Roles;
             string role = roles.First(r => authorAsGuildUser.RoleIds.Any(gr => r.Id == gr)).Name;
 
-            var validRoles = new[] { "Regulars", "Moderators", "Founders" };
-            if (!validRoles.Any(v => v == role))
+            if (!Moderation.StandardRoles.Any(v => v == role))
             {
                 if (message.Content.Contains("https://discord.gg/"))
                 {

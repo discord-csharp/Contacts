@@ -43,9 +43,7 @@ namespace ContactsBot.Modules
                 }
             }
 
-            var replyChannel = await Context.User.GetDMChannelAsync();
-            await replyChannel.SendMessageAsync(response.ToString());
-            await ReplyAsync("Check your DM's. I sent you a message.");
+            await ReplyAsync(response.ToString());
         }
 
         // Upon creation of this module, the command service will be loaded from the dependency map
