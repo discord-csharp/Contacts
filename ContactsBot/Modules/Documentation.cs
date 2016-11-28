@@ -13,24 +13,18 @@ using Newtonsoft.Json;
 
 namespace ContactsBot.Modules
 {
-    [Group("docs")]
     public class Documentation : ModuleBase
     {
-        private const string MSDNIcon = "http://i.imgur.com/LCr4b6P.png";
-        private const string MSDocsIcon = "http://i.imgur.com/GSXfzSU.jpg";
+        private string GetRssUrl(string query) => $"https://social.msdn.microsoft.com/search/en-US/feed?query={Uri.EscapeDataString(query)}&format=RSS";
+        private string GetHtmlUrl(string query) => $"https://social.msdn.microsoft.com/Search/en-US?query={Uri.EscapeDataString(query)}";
 
-        private enum ReplyType
-        {
-            MSDN,
-            MSDocs
-        }
-
-        [Command("msdn")]
+        [Command("docs")]
+        [Alias("msdn")]
         public async Task Msdn([Summary("The query to search for")] [Remainder] string query)
         {
             try
             {
-                var request = HttpWebRequest.CreateHttp($"https://social.msdn.microsoft.com/search/en-US/feed?query={Uri.EscapeDataString(query)}&format=RSS");
+                var request = HttpWebRequest.CreateHttp(GetRssUrl(query));
 
                 var xmlDoc = XDocument.Load((await request.GetResponseAsync()).GetResponseStream());
 
@@ -41,10 +35,15 @@ namespace ContactsBot.Modules
                         OriginalQuery = query,
                         Title = d.Descendants(XName.Get("title", "")).FirstOrDefault()?.Value,
                         Description = d.Descendants(XName.Get("description", "")).FirstOrDefault()?.Value,
-                        Url = d.Descendants(XName.Get("link", "")).FirstOrDefault()?.Value,
-                        ReplyType = ReplyType.MSDN
+                        Url = d.Descendants(XName.Get("link", "")).FirstOrDefault()?.Value
                     })
                     .FirstOrDefault();
+
+                if (item == null)
+                {
+                    await ReplyAsync($"No results for **{query}**.");
+                    return;
+                }
 
                 await ReplyWithResponse(item);
             }
@@ -56,50 +55,9 @@ namespace ContactsBot.Modules
             {
                 await ReplyAsync("There was a problem parsing the XML response from MSDN.");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                await ReplyAsync("Something weird happened.");
-            }
-        }
-
-        [Command("msdocs")]
-        public async Task Docs([Summary("The query to search for")] [Remainder] string query)
-        {
-            try
-            {
-                var request = HttpWebRequest.CreateHttp($"https://docs.microsoft.com/api/search?search={Uri.EscapeDataString(query)}&locale=en-us&$top=10");
-                using (StreamReader reader = new StreamReader((await request.GetResponseAsync()).GetResponseStream()))
-                {
-                    var response = JObject.Parse(reader.ReadToEnd());
-                    var result = response.First.First.First();
-
-                    var item = new QueryResponse
-                    {
-                        OriginalQuery = query,
-                        Title = result["title"].Value<string>(),
-                        Description = result["description"].Value<string>(),
-                        Url = result["url"].Value<string>(),
-                        ReplyType = ReplyType.MSDocs
-                    };
-
-                    await ReplyWithResponse(item);
-                }
-            }
-            catch (WebException)
-            {
-                await ReplyAsync("Sorry, there was a network issue.");
-            }
-            catch (JsonException)
-            {
-                await ReplyAsync("There was a problem parsing the JSON response from MSDocs.");
-            }
-            catch (IOException)
-            {
-                await ReplyAsync("There was an issue in reading the response from MSDocs.");
-            }
-            catch (Exception)
-            {
-                await ReplyAsync("Something weird happened.");
+                await ReplyAsync($"Something weird happened. {ex.Message}");
             }
         }
 
@@ -111,9 +69,10 @@ namespace ContactsBot.Modules
                 Description = WebUtility.HtmlDecode(response.Description),
                 Url = response.Url,
                 Color = new Discord.Color(104, 33, 122),
-                Thumbnail = new Discord.EmbedThumbnailBuilder()
+                Author = new Discord.EmbedAuthorBuilder
                 {
-                    Url = (response.ReplyType == ReplyType.MSDN ? MSDNIcon : MSDocsIcon)
+                    Name = $"{new Uri(response.Url).Host} (click for more)",
+                    Url = GetHtmlUrl(response.OriginalQuery)
                 }
             };
 
@@ -127,8 +86,6 @@ namespace ContactsBot.Modules
             public string Title { get; set; }
             public string Description { get; set; }
             public string Url { get; set; }
-
-            public ReplyType ReplyType { get; set; }
         }
     }
 }
