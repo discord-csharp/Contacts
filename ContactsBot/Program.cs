@@ -16,6 +16,7 @@ class Program
 
     DiscordSocketClient _client;
     CommandService _commands;
+    DependencyMap _map;
     BotConfiguration config;
 
     public async Task RunBot()
@@ -35,7 +36,11 @@ class Program
             LogLevel = Discord.LogSeverity.Debug
         });
         _commands = new CommandService();
-        
+        // Create the dependency map and inject the client and commands service into it
+        _map = new DependencyMap();
+        _map.Add(_client);
+        _map.Add(_commands);
+
         await ApplyCommands();
 
         _client.Log += _client_Log; // console info
@@ -76,7 +81,8 @@ class Program
         {
             var context = new CommandContext(_client, message);
 
-            var result = await _commands.ExecuteAsync(context, argPos);
+            // Provide the dependency map when executing commands
+            var result = await _commands.ExecuteAsync(context, argPos, _map);
             if (!result.IsSuccess)
                 await message.Channel.SendMessageAsync(result.ErrorReason);
         }

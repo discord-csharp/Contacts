@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 
 namespace ContactsBot
 {
+    [Name("Moderation Module")]
     public class Moderation : ModuleBase
     {
         const ulong mutedRoleId = 251734975727009793;
@@ -88,7 +89,7 @@ namespace ContactsBot
         }
     }
 
-    [Group("message")]
+    [Group("message"), Name("Message Module")]
     public class Messages : ModuleBase
     {
         [Command("deleterange")]
