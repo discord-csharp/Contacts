@@ -126,5 +126,25 @@ namespace ContactsBot
             else
                 await ReplyAsync("Couldn't delete messages: Insufficient role");
         }
+
+        [Command("_invitedelete")]
+        public async Task InviteDelete()
+        {
+            if (!Context.Message.Content.Contains("discord.gg/")) { return; }
+
+            var authorAsGuildUser = Context.Message.Author as SocketGuildUser;
+            if (authorAsGuildUser == null) { return; }
+
+            var roles = authorAsGuildUser.Guild.Roles;
+            string role = roles.First(r => authorAsGuildUser.RoleIds.Any(gr => r.Id == gr)).Name;
+
+            var validRoles = new[] { "Regulars", "Moderators", "Founders" };
+            if (!validRoles.Any(v => v == role))
+            {
+                await Context.Message.Channel.DeleteMessagesAsync(new[] { Context.Message });
+                var dmChannel = await authorAsGuildUser.CreateDMChannelAsync();
+                await dmChannel.SendMessageAsync("Your Discord invite link was removed. Please ask a staff member or regular to post it.");
+            }
+        }
     }
 }
