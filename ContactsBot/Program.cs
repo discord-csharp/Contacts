@@ -1,4 +1,5 @@
 ﻿using Contacts;
+using ContactsBot;
 using Discord.API;
 using Discord.API.Rest;
 using Discord.Commands;
@@ -16,6 +17,7 @@ class Program
 
     DiscordSocketClient _client;
     CommandService _commands;
+    DependencyMap _map;
     BotConfiguration config;
 
     public async Task RunBot()
@@ -35,7 +37,11 @@ class Program
             LogLevel = Discord.LogSeverity.Debug
         });
         _commands = new CommandService();
-        
+        // Create the dependency map and inject the client and commands service into it
+        _map = new DependencyMap();
+        _map.Add(_client);
+        _map.Add(_commands);
+
         await ApplyCommands();
 
         _client.Log += _client_Log; // console info
@@ -45,10 +51,11 @@ class Program
 
         await _client.ConnectAsync();
         
-        await _client.CurrentUser.ModifyAsync((ModifyCurrentUserParams mod) => 
-        {
-            mod.Avatar = new Image(new FileStream("Assets/contacts.png", FileMode.Open));
-        });
+        if(File.Exists("Assets/contacts.png"))
+            await _client.CurrentUser.ModifyAsync((ModifyCurrentUserParams mod) => 
+            {
+                mod.Avatar = new Image(new FileStream("Assets/contacts.png", FileMode.Open));
+            });
 
         await _client.SetGame("Helping you C#");
 
@@ -72,24 +79,22 @@ class Program
 
         int argPos = 0;
 
+        var context = new CommandContext(_client, message);
+
         if(message.HasCharPrefix(config.PrefixCharacter, ref argPos) || message.HasMentionPrefix(_client.CurrentUser, ref argPos))
         {
-            var context = new CommandContext(_client, message);
-
-            var result = await _commands.ExecuteAsync(context, argPos);
+            // Provide the dependency map when executing commands
+            var result = await _commands.ExecuteAsync(context, argPos, _map);
             if (!result.IsSuccess)
                 await message.Channel.SendMessageAsync(result.ErrorReason);
         }
         else
         {
-            foreach (var command in _commands.Commands)
+            if (command.Name?.StartsWith("_") ?? false)
             {
-                if (command.Name?.StartsWith("_") ?? false)
-                {
-                    var result = await command.ExecuteAsync(new CommandContext(_client, message), new string[0], null, null);
-                    if (!result.IsSuccess)
-                        await message.Channel.SendMessageAsync(result.ErrorReason);
-                }
+                var result = await command.ExecuteAsync(context, new string[0], null, _map);
+                if (!result.IsSuccess)
+                    await message.Channel.SendMessageAsync(result.ErrorReason);
             }
         }
     }
