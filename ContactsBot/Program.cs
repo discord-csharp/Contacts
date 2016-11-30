@@ -54,7 +54,7 @@ class Program
         _map.Add(_commands);
 
         await ApplyCommands();
-
+        
         _client.Log += _client_Log; // console info
         _client.MessageReceived += _client_MessageReceived; // filtering and commands
 
@@ -102,9 +102,6 @@ class Program
 
 #if DEV
         if (!string.Equals(message.Channel.Name, "Contacts", StringComparison.OrdinalIgnoreCase))
-            return;
-#else
-        if (string.Equals(message.Channel.Name, "Contacts", StringComparison.OrdinalIgnoreCase))
             return;
 #endif
 
