@@ -9,35 +9,56 @@ using System.Threading.Tasks;
 
 namespace ContactsBot.Modules
 {
-    public class Unflip : ModuleBase
+    public class Unflip : IMessageAction
     {
-        private static Dictionary<ulong, int> Flips = new Dictionary<ulong, int>();
+        private Dictionary<ulong, int> _flips = new Dictionary<ulong, int>();
 
-        [Command("_unflip")]
-        public async Task PerformUnflip()
+        private DiscordSocketClient _client;
+
+        public bool IsEnabled { get; private set; }
+
+        public void Disable()
         {
-            ulong uid = Context.User.Id;
+            _client.MessageReceived -= PerformUnflip;
+            IsEnabled = false;
+        }
 
-            if (Context.Message.Content.EndsWith("(╯°□°）╯︵ ┻━┻"))
+        public void Enable()
+        {
+            _client.MessageReceived += PerformUnflip;
+            IsEnabled = true;
+        }
+
+        public void Install(IDependencyMap map)
+        {
+            _client = map.Get<DiscordSocketClient>();
+        }
+
+        public async Task PerformUnflip(SocketMessage message)
+        {
+            ulong uid = message.Author.Id;
+
+            if (message.Content.EndsWith("(╯°□°）╯︵ ┻━┻"))
             {
-                int flipCount = (!Flips.ContainsKey(uid) ? Flips[uid] = 1 : Flips[uid]++);
-                string message = Context.User.Mention + " ┬─┬﻿ ノ( ゜-゜ノ)";
+                int flipCount = (!_flips.ContainsKey(uid) ? _flips[uid] = 1 : _flips[uid]++);
+                string replyMessage = message.Author.Mention + " ┬─┬﻿ ノ( ゜-゜ノ)";
 
                 if (flipCount > 1)
                 {
-                    message = $"**{message} CALM DOWN**";
+                    replyMessage = $"**{replyMessage} CALM DOWN**";
                 }
                 
                 if (flipCount > 2)
                 {
-                    message = $"**{message} THIS IS NOT OKAY**";
+                    replyMessage = $"**{replyMessage} THIS IS NOT OKAY**";
                 }
 
-                await Context.Channel.SendMessageAsync(message);
+                await message.Channel.SendMessageAsync(replyMessage);
             }
             else
             {
-                Flips[uid] = 0;
+                if(_flips.ContainsKey(uid))
+                    _flips[uid] = 0;
             }
         }
     }

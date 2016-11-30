@@ -119,22 +119,6 @@ namespace ContactsBot.Modules
             else
                 await ReplyAsync("Couldn't delete messages: Insufficient role");
         }
-
-        [Command("_invitedelete")]
-        public async Task InviteDelete()
-        {
-            if (!Context.Message.Content.Contains("discord.gg/")) { return; }
-
-            var authorAsGuildUser = Context.Message.Author as SocketGuildUser;
-            if (authorAsGuildUser == null) { return; }
-
-            if (!Context.IsCorrectRole(Moderation.StandardRoles))
-            {
-                await Context.Message.Channel.DeleteMessagesAsync(new[] { Context.Message });
-                var dmChannel = await authorAsGuildUser.CreateDMChannelAsync();
-                await dmChannel.SendMessageAsync("Your Discord invite link was removed. Please ask a staff member or regular to post it.");
-            }
-        }
     }
 
     public static class ModerationExtensions

@@ -32,18 +32,20 @@ namespace ContactsBot.Modules
         public async Task ListActions()
         {
             StringBuilder reply = new StringBuilder();
-            reply.Append("Action: Enabled");
+            reply.Append("Actions:");
             foreach(var action in Global.MessageActions)
             {
                 reply.AppendLine();
-                reply.Append($"{action.Key}: {action.Value.IsEnabled}");
+                var replyEnabled = action.Value.IsEnabled ? "Enabled" : "Disabled";
+                reply.Append($"{action.Key}: {replyEnabled}");
             }
+            await ReplyAsync(reply.ToString());
         }
 
         [Command("enable")]
         public async Task EnableAction(string actionName)
         {
-            if(Context.IsCorrectRole("Founders", "Moderators"))
+            if(!Context.IsCorrectRole("Founders", "Moderators"))
             {
                 await ReplyAsync("Couldn't enable message action: Insufficient role");
                 return;
@@ -61,9 +63,9 @@ namespace ContactsBot.Modules
         [Command("disable")]
         public async Task DisableAction(string actionName)
         {
-            if (Context.IsCorrectRole("Founders", "Moderators"))
+            if (!Context.IsCorrectRole("Founders", "Moderators"))
             {
-                await ReplyAsync("Couldn't enable message action: Insufficient role");
+                await ReplyAsync("Couldn't disable message action: Insufficient role");
                 return;
             }
             Global.MessageActions.TryGetValue(actionName, out var action);

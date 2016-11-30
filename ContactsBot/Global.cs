@@ -14,6 +14,6 @@ namespace ContactsBot
         internal static Dictionary<IGuildUser, Timer> MutedUsers = new Dictionary<IGuildUser, Timer>();
 
         // actions
-        internal static Dictionary<string, IMessageAction> MessageActions { get; } = new Dictionary<string, IMessageAction>();
+        internal static Dictionary<string, IMessageAction> MessageActions { get; } = new Dictionary<string, IMessageAction>(StringComparer.OrdinalIgnoreCase);
     }
 }

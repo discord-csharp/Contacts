@@ -1,4 +1,5 @@
-﻿using Discord.API;
+﻿using ContactsBot.Modules;
+using Discord.API;
 using Discord.API.Rest;
 using Discord.Commands;
 using Discord.WebSocket;
@@ -55,12 +56,10 @@ namespace ContactsBot
 
             _handler = new CommandHandler();
             await _handler.Install(_map);
-            
-            var antiAdvertisement = new AntiAdvertisement();
-            antiAdvertisement.Install(_map);
-            antiAdvertisement.Enable();
-            Global.MessageActions.Add(antiAdvertisement.GetType().Name, antiAdvertisement);
 
+            AddAction<AntiAdvertisement>(_map);
+            AddAction<Unflip>(_map);
+            
             _client.Log += _client_Log; // console info
 
 #if DEV
@@ -85,6 +84,14 @@ namespace ContactsBot
             Console.WriteLine(arg.ToString());
             Console.ForegroundColor = ConsoleColor.Gray;
             return Task.CompletedTask;
+        }
+
+        private void AddAction<T>(IDependencyMap map, bool autoEnable = true) where T : IMessageAction, new()
+        {
+            T action = new T();
+            action.Install(map);
+            if (autoEnable) action.Enable();
+            Global.MessageActions.Add(action.GetType().Name, action);
         }
     }
 }

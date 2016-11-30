@@ -40,9 +40,12 @@ namespace ContactsBot
 
                 // Provide the dependency map when executing commands
                 var result = await _commands.ExecuteAsync(context, argPos, _map);
-                if (!result.IsSuccess)
+                if (!result.IsSuccess && !(result is ParseResult))
                 {
-                    await message.Channel.SendMessageAsync("```" + ((ExecuteResult)result).Exception.ToString() + "```");
+                    if (result is ExecuteResult)
+                        await message.Channel.SendMessageAsync("```" + ((ExecuteResult)result).Exception.ToString() + "```");
+                    else
+                        await message.Channel.SendMessageAsync(result.ErrorReason);
                 }
             }
         }

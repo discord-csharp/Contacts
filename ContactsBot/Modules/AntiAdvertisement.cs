@@ -7,7 +7,7 @@ using Discord.WebSocket;
 using Discord.Commands;
 using System.Threading.Tasks;
 
-namespace ContactsBot
+namespace ContactsBot.Modules
 {
     class AntiAdvertisement : IMessageAction
     {
