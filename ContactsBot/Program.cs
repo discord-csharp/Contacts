@@ -30,7 +30,18 @@ namespace ContactsBot
                 _config = BotConfiguration.CreateBotConfigWithToken("config.json", token);
             }
             else
+            {
                 _config = BotConfiguration.ProcessBotConfig("config.json");
+#if DEV
+                if (string.IsNullOrWhiteSpace(_config.DevToken))
+                {
+                    Console.Write("Please enter a dev token: ");
+                    string token = Console.ReadLine();
+                    _config.DevToken = token;
+                    _config.SaveBotConfig("config.json");
+#endif
+                }
+            }
 
             _client = new DiscordSocketClient(new DiscordSocketConfig
             {
@@ -52,7 +63,11 @@ namespace ContactsBot
 
             _client.Log += _client_Log; // console info
 
+#if DEV
+            await _client.LoginAsync(Discord.TokenType.Bot, _config.DevToken);
+#else
             await _client.LoginAsync(Discord.TokenType.Bot, _config.Token);
+#endif
             await _client.ConnectAsync();
 
             await _client.SetGame("Helping you C#");
