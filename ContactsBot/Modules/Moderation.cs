@@ -101,7 +101,7 @@ namespace ContactsBot.Modules
         [Command("deleterange")]
         public async Task Delete([Summary("The most recent message ID to start deleting at")] ulong startMessage, [Summary("The last message ID to delete")] ulong endMessage)
         {
-            if (Context.IsCorrectRole(new[] { "Founders", "Moderators", "Regulars" })) // todo: replace this array with something better
+            if (Context.IsCorrectRole(Moderation.StandardRoles)) // todo: replace this array with something better
             {
                 var messageList = (await Context.Channel.GetMessagesAsync(500).Flatten()).ToList();
                 int startIndex = messageList.FindIndex(m => m.Id == startMessage);
@@ -118,6 +118,22 @@ namespace ContactsBot.Modules
             }
             else
                 await ReplyAsync("Couldn't delete messages: Insufficient role");
+        }
+
+        [Command("_invitedelete")]
+        public async Task InviteDelete()
+        {
+            if (!Context.Message.Content.Contains("discord.gg/")) { return; }
+
+            var authorAsGuildUser = Context.Message.Author as SocketGuildUser;
+            if (authorAsGuildUser == null) { return; }
+
+            if (!Context.IsCorrectRole(Moderation.StandardRoles))
+            {
+                await Context.Message.Channel.DeleteMessagesAsync(new[] { Context.Message });
+                var dmChannel = await authorAsGuildUser.CreateDMChannelAsync();
+                await dmChannel.SendMessageAsync("Your Discord invite link was removed. Please ask a staff member or regular to post it.");
+            }
         }
     }
 
