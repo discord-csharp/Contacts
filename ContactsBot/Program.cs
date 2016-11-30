@@ -107,10 +107,10 @@ class Program
 
         int argPos = 0;
 
+        var context = new CommandContext(_client, message);
+
         if(message.HasCharPrefix(config.PrefixCharacter, ref argPos) || message.HasMentionPrefix(_client.CurrentUser, ref argPos))
         {
-            var context = new CommandContext(_client, message);
-
             // Provide the dependency map when executing commands
             var result = await _commands.ExecuteAsync(context, argPos, _map);
             if (!result.IsSuccess && result.ErrorReason != "Unknown command.")
@@ -118,20 +118,11 @@ class Program
         }
         else
         {
-            var authorAsGuildUser = message.Author as SocketGuildUser;
-            if (authorAsGuildUser == null) return;
-
-            var roles = authorAsGuildUser.Guild.Roles;
-            string role = roles.First(r => authorAsGuildUser.RoleIds.Any(gr => r.Id == gr)).Name;
-
-            if (!Moderation.StandardRoles.Any(v => v == role))
+            if (command.Name?.StartsWith("_") ?? false)
             {
-                if (message.Content.Contains("https://discord.gg/"))
-                {
-                    await message.Channel.DeleteMessagesAsync(new[] { message });
-                    var dmChannel = await authorAsGuildUser.CreateDMChannelAsync();
-                    await dmChannel.SendMessageAsync("Your Discord invite link was removed. Please ask a staff member or regular to post it.");
-                }
+                var result = await command.ExecuteAsync(context, new string[0], null, _map);
+                if (!result.IsSuccess)
+                    await message.Channel.SendMessageAsync(result.ErrorReason);
             }
         }
     }

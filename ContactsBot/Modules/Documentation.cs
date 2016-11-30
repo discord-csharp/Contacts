@@ -13,8 +13,8 @@ namespace ContactsBot.Modules
         private string GetRssUrl(string query) => $"https://social.msdn.microsoft.com/search/en-US/feed?query={Uri.EscapeDataString(query)}&format=RSS";
         private string GetHtmlUrl(string query) => $"https://social.msdn.microsoft.com/Search/en-US?query={Uri.EscapeDataString(query)}";
 
-        [Command("docs")]
-        [Alias("msdn")]
+        [Command("docs"), Alias("msdn")]
+        [Summary("Searches official Microsoft documentation for a given query.")]
         public async Task Msdn([Summary("The query to search for")] [Remainder] string query)
         {
             try
