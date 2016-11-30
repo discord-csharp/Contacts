@@ -4,7 +4,7 @@ using Discord.WebSocket;
 using Newtonsoft.Json;
 using System.IO;
 
-namespace Contacts
+namespace ContactsBot
 {
     public class BotConfiguration
     {
