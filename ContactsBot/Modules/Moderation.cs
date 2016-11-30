@@ -126,7 +126,7 @@ namespace ContactsBot
         public static bool IsCorrectRole(this CommandContext Context, params string[] roleNames)
         {
             var roles = Context.Guild.Roles;
-            var guildUser = Context.User as SocketGuildUser;
+            var guildUser = Context.User as IGuildUser;
             if (guildUser == null || roles == null)
                 return false;
 

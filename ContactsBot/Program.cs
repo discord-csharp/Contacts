@@ -29,7 +29,18 @@ class Program
             config = BotConfiguration.CreateBotConfigWithToken("config.json", token);
         }
         else
+        {
             config = BotConfiguration.ProcessBotConfig("config.json");
+#if DEV
+            if(string.IsNullOrWhiteSpace(config.DevToken))
+            {
+                Console.Write("Please enter a dev token: ");
+                string token = Console.ReadLine();
+                config.DevToken = token;
+                config.SaveBotConfig("config.json");
+#endif
+            }
+        }
 
         _client = new DiscordSocketClient(new DiscordSocketConfig
         {
@@ -47,15 +58,27 @@ class Program
         _client.Log += _client_Log; // console info
         _client.MessageReceived += _client_MessageReceived; // filtering and commands
 
+#if DEV
+        await _client.LoginAsync(Discord.TokenType.Bot, config.DevToken);
+#else
         await _client.LoginAsync(Discord.TokenType.Bot, config.Token);
+#endif
 
         await _client.ConnectAsync();
-        
-        if(File.Exists("Assets/contacts.png"))
+
+#if DEV
+        if(File.Exists("Assets/contacts-dev.png"))
             await _client.CurrentUser.ModifyAsync((ModifyCurrentUserParams mod) => 
+            {
+                mod.Avatar = new Image(new FileStream("Assets/contacts-dev.png", FileMode.Open));
+            });
+#else
+        if (File.Exists("Assets/contacts.png"))
+            await _client.CurrentUser.ModifyAsync((ModifyCurrentUserParams mod) =>
             {
                 mod.Avatar = new Image(new FileStream("Assets/contacts.png", FileMode.Open));
             });
+#endif
 
         await _client.SetGame("Helping you C#");
 
@@ -77,6 +100,14 @@ class Program
         var message = msg as SocketUserMessage;
         if (message == null) return;
 
+#if DEV
+        if (!string.Equals(message.Channel.Name, "Contacts", StringComparison.OrdinalIgnoreCase))
+            return;
+#else
+        if (string.Equals(message.Channel.Name, "Contacts", StringComparison.OrdinalIgnoreCase))
+            return;
+#endif
+
         int argPos = 0;
 
         if(message.HasCharPrefix(config.PrefixCharacter, ref argPos) || message.HasMentionPrefix(_client.CurrentUser, ref argPos))
@@ -85,8 +116,8 @@ class Program
 
             // Provide the dependency map when executing commands
             var result = await _commands.ExecuteAsync(context, argPos, _map);
-            if (!result.IsSuccess)
-                await message.Channel.SendMessageAsync(result.ErrorReason);
+            if (!result.IsSuccess && result.ErrorReason != "Unknown command.")
+                await message.Channel.SendMessageAsync($"{result.ErrorReason}: {((ExecuteResult)result).Exception.Source}");
         }
         else
         {
