@@ -62,7 +62,13 @@ namespace ContactsBot
 
         private Task _client_Log(Discord.LogMessage arg)
         {
+            switch (arg.Severity)
+            {
+                case Discord.LogSeverity.Error: Console.ForegroundColor = ConsoleColor.Red; break;
+                case Discord.LogSeverity.Warning: Console.ForegroundColor = ConsoleColor.Yellow; break;
+            }
             Console.WriteLine(arg.ToString());
+            Console.ForegroundColor = ConsoleColor.Gray;
             return Task.CompletedTask;
         }
     }
