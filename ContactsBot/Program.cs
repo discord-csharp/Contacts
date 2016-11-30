@@ -19,7 +19,6 @@ namespace ContactsBot
         DependencyMap _map;
         BotConfiguration _config;
         CommandHandler _handler;
-        AntiAdvertisement _antiAdvertisement;
 
         public async Task RunBot()
         {
@@ -56,10 +55,11 @@ namespace ContactsBot
 
             _handler = new CommandHandler();
             await _handler.Install(_map);
-
-            _antiAdvertisement = new AntiAdvertisement();
-            _antiAdvertisement.Install(_map);
-            _antiAdvertisement.Enable();
+            
+            var antiAdvertisement = new AntiAdvertisement();
+            antiAdvertisement.Install(_map);
+            antiAdvertisement.Enable();
+            Global.MessageActions.Add(antiAdvertisement.GetType().Name, antiAdvertisement);
 
             _client.Log += _client_Log; // console info
 
