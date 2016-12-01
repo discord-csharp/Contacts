@@ -1,25 +1,46 @@
 ﻿using ContactsBot.Modules;
-using Discord.API;
-using Discord.API.Rest;
+using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 
 namespace ContactsBot
 {
     class Program
     {
-        static void Main(string[] args) => new Program().RunBot().GetAwaiter().GetResult();
+        static void Main(string[] args)
+        {
+            try
+            {
+                Directory.CreateDirectory("logs");
+                _file = new FileStream(Path.Combine("logs", $"contacts-log-{DateTime.UtcNow.Ticks}-{Environment.TickCount}.txt"), FileMode.Create, FileAccess.Write);
+                _logFile = new StreamWriter(_file) { AutoFlush = true };
+                new Program().RunBot().GetAwaiter().GetResult();
+            }
+            catch(Exception e)
+            {
+                _logFile.WriteLine();
+                _logFile.WriteLine(e.Source);
+                _logFile.WriteLine(e.Message);
+                _logFile.WriteLine(e.StackTrace);
+            }
+            finally
+            {
+                _logFile.Flush();
+                _file.Flush();
+                _logFile.Dispose();
+                _file.Dispose();
+            }
+        }
 
         DiscordSocketClient _client;
         DependencyMap _map;
         BotConfiguration _config;
         CommandHandler _handler;
+        static StreamWriter _logFile;
+        static FileStream _file;
 
         public async Task RunBot()
         {
@@ -32,21 +53,25 @@ namespace ContactsBot
             else
             {
                 _config = BotConfiguration.ProcessBotConfig("config.json");
-#if DEV
-                if (string.IsNullOrWhiteSpace(_config.DevToken))
-                {
-                    Console.Write("Please enter a dev token: ");
-                    string token = Console.ReadLine();
-                    _config.DevToken = token;
-                    _config.SaveBotConfig("config.json");
-#endif
-                }
             }
+
+#if DEV
+            if (string.IsNullOrWhiteSpace(_config.DevToken))
+            {
+                Console.Write("Please enter a dev token: ");
+                string token = Console.ReadLine();
+                _config.DevToken = token;
+                Console.WriteLine("Please enter a dev channel name (commands sent to the bot will be restricted to this channel): ");
+                string channel = Console.ReadLine();
+                _config.DevChannel = channel;
+                _config.SaveBotConfig("config.json");
+            }
+#endif
 
             _client = new DiscordSocketClient(new DiscordSocketConfig
             {
                 AudioMode = Discord.Audio.AudioMode.Disabled,
-                LogLevel = Discord.LogSeverity.Debug
+                LogLevel = LogSeverity.Debug
             });
 
             // Create the dependency map and inject the client and config into it
@@ -61,9 +86,10 @@ namespace ContactsBot
             AddAction<Unflip>(_map);
             
             _client.Log += _client_Log; // console info
+            _client.Log += FileLog; // file logs
 
 #if DEV
-            await _client.LoginAsync(Discord.TokenType.Bot, _config.DevToken);
+            await _client.LoginAsync(TokenType.Bot, _config.DevToken);
 #else
             await _client.LoginAsync(Discord.TokenType.Bot, _config.Token);
 #endif
@@ -74,15 +100,25 @@ namespace ContactsBot
             await Task.Delay(-1);
         }
 
-        private Task _client_Log(Discord.LogMessage arg)
+        private Task _client_Log(LogMessage arg)
         {
             switch (arg.Severity)
             {
-                case Discord.LogSeverity.Error: Console.ForegroundColor = ConsoleColor.Red; break;
-                case Discord.LogSeverity.Warning: Console.ForegroundColor = ConsoleColor.Yellow; break;
+                case LogSeverity.Critical:
+                case LogSeverity.Error: Console.ForegroundColor = ConsoleColor.Red; break;
+                case LogSeverity.Warning: Console.ForegroundColor = ConsoleColor.Yellow; break;
+                case LogSeverity.Info: Console.ForegroundColor = ConsoleColor.White; break;
+                case LogSeverity.Verbose:
+                case LogSeverity.Debug: Console.ForegroundColor = ConsoleColor.Cyan; break;
             }
             Console.WriteLine(arg.ToString());
             Console.ForegroundColor = ConsoleColor.Gray;
+            return Task.CompletedTask;
+        }
+
+        private Task FileLog(LogMessage arg)
+        {
+            _logFile.WriteLine(arg.ToString());
             return Task.CompletedTask;
         }
 

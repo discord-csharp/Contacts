@@ -276,3 +276,6 @@ __pycache__/
 
 # Bot config files
 ContactsBot/config.json
+
+# Bot logs
+/ContactsBot/logs

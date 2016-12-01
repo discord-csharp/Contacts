@@ -1,7 +1,4 @@
-﻿using Discord;
-using Discord.Audio;
-using Discord.WebSocket;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System.IO;
 
 namespace ContactsBot
@@ -13,6 +10,8 @@ namespace ContactsBot
         public string DevToken { get; set; }
 
         public char PrefixCharacter { get; set; } = '~';
+
+        public string DevChannel { get; set; }
 
         public static BotConfiguration ProcessBotConfig(string path) => JsonConvert.DeserializeObject<BotConfiguration>(File.ReadAllText(path));
 
