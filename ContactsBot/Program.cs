@@ -5,6 +5,7 @@ using Discord.WebSocket;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace ContactsBot
@@ -43,6 +44,12 @@ namespace ContactsBot
         static StreamWriter _logFile;
         static FileStream _file;
         ISocketMessageChannel _logChannel;
+        ISocketMessageChannel logChannel { get
+            {
+                if (_logChannel == null)
+                    _logChannel = _client.GetGuild(143867839282020352).Channels.FirstOrDefault(c => c.Name == _config.LoggingChannel) as ISocketMessageChannel;
+                return _logChannel;
+            } }
 
         public async Task RunBot()
         {
@@ -55,6 +62,7 @@ namespace ContactsBot
             else
             {
                 _config = BotConfiguration.ProcessBotConfig("config.json");
+                _config.SaveBotConfig("config.json");
             }
 #if DEV
             if (string.IsNullOrWhiteSpace(_config.DevToken))
@@ -92,6 +100,9 @@ namespace ContactsBot
             // handle logging to channel
             _client.UserJoined += ChannelLog_UserJoin;
             _client.UserLeft += ChannelLog_UserLeave;
+            _client.UserBanned += ChannelLog_UserBanned;
+            _client.UserUnbanned += ChannelLog_UserUnbanned;
+            _client.MessageDeleted += ChannelLog_MessageDeleted;
 
 #if DEV
             await _client.LoginAsync(TokenType.Bot, _config.DevToken);
@@ -105,29 +116,47 @@ namespace ContactsBot
             await Task.Delay(-1);
         }
 
-        private async Task ChannelLog_UserLeave(SocketGuildUser arg)
+        private async Task ChannelLog_MessageDeleted(ulong arg1, Optional<SocketMessage> arg2)
         {
-            CheckLogChannel();
-            await _logChannel.SendMessageAsync($"User left: Bye {arg.Username}!");
+            await _logChannel?.SendMessageAsync($"Message {arg1} was deleted.");
+            if (arg2.IsSpecified)
+                await _logChannel?.SendMessageAsync($"The message was provided:\n{arg2.Value.Content}");
         }
 
-        private void CheckLogChannel()
+        private async Task ChannelLog_UserUnbanned(SocketUser arg1, SocketGuild arg2)
         {
-            if (_logChannel == null) _logChannel = _client.GetGuild(143867839282020352).GetChannel(253967815671808001) as ISocketMessageChannel; // hack: someone make this better please
+            await _logChannel?.SendMessageAsync($"{arg1.Username} was unbanned from {arg2.Name}");
+        }
+
+        private async Task ChannelLog_UserBanned(SocketUser arg1, SocketGuild arg2)
+        {
+            await _logChannel?.SendMessageAsync($"{arg1.Username} was banned from {arg2.Name}");
+        }
+
+        private async Task ChannelLog_UserLeave(SocketGuildUser arg)
+        {
+            await _logChannel?.SendMessageAsync($"User left: Bye {arg.Username}!");
         }
 
         private async Task ChannelLog_UserJoin(SocketGuildUser arg)
         {
-            CheckLogChannel();
-            await _logChannel.SendMessageAsync($"User joined: Welcome {arg.Username} to the server!");
+            await _logChannel?.SendMessageAsync($"User joined: Welcome {arg.Username} to the server!");
         }
 
-        private Task _client_Log(LogMessage arg)
+        internal async Task ChannelLog_CommandLog(string message)
+        {
+            await _logChannel?.SendMessageAsync(message);
+        }
+
+        private async Task _client_Log(LogMessage arg)
         {
             switch (arg.Severity)
             {
                 case LogSeverity.Critical:
-                case LogSeverity.Error: Console.ForegroundColor = ConsoleColor.Red; break;
+                case LogSeverity.Error:
+                    await ChannelLog_CommandLog(arg.ToString());
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    break;
                 case LogSeverity.Warning: Console.ForegroundColor = ConsoleColor.Yellow; break;
                 case LogSeverity.Info: Console.ForegroundColor = ConsoleColor.White; break;
                 case LogSeverity.Verbose:
@@ -135,7 +164,6 @@ namespace ContactsBot
             }
             Console.WriteLine(arg.ToString());
             Console.ForegroundColor = ConsoleColor.Gray;
-            return Task.CompletedTask;
         }
 
         private Task FileLog(LogMessage arg)
