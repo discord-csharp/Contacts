@@ -3,6 +3,7 @@ using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -41,6 +42,7 @@ namespace ContactsBot
         CommandHandler _handler;
         static StreamWriter _logFile;
         static FileStream _file;
+        ISocketMessageChannel _logChannel;
 
         public async Task RunBot()
         {
@@ -54,7 +56,6 @@ namespace ContactsBot
             {
                 _config = BotConfiguration.ProcessBotConfig("config.json");
             }
-
 #if DEV
             if (string.IsNullOrWhiteSpace(_config.DevToken))
             {
@@ -88,6 +89,10 @@ namespace ContactsBot
             _client.Log += _client_Log; // console info
             _client.Log += FileLog; // file logs
 
+            // handle logging to channel
+            _client.UserJoined += ChannelLog_UserJoin;
+            _client.UserLeft += ChannelLog_UserLeave;
+
 #if DEV
             await _client.LoginAsync(TokenType.Bot, _config.DevToken);
 #else
@@ -98,6 +103,23 @@ namespace ContactsBot
             await _client.SetGame("Helping you C#");
 
             await Task.Delay(-1);
+        }
+
+        private async Task ChannelLog_UserLeave(SocketGuildUser arg)
+        {
+            CheckLogChannel();
+            await _logChannel.SendMessageAsync($"User left: Bye {arg.Username}!");
+        }
+
+        private void CheckLogChannel()
+        {
+            if (_logChannel == null) _logChannel = _client.GetGuild(143867839282020352).GetChannel(253967815671808001) as ISocketMessageChannel; // hack: someone make this better please
+        }
+
+        private async Task ChannelLog_UserJoin(SocketGuildUser arg)
+        {
+            CheckLogChannel();
+            await _logChannel.SendMessageAsync($"User joined: Welcome {arg.Username} to the server!");
         }
 
         private Task _client_Log(LogMessage arg)
@@ -121,7 +143,7 @@ namespace ContactsBot
             _logFile.WriteLine(arg.ToString());
             return Task.CompletedTask;
         }
-
+        
         private void AddAction<T>(IDependencyMap map, bool autoEnable = true) where T : IMessageAction, new()
         {
             T action = new T();
