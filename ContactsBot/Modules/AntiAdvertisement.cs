@@ -34,14 +34,10 @@ namespace ContactsBot.Modules
 
         public async Task RunFilter(IMessage message)
         {
-            var authorAsGuildUser = message.Author as SocketGuildUser;
-            if (authorAsGuildUser == null) return;
+            var authorAsGuildUser = (message.Author as IGuildUser);
+            var guildChannel = message.Channel as IGuildChannel;
 
-            var roles = authorAsGuildUser.Guild.Roles;
-            string role = roles.First(r => authorAsGuildUser.RoleIds.Any(gr => r.Id == gr)).Name;
-
-            var validRoles = new[] { "Regulars", "Moderators", "Founders" };
-            if (!validRoles.Any(v => v == role))
+            if (!authorAsGuildUser.IsCorrectRole(guildChannel.Guild, Moderation.StandardRoles))
             {
                 if (message.Content.Contains("discord.gg/"))
                 {

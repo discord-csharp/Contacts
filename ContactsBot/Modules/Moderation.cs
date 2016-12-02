@@ -125,8 +125,12 @@ namespace ContactsBot.Modules
     {
         public static bool IsCorrectRole(this CommandContext Context, params string[] roleNames)
         {
-            var roles = Context.Guild.Roles;
-            var guildUser = Context.User as IGuildUser;
+            return (Context.User as IGuildUser).IsCorrectRole(Context.Guild, roleNames);
+        }
+
+        public static bool IsCorrectRole(this IGuildUser guildUser, IGuild guild, params string[] roleNames)
+        {
+            var roles = guild.Roles;
             if (guildUser == null || roles == null)
                 return false;
 

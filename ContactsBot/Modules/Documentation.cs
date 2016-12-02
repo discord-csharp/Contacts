@@ -5,6 +5,8 @@ using System.Linq;
 using System.Xml.Linq;
 using System.Threading.Tasks;
 using System.Xml;
+using AngleSharp;
+using AngleSharp.Parser.Html;
 
 namespace ContactsBot.Modules
 {
@@ -12,6 +14,10 @@ namespace ContactsBot.Modules
     {
         private string GetRssUrl(string query) => $"https://social.msdn.microsoft.com/search/en-US/feed?query={Uri.EscapeDataString(query)}&format=RSS";
         private string GetHtmlUrl(string query) => $"https://social.msdn.microsoft.com/Search/en-US?query={Uri.EscapeDataString(query)}";
+
+        private const string RefBaseUrl = "https://referencesource.microsoft.com";
+        private string GetRefSourceUrl(string query) => $"{RefBaseUrl}/api/symbols/?symbol={Uri.EscapeDataString(query)}";
+        private string GetRefHtmlUrl(string query) => $"{RefBaseUrl}/#q={Uri.EscapeDataString(query)}";
 
         [Command("docs"), Alias("msdn")]
         [Summary("Searches official Microsoft documentation for a given query.")]
@@ -30,7 +36,8 @@ namespace ContactsBot.Modules
                         OriginalQuery = query,
                         Title = d.Descendants(XName.Get("title", "")).FirstOrDefault()?.Value,
                         Description = d.Descendants(XName.Get("description", "")).FirstOrDefault()?.Value,
-                        Url = d.Descendants(XName.Get("link", "")).FirstOrDefault()?.Value
+                        Url = d.Descendants(XName.Get("link", "")).FirstOrDefault()?.Value,
+                        ListingUrl = GetHtmlUrl(query)
                     })
                     .FirstOrDefault();
 
@@ -50,26 +57,86 @@ namespace ContactsBot.Modules
             {
                 await ReplyAsync("There was a problem parsing the XML response from MSDN.");
             }
-            catch (Exception ex)
+        }
+
+        [Command("ref"), Alias("source")]
+        [Summary("Searches the .NET reference source.")]
+        public async Task ReferenceSource([Summary("The query to search for")] [Remainder] string query)
+        {
+            //Stupid hack because 1.0 lowercases command args
+            query = Context.Message.Content.Substring(Context.Message.Content.IndexOf(' ') + 1);
+
+            try
             {
-                await ReplyAsync($"Something weird happened. {ex.Message}");
+                var html = await BrowsingContext.New(Configuration.Default.WithDefaultLoader()).OpenAsync(GetRefSourceUrl(query));
+
+                string note = html.QuerySelector("div.note").TextContent;
+
+                var allItems = html.QuerySelectorAll("a");
+                var item = allItems.Skip(1).First();
+
+                if (Char.IsUpper(query[0]))
+                {
+                    var found = allItems.FirstOrDefault(d => d.QuerySelector(".resultKind")?.TextContent == "class" ||
+                                                             d.QuerySelector(".resultKind")?.TextContent == "struct");
+
+                    if (found != null)
+                    {
+                        item = found;
+                    }
+                }
+
+                if (note == "No results found")
+                {
+                    await ReplyAsync($"No results for **{query}**.");
+                    return;
+                }
+
+                await ReplyWithResponse(new QueryResponse
+                {
+                    OriginalQuery = query
+                },
+                new Discord.EmbedBuilder
+                {
+                    Title = item.ParentElement.Id,
+                    Url = $"{RefBaseUrl}{item.Attributes["href"].Value}",
+                    Footer = new Discord.EmbedFooterBuilder
+                    {
+                        Text = $"{item.QuerySelector(".resultKind").TextContent} {item.QuerySelector(".resultName").TextContent}",
+                        IconUrl = $"{RefBaseUrl}{item.QuerySelector("img").Attributes["src"].Value}"
+                    },
+                    Color = new Discord.Color(104, 33, 122)
+                });
+            }
+            catch (WebException)
+            {
+                await ReplyAsync("Sorry, there was a network issue.");
+            }
+            catch (HtmlParseException)
+            {
+                await ReplyAsync("There was a problem parsing the HTML response from the reference source.");
             }
         }
 
-        private async Task ReplyWithResponse(QueryResponse response)
+        private async Task ReplyWithResponse(QueryResponse response, Discord.EmbedBuilder overload = null)
         {
-            var embed = new Discord.EmbedBuilder
+            Discord.EmbedBuilder embed = overload;
+
+            if (overload == null)
             {
-                Title = response.Title,
-                Description = WebUtility.HtmlDecode(response.Description),
-                Url = response.Url,
-                Color = new Discord.Color(104, 33, 122),
-                Author = new Discord.EmbedAuthorBuilder
+                embed = new Discord.EmbedBuilder
                 {
-                    Name = $"{new Uri(response.Url).Host} (click for more)",
-                    Url = GetHtmlUrl(response.OriginalQuery)
-                }
-            };
+                    Title = response.Title,
+                    Description = WebUtility.HtmlDecode(response.Description),
+                    Url = response.Url,
+                    Color = new Discord.Color(104, 33, 122),
+                    Author = new Discord.EmbedAuthorBuilder
+                    {
+                        Name = $"{new Uri(response.Url).Host} (click for more)",
+                        Url = response.ListingUrl
+                    }
+                };
+            }
 
             await ReplyAsync($"Found something for **{response.OriginalQuery}**!", false, embed);
         }
@@ -81,6 +148,8 @@ namespace ContactsBot.Modules
             public string Title { get; set; }
             public string Description { get; set; }
             public string Url { get; set; }
+
+            public string ListingUrl { get; set; }
         }
     }
 }
