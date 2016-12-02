@@ -87,6 +87,7 @@ namespace ContactsBot
             _map = new DependencyMap();
             _map.Add(_client);
             _map.Add(_config);
+            _map.Add(this);
 
             _handler = new CommandHandler();
             await _handler.Install(_map);
