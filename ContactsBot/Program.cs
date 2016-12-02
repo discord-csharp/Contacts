@@ -16,6 +16,7 @@ namespace ContactsBot
         {
             try
             {
+                // todo: hook into application exiting to turn off bot
                 Directory.CreateDirectory("logs");
                 _file = new FileStream(Path.Combine("logs", $"contacts-log-{DateTime.UtcNow.Ticks}-{Environment.TickCount}.txt"), FileMode.Create, FileAccess.Write);
                 _logFile = new StreamWriter(_file) { AutoFlush = true };

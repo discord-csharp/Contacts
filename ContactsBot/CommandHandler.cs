@@ -36,7 +36,7 @@ namespace ContactsBot
 
             int argPos = 0;
 #if DEV
-            if (_config.DevChannel == null || _config.DevChannel == msg.Channel.Name)
+            if (msg.Channel.Name == (_config.DevChannel ?? msg.Channel.Name))
 #endif
                 if (message.HasCharPrefix(_config.PrefixCharacter, ref argPos) || message.HasMentionPrefix(_client.CurrentUser, ref argPos))
                 {
@@ -44,8 +44,10 @@ namespace ContactsBot
 
                     // Provide the dependency map when executing commands
                     var result = await _commands.ExecuteAsync(context, argPos, _map);
-                    if (!result.IsSuccess && !(result is SearchResult))
+                    if (!result.IsSuccess)
                     {
+                        if (!(result is SearchResult))
+                            return;
                         if (result is ExecuteResult)
                             await message.Channel.SendMessageAsync("```" + ((ExecuteResult)result).Exception.ToString() + "```");
                         else

@@ -16,7 +16,7 @@ namespace ContactsBot.Modules
         internal static string[] StandardRoles = new[] { "Founders", "Moderators", "Regulars" };
 
         [Command("mute"), Summary("Mutes a user for the specified amount of time")]
-        public async Task Mute([Summary("The user to mute")] IGuildUser user, [Summary("The time in minutes to mute the user")] TimeSpan time)
+        public async Task Mute([Summary("The user to mute")] IGuildUser user, [Summary("The TimeSpan to mute the user")] TimeSpan time)
         {
             var guildUser = user as SocketGuildUser;
             if (guildUser == null) return;

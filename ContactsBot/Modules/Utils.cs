@@ -26,7 +26,7 @@ namespace ContactsBot.Modules
         }
 
         [Command("whois"), Summary("Gets info about the specified user")]
-        public async Task WhoIs(IGuildUser user)
+        public async Task WhoIs([Summary("The user to display info about")] IGuildUser user)
         {
             EmbedBuilder embed = new EmbedBuilder
             {
@@ -93,7 +93,7 @@ namespace ContactsBot.Modules
     [Name("Message Actions module"), Group("actions")]
     public class MessageActionModifiers : ModuleBase
     {
-        [Command("list")]
+        [Command("list"), Summary("Lists actions installed for this bot")]
         public async Task ListActions()
         {
             StringBuilder reply = new StringBuilder();
@@ -107,8 +107,8 @@ namespace ContactsBot.Modules
             await ReplyAsync(reply.ToString());
         }
 
-        [Command("enable")]
-        public async Task EnableAction(string actionName)
+        [Command("enable"), Summary("Enables a disabled action")]
+        public async Task EnableAction([Summary("The action to enable")] string actionName)
         {
             if(!Context.IsCorrectRole(Moderation.StandardRoles))
             {
@@ -125,8 +125,8 @@ namespace ContactsBot.Modules
             }
         }
 
-        [Command("disable")]
-        public async Task DisableAction(string actionName)
+        [Command("disable"), Summary("Disables an enabled action")]
+        public async Task DisableAction([Summary("The action to disable")] string actionName)
         {
             if (!Context.IsCorrectRole(Moderation.StandardRoles))
             {
