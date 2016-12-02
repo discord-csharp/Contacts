@@ -84,7 +84,7 @@ namespace ContactsBot.Modules
     [Group("message"), Name("Message Module")]
     public class Messages : ModuleBase
     {
-        [Command("deleterange")]
+        [Command("deleterange"), RequireBotPermission(GuildPermission.ManageMessages), RequireContext(ContextType.Guild)]
         public async Task Delete([Summary("The range of messages to delete")] int range)
         {
             if (Context.IsCorrectRole(Moderation.StandardRoles))
@@ -98,8 +98,8 @@ namespace ContactsBot.Modules
                 await ReplyAsync("Couldn't delete messages: Insufficient role");
         }
 
-        [Command("deleterange")]
-        public async Task Delete([Summary("The most recent message ID to start deleting at")] ulong startMessage, [Summary("The last message ID to delete")] ulong endMessage)
+        [Command("deleterange"), RequireBotPermission(GuildPermission.ManageMessages), RequireContext(ContextType.Guild)]
+        public async Task Delete([Summary("The message ID to start deleting at")] ulong startMessage, [Summary("The last message ID to delete")] ulong endMessage)
         {
             if (Context.IsCorrectRole(Moderation.StandardRoles)) // todo: replace this array with something better
             {

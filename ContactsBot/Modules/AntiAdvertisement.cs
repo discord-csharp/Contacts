@@ -39,7 +39,7 @@ namespace ContactsBot.Modules
 
             if (!authorAsGuildUser.IsCorrectRole(guildChannel.Guild, Moderation.StandardRoles))
             {
-                if (message.Content.Contains("discord.gg"))
+                if (message.Content.Contains("discord.gg/"))
                 {
                     await message.Channel.DeleteMessagesAsync(new[] { message });
                     var dmChannel = await authorAsGuildUser.CreateDMChannelAsync();
