@@ -3,6 +3,7 @@ using Discord.Commands;
 using System.Threading.Tasks;
 using System.Linq;
 using System.Text;
+using Discord.WebSocket;
 
 namespace ContactsBot.Modules
 {
@@ -21,6 +22,70 @@ namespace ContactsBot.Modules
             embed.AddField(field => { field.Name = "Discord managed"; field.Value = role.IsManaged.ToString(); });
             embed.AddField(field => { field.Name = "Mentionable"; field.Value = role.IsMentionable.ToString(); });
             embed.AddField(async (field) => { field.Name = "Number of users"; field.Value = (await Context.Guild.GetUsersAsync()).Count(u => u.RoleIds.Contains(role.Id)).ToString(); });
+            await ReplyAsync(string.Empty, embed: embed);
+        }
+
+        [Command("whois"), Summary("Gets info about the specified user")]
+        public async Task WhoIs(IGuildUser user)
+        {
+            EmbedBuilder embed = new EmbedBuilder
+            {
+                Title = user.Username,
+                ThumbnailUrl = user.AvatarUrl
+            };
+            if(user.IsBot)
+                embed.AddField(field =>
+                {
+                    field.Name = "Bot user?";
+                    field.Value = "True";
+                });
+            embed.AddField(field =>
+            {
+                field.IsInline = true;
+                field.Name = "Id";
+                field.Value = user.Id.ToString();
+            });
+            embed.AddField(field =>
+            {
+                field.IsInline = true;
+                field.Name = "Status";
+                field.Value = user.Status.ToString();
+            });
+            embed.AddField(field =>
+            {
+                field.IsInline = true;
+                field.Name = "Joined at";
+                field.Value = user.JoinedAt.ToString();
+            });
+            embed.AddField(field =>
+            {
+                field.IsInline = true;
+                field.Name = "Created at";
+                field.Value = user.CreatedAt.ToString();
+            });
+            if(user.Nickname != null)
+                embed.AddField(field =>
+                {
+                    field.Name = "Nickname";
+                    field.Value = user.Nickname;
+                });
+            if(user.Game.HasValue)
+                embed.AddField(field =>
+                {
+                    field.Name = "Playing";
+                    field.Value = user.Game.Value.Name;
+                });
+            if (user.RoleIds.Last() != user.Guild.EveryoneRole.Id)
+            {
+                IRole role = null;
+                foreach (ulong roleId in user.RoleIds)
+                {
+                    IRole currentRole = user.Guild.GetRole(roleId);
+                    if (role == null || role.Position < currentRole.Position)
+                        role = currentRole;
+                }
+                embed.Color = role?.Color;
+            }
             await ReplyAsync(string.Empty, embed: embed);
         }
     }
@@ -45,7 +110,7 @@ namespace ContactsBot.Modules
         [Command("enable")]
         public async Task EnableAction(string actionName)
         {
-            if(!Context.IsCorrectRole("Founders", "Moderators"))
+            if(!Context.IsCorrectRole(Moderation.StandardRoles))
             {
                 await ReplyAsync("Couldn't enable message action: Insufficient role");
                 return;
@@ -63,7 +128,7 @@ namespace ContactsBot.Modules
         [Command("disable")]
         public async Task DisableAction(string actionName)
         {
-            if (!Context.IsCorrectRole("Founders", "Moderators"))
+            if (!Context.IsCorrectRole(Moderation.StandardRoles))
             {
                 await ReplyAsync("Couldn't disable message action: Insufficient role");
                 return;
