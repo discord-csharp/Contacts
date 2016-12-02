@@ -50,10 +50,6 @@ namespace ContactsBot.Modules
             {
                 await ReplyAsync("There was a problem parsing the XML response from MSDN.");
             }
-            catch (Exception ex)
-            {
-                await ReplyAsync($"Something weird happened. {ex.Message}");
-            }
         }
 
         private async Task ReplyWithResponse(QueryResponse response)
