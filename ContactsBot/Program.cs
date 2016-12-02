@@ -44,12 +44,15 @@ namespace ContactsBot
         static StreamWriter _logFile;
         static FileStream _file;
         ISocketMessageChannel _logChannel;
-        ISocketMessageChannel logChannel { get
+        ISocketMessageChannel logChannel
+        {
+            get
             {
                 if (_logChannel == null)
                     _logChannel = _client.GetGuild(143867839282020352).Channels.FirstOrDefault(c => c.Name == _config.LoggingChannel) as ISocketMessageChannel;
                 return _logChannel;
-            } }
+            }
+        }
 
         public async Task RunBot()
         {
@@ -119,34 +122,34 @@ namespace ContactsBot
 
         private async Task ChannelLog_MessageDeleted(ulong arg1, Optional<SocketMessage> arg2)
         {
-            await _logChannel?.SendMessageAsync($"Message {arg1} was deleted.");
+            await logChannel?.SendMessageAsync($"Message {arg1} was deleted.");
             if (arg2.IsSpecified)
-                await _logChannel?.SendMessageAsync($"The message was provided:\n{arg2.Value.Content}");
+                await logChannel?.SendMessageAsync($"The message was provided:\n{arg2.Value.Content}");
         }
 
         private async Task ChannelLog_UserUnbanned(SocketUser arg1, SocketGuild arg2)
         {
-            await _logChannel?.SendMessageAsync($"{arg1.Username} was unbanned from {arg2.Name}");
+            await _logChannel?.SendMessageAsync($"\"{arg1.Username}\" was unbanned from \"{arg2.Name}\"");
         }
 
         private async Task ChannelLog_UserBanned(SocketUser arg1, SocketGuild arg2)
         {
-            await _logChannel?.SendMessageAsync($"{arg1.Username} was banned from {arg2.Name}");
+            await logChannel?.SendMessageAsync($"\"{arg1.Username}\" was banned from \"{arg2.Name}\"");
         }
 
         private async Task ChannelLog_UserLeave(SocketGuildUser arg)
         {
-            await _logChannel?.SendMessageAsync($"User left: Bye {arg.Username}!");
+            await logChannel?.SendMessageAsync($"User left: Bye \"{arg.Username}\"!");
         }
 
         private async Task ChannelLog_UserJoin(SocketGuildUser arg)
         {
-            await _logChannel?.SendMessageAsync($"User joined: Welcome {arg.Username} to the server!");
+            await logChannel?.SendMessageAsync($"User joined: Welcome \"{arg.Username}\" to the server!");
         }
 
         internal async Task ChannelLog_CommandLog(string message)
         {
-            await _logChannel?.SendMessageAsync(message);
+            await logChannel?.SendMessageAsync(message);
         }
 
         private async Task _client_Log(LogMessage arg)

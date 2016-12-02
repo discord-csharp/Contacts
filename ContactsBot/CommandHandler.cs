@@ -52,7 +52,7 @@ namespace ContactsBot
                             await message.Channel.SendMessageAsync(result.ErrorReason);
                     }
                     else
-                        await _programContext.ChannelLog_CommandLog($"{message.Author.Username} ran the following command: {message.Content}");
+                        await _programContext.ChannelLog_CommandLog($"\"{message.Author.Username}\" ran the following command: {message.Content}");
                 }
         }
     }
