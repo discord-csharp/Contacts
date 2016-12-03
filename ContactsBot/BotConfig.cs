@@ -13,7 +13,7 @@ namespace ContactsBot
 
         public string DevChannel { get; set; }
 
-        public string LoggingChannel { get; set; } = "logs";
+        public string LoggingChannel { get; set; } = "log";
 
         public static BotConfiguration ProcessBotConfig(string path) => JsonConvert.DeserializeObject<BotConfiguration>(File.ReadAllText(path));
 

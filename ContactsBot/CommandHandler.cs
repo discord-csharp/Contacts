@@ -46,7 +46,7 @@ namespace ContactsBot
                     var result = await _commands.ExecuteAsync(context, argPos, _map);
                     if (!result.IsSuccess)
                     {
-                        if (!(result is SearchResult))
+                        if ((result is SearchResult))
                             return;
                         if (result is ExecuteResult)
                             await message.Channel.SendMessageAsync("```" + ((ExecuteResult)result).Exception.ToString() + "```");
