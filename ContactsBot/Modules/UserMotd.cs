@@ -40,7 +40,7 @@ namespace ContactsBot.Modules
 
             try
             {
-                await channel.SendMessageAsync(String.Format(_config.MessageOfTheDay, user.Mention));
+                await (await user.CreateDMChannelAsync()).SendMessageAsync(String.Format(_config.MessageOfTheDay, user.Mention));
             }
             catch (FormatException)
             {
