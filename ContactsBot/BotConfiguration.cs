@@ -15,9 +15,11 @@ namespace ContactsBot
 
         public string LoggingChannel { get; set; } = "log";
 
+        public string MessageOfTheDay { get; set; } = "Hello {0}! Welcome to the server!";
+
         public static BotConfiguration ProcessBotConfig(string path) => JsonConvert.DeserializeObject<BotConfiguration>(File.ReadAllText(path));
 
-        public void SaveBotConfig(string path) => File.WriteAllText(path, JsonConvert.SerializeObject(this));
+        public void SaveBotConfig(string path) => File.WriteAllText(path, JsonConvert.SerializeObject(this, Formatting.Indented));
 
         public static BotConfiguration CreateBotConfigWithToken(string path, string token = "", string devToken = "")
         {

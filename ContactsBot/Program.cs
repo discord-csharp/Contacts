@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace ContactsBot
@@ -96,9 +97,8 @@ namespace ContactsBot
             _handler = new CommandHandler();
             await _handler.Install(_map);
 
-            AddAction<AntiAdvertisement>(_map);
-            AddAction<Unflip>(_map);
-            
+            AddAssemblyActions(_map);
+
             _client.Log += _client_Log; // console info
             _client.Log += FileLog; // file logs
 
@@ -176,13 +176,29 @@ namespace ContactsBot
             _logFile.WriteLine(arg.ToString());
             return Task.CompletedTask;
         }
-        
+
         private void AddAction<T>(IDependencyMap map, bool autoEnable = true) where T : IMessageAction, new()
         {
-            T action = new T();
-            action.Install(map);
-            if (autoEnable) action.Enable();
-            Global.MessageActions.Add(action.GetType().Name, action);
+            AddAction(typeof(T), map, autoEnable);
+        }
+
+        private void AddAction(Type handlerType, IDependencyMap map, bool autoEnable = true)
+        {
+            var handler = Activator.CreateInstance(handlerType) as IMessageAction;
+
+            handler.Install(map);
+            if (autoEnable) handler.Enable();
+            Global.MessageActions.Add(handler.GetType().Name, handler);
+        }
+
+        private void AddAssemblyActions(IDependencyMap map, bool autoEnable = true)
+        {
+            var allActions = Assembly.GetEntryAssembly().GetTypes().Where(d=>d.GetInterfaces().Contains(typeof(IMessageAction)));
+
+            foreach (var type in allActions)
+            {
+                AddAction(type, map, autoEnable);
+            }
         }
     }
 }
