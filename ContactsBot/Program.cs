@@ -1,6 +1,5 @@
-﻿using Contacts;
-using Discord.API;
-using Discord.API.Rest;
+﻿using ContactsBot.Modules;
+using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using System;
@@ -10,93 +9,195 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
-class Program
+namespace ContactsBot
 {
-    static void Main(string[] args) => new Program().RunBot().GetAwaiter().GetResult();
-
-    DiscordSocketClient _client;
-    CommandService _commands;
-    BotConfiguration config;
-
-    public async Task RunBot()
+    class Program
     {
-        if (!File.Exists("config.json"))
+        static void Main(string[] args)
         {
-            Console.Write("Please enter a bot token: ");
-            string token = Console.ReadLine();
-            config = BotConfiguration.CreateBotConfigWithToken("config.json", token);
-        }
-        else
-            config = BotConfiguration.ProcessBotConfig("config.json");
-
-        _client = new DiscordSocketClient(new DiscordSocketConfig
-        {
-            AudioMode = Discord.Audio.AudioMode.Disabled,
-            LogLevel = Discord.LogSeverity.Debug
-        });
-        _commands = new CommandService();
-        
-        await ApplyCommands();
-
-        _client.Log += _client_Log; // console info
-        _client.MessageReceived += _client_MessageReceived; // filtering and commands
-
-        await _client.LoginAsync(Discord.TokenType.Bot, config.Token);
-
-        await _client.ConnectAsync();
-        
-        await _client.CurrentUser.ModifyAsync((ModifyCurrentUserParams mod) => 
-        {
-            mod.Avatar = new Image(new FileStream("Assets/contacts.png", FileMode.Open));
-        });
-
-        await _client.SetGame("Helping you C#");
-
-        await Task.Delay(-1);
-    }
-
-    private async Task _client_Log(Discord.LogMessage arg)
-    {
-        Console.WriteLine(arg.ToString());
-    }
-
-    private async Task ApplyCommands()
-    {
-        await _commands.AddModulesAsync(Assembly.GetEntryAssembly());
-    } 
-
-    private async Task _client_MessageReceived(SocketMessage msg)
-    {
-        var message = msg as SocketUserMessage;
-        if (message == null) return;
-
-        int argPos = 0;
-
-        if(message.HasCharPrefix(config.PrefixCharacter, ref argPos) || message.HasMentionPrefix(_client.CurrentUser, ref argPos))
-        {
-            var context = new CommandContext(_client, message);
-
-            var result = await _commands.ExecuteAsync(context, argPos);
-            if (!result.IsSuccess)
-                await message.Channel.SendMessageAsync(result.ErrorReason);
-        }
-        else
-        {
-            var authorAsGuildUser = message.Author as SocketGuildUser;
-            if (authorAsGuildUser == null) return;
-
-            var roles = authorAsGuildUser.Guild.Roles;
-            string role = roles.First(r => authorAsGuildUser.RoleIds.Any(gr => r.Id == gr)).Name;
-
-            var validRoles = new[] { "Regulars", "Moderators", "Founders" };
-            if (!validRoles.Any(v => v == role))
+            try
             {
-                if (message.Content.Contains("https://discord.gg/"))
-                {
-                    await message.Channel.DeleteMessagesAsync(new[] { message });
-                    var dmChannel = await authorAsGuildUser.CreateDMChannelAsync();
-                    await dmChannel.SendMessageAsync("Your Discord invite link was removed. Please ask a staff member or regular to post it.");
-                }
+                // todo: hook into application exiting to turn off bot
+                Directory.CreateDirectory("logs");
+                _file = new FileStream(Path.Combine("logs", $"contacts-log-{DateTime.UtcNow.Ticks}-{Environment.TickCount}.txt"), FileMode.Create, FileAccess.Write);
+                _logFile = new StreamWriter(_file) { AutoFlush = true };
+                new Program().RunBot().GetAwaiter().GetResult();
+            }
+            catch(Exception e)
+            {
+                _logFile.WriteLine();
+                _logFile.WriteLine(e.Source);
+                _logFile.WriteLine(e.Message);
+                _logFile.WriteLine(e.StackTrace);
+            }
+            finally
+            {
+                _logFile.Flush();
+                _file.Flush();
+                _logFile.Dispose();
+                _file.Dispose();
+            }
+        }
+
+        DiscordSocketClient _client;
+        DependencyMap _map;
+        BotConfiguration _config;
+        CommandHandler _handler;
+        static StreamWriter _logFile;
+        static FileStream _file;
+        ISocketMessageChannel _logChannel;
+        ISocketMessageChannel logChannel
+        {
+            get
+            {
+                if (_logChannel == null)
+                    _logChannel = _client.GetGuild(143867839282020352).Channels.FirstOrDefault(c => c.Name == _config.LoggingChannel) as ISocketMessageChannel;
+                return _logChannel;
+            }
+        }
+
+        public async Task RunBot()
+        {
+            if (!File.Exists("config.json"))
+            {
+                Console.Write("Please enter a bot token: ");
+                string token = Console.ReadLine();
+                _config = BotConfiguration.CreateBotConfigWithToken("config.json", token);
+            }
+            else
+            {
+                _config = BotConfiguration.ProcessBotConfig("config.json");
+                _config.SaveBotConfig("config.json");
+            }
+#if DEV
+            if (string.IsNullOrWhiteSpace(_config.DevToken))
+            {
+                Console.Write("Please enter a dev token: ");
+                string token = Console.ReadLine();
+                _config.DevToken = token;
+                Console.WriteLine("Please enter a dev channel name (commands sent to the bot will be restricted to this channel): ");
+                string channel = Console.ReadLine();
+                _config.DevChannel = channel;
+                _config.SaveBotConfig("config.json");
+            }
+#endif
+
+            _client = new DiscordSocketClient(new DiscordSocketConfig
+            {
+                AudioMode = Discord.Audio.AudioMode.Disabled,
+                LogLevel = LogSeverity.Debug
+            });
+
+            // Create the dependency map and inject the client and config into it
+            _map = new DependencyMap();
+            _map.Add(_client);
+            _map.Add(_config);
+            _map.Add(this);
+
+            _handler = new CommandHandler();
+            await _handler.Install(_map);
+
+            AddAssemblyActions(_map);
+
+            _client.Log += _client_Log; // console info
+            _client.Log += FileLog; // file logs
+
+            // handle logging to channel
+            _client.UserJoined += ChannelLog_UserJoin;
+            _client.UserLeft += ChannelLog_UserLeave;
+            _client.UserBanned += ChannelLog_UserBanned;
+            _client.UserUnbanned += ChannelLog_UserUnbanned;
+            _client.MessageDeleted += ChannelLog_MessageDeleted;
+
+#if DEV
+            await _client.LoginAsync(TokenType.Bot, _config.DevToken);
+#else
+            await _client.LoginAsync(Discord.TokenType.Bot, _config.Token);
+#endif
+            await _client.ConnectAsync();
+
+            await _client.SetGame("Helping you C#");
+
+            await Task.Delay(-1);
+        }
+
+        private async Task ChannelLog_MessageDeleted(ulong arg1, Optional<SocketMessage> arg2)
+        {
+            await logChannel?.SendMessageAsync($"Message {arg1} was deleted.");
+            if (arg2.IsSpecified)
+                await logChannel?.SendMessageAsync($"The message was provided:\n{arg2.Value.Content}");
+        }
+
+        private async Task ChannelLog_UserUnbanned(SocketUser arg1, SocketGuild arg2)
+        {
+            await _logChannel?.SendMessageAsync($"\"{arg1.Username}\" was unbanned from \"{arg2.Name}\"");
+        }
+
+        private async Task ChannelLog_UserBanned(SocketUser arg1, SocketGuild arg2)
+        {
+            await logChannel?.SendMessageAsync($"\"{arg1.Username}\" was banned from \"{arg2.Name}\"");
+        }
+
+        private async Task ChannelLog_UserLeave(SocketGuildUser arg)
+        {
+            await logChannel?.SendMessageAsync($"User left: Bye \"{arg.Username}\"!");
+        }
+
+        private async Task ChannelLog_UserJoin(SocketGuildUser arg)
+        {
+            await logChannel?.SendMessageAsync($"User joined: Welcome \"{arg.Username}\" to the server!");
+        }
+
+        internal async Task ChannelLog_CommandLog(string message)
+        {
+            await logChannel?.SendMessageAsync(message);
+        }
+
+        private async Task _client_Log(LogMessage arg)
+        {
+            switch (arg.Severity)
+            {
+                case LogSeverity.Critical:
+                case LogSeverity.Error:
+                    await ChannelLog_CommandLog(arg.ToString());
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    break;
+                case LogSeverity.Warning: Console.ForegroundColor = ConsoleColor.Yellow; break;
+                case LogSeverity.Info: Console.ForegroundColor = ConsoleColor.White; break;
+                case LogSeverity.Verbose:
+                case LogSeverity.Debug: Console.ForegroundColor = ConsoleColor.Cyan; break;
+            }
+            Console.WriteLine(arg.ToString());
+            Console.ForegroundColor = ConsoleColor.Gray;
+        }
+
+        private Task FileLog(LogMessage arg)
+        {
+            _logFile.WriteLine(arg.ToString());
+            return Task.CompletedTask;
+        }
+
+        private void AddAction<T>(IDependencyMap map, bool autoEnable = true) where T : IMessageAction, new()
+        {
+            AddAction(typeof(T), map, autoEnable);
+        }
+
+        private void AddAction(Type handlerType, IDependencyMap map, bool autoEnable = true)
+        {
+            var handler = Activator.CreateInstance(handlerType) as IMessageAction;
+
+            handler.Install(map);
+            if (autoEnable) handler.Enable();
+            Global.MessageActions.Add(handler.GetType().Name, handler);
+        }
+
+        private void AddAssemblyActions(IDependencyMap map, bool autoEnable = true)
+        {
+            var allActions = Assembly.GetEntryAssembly().GetTypes().Where(d=>d.GetInterfaces().Contains(typeof(IMessageAction)));
+
+            foreach (var type in allActions)
+            {
+                AddAction(type, map, autoEnable);
             }
         }
     }
