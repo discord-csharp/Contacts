@@ -9,6 +9,7 @@ namespace ContactsBot.Modules
     public class Info : ModuleBase
     {
         private CommandService _commands;
+        private BotConfiguration _config;
 
         [Command("help"), Summary("Displays this help message")]
         public async Task Help()
@@ -44,10 +45,17 @@ namespace ContactsBot.Modules
             await ReplyAsync(response.ToString());
         }
 
+        [Command("motd"), Summary("Displays the current MOTD")]
+        public async Task Motd()
+        {
+            await ReplyAsync(string.Format(_config.MessageOfTheDay, Context.User.Username));
+        }
+
         // Upon creation of this module, the command service will be loaded from the dependency map
-        public Info(CommandService cs)
+        public Info(CommandService cs, BotConfiguration config)
         {
             _commands = cs;
+            _config = config;
         }
     }
 }

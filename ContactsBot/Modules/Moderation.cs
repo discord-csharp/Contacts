@@ -13,7 +13,7 @@ namespace ContactsBot.Modules
     public class Moderation : ModuleBase
     {
         const ulong _mutedRoleId = 251734975727009793;
-        internal static string[] StandardRoles = new[] { "Founders", "Moderators", "Regulars" };
+        internal static string[] StandardRoles = new[] { "Founders", "Moderators", "Regulars", "Bot" };
 
         [Command("mute"), Summary("Mutes a user for the specified amount of time")]
         public async Task Mute([Summary("The user to mute")] IGuildUser user, [Summary("The TimeSpan to mute the user")] TimeSpan time)

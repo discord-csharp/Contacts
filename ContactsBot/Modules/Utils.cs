@@ -81,7 +81,7 @@ namespace ContactsBot.Modules
                 foreach (ulong roleId in user.RoleIds)
                 {
                     IRole currentRole = user.Guild.GetRole(roleId);
-                    if (role == null || role.Position < currentRole.Position)
+                    if (role == null || (role.Position < currentRole.Position && currentRole.IsHoisted))
                         role = currentRole;
                 }
                 embed.Color = role?.Color;

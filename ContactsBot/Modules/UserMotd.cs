@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Linq;
-using Discord;
 using Discord.WebSocket;
 using Discord.Commands;
 using System.Threading.Tasks;
@@ -36,11 +32,11 @@ namespace ContactsBot.Modules
 
         public async Task ShowMotd(SocketGuildUser user)
         {
-            var channel = await user.Guild.GetDefaultChannelAsync();
+            var channel = await user.CreateDMChannelAsync();
 
             try
             {
-                await (await user.CreateDMChannelAsync()).SendMessageAsync(String.Format(_config.MessageOfTheDay, user.Mention));
+                await channel.SendMessageAsync(String.Format(_config.MessageOfTheDay, user.Username));
             }
             catch (FormatException)
             {

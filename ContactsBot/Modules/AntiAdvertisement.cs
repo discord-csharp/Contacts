@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Discord;
 using Discord.WebSocket;
@@ -39,6 +37,7 @@ namespace ContactsBot.Modules
         {
             var authorAsGuildUser = (message.Author as IGuildUser);
             var guildChannel = message.Channel as IGuildChannel;
+            if (guildChannel == null) return;
 
             if (!authorAsGuildUser.IsCorrectRole(guildChannel.Guild, Moderation.StandardRoles))
             {
