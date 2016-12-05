@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ContactsBot.Modules
 {
-    [Group("memos"), Summary("Lets users store text for later use")]
+    [Name("Memos module"), Group("memos"), Summary("Lets users store text for later use")]
     public class Memos : ModuleBase
     {
         [Command("add"), Summary("Adds a memo to the memo dictionary")]
