@@ -23,17 +23,17 @@ namespace ContactsBot.Modules
 
         public void Enable()
         {
-            _client.MessageReceived += RunFilter;
+            _client.MessageReceived += RunFilterAsync;
             IsEnabled = true;
         }
 
         public void Disable()
         {
-            _client.MessageReceived -= RunFilter;
+            _client.MessageReceived -= RunFilterAsync;
             IsEnabled = false;
         }
 
-        public async Task RunFilter(IMessage message)
+        public async Task RunFilterAsync(IMessage message)
         {
             var authorAsGuildUser = (message.Author as IGuildUser);
             var guildChannel = message.Channel as IGuildChannel;
@@ -41,7 +41,7 @@ namespace ContactsBot.Modules
 
             if (!authorAsGuildUser.IsCorrectRole(guildChannel.Guild, Moderation.StandardRoles))
             {
-                if (containsInviteLink(message.Content))
+                if (ContainsInviteLink(message.Content))
                 {
                     await message.Channel.DeleteMessagesAsync(new[] { message });
                     var dmChannel = await authorAsGuildUser.CreateDMChannelAsync();
@@ -50,7 +50,7 @@ namespace ContactsBot.Modules
             }
         }
         
-        private bool containsInviteLink(string message)
+        private bool ContainsInviteLink(string message)
         {
             var urlRegex = new Regex(@"(http|ftp|https)://([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?", RegexOptions.IgnoreCase);
             var matches = urlRegex.Matches(message);
@@ -62,7 +62,7 @@ namespace ContactsBot.Modules
                 {
                     return true;
                 }
-                requests.Add(isHiddenInvite(match.Groups[0].Value));
+                requests.Add(IsHiddenInviteAsync(match.Groups[0].Value));
             }
 
             Task.WaitAll(requests.ToArray());
@@ -70,7 +70,7 @@ namespace ContactsBot.Modules
             return requests.Where(x => x.Result).Count() != 0;
         }
 
-        private async Task<bool> isHiddenInvite(string link)
+        private async Task<bool> IsHiddenInviteAsync(string link)
         {
             var client = new HttpClient();
 

@@ -19,13 +19,13 @@ namespace ContactsBot.Modules
 
         public void Disable()
         {
-            _client.MessageReceived -= PerformUnflip;
+            _client.MessageReceived -= PerformUnflipAsync;
             IsEnabled = false;
         }
 
         public void Enable()
         {
-            _client.MessageReceived += PerformUnflip;
+            _client.MessageReceived += PerformUnflipAsync;
             IsEnabled = true;
         }
 
@@ -34,7 +34,7 @@ namespace ContactsBot.Modules
             _client = map.Get<DiscordSocketClient>();
         }
 
-        public async Task PerformUnflip(SocketMessage message)
+        public async Task PerformUnflipAsync(SocketMessage message)
         {
             ulong uid = message.Author.Id;
 

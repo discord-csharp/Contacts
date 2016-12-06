@@ -1,4 +1,5 @@
-﻿using Discord.Commands;
+﻿using ContactsBot.Data;
+using Discord.Commands;
 using Newtonsoft.Json;
 using System.IO;
 using System.Linq;
@@ -10,7 +11,7 @@ namespace ContactsBot.Modules
     public class Memos : ModuleBase
     {
         [Command("add"), Summary("Adds a memo to the memo dictionary")]
-        public async Task Add([Summary("The string to use to get the memo later")] string memoName, [Remainder, Summary("The string given back when this memo is called")] string memoResponse)
+        public async Task AddAsync([Summary("The string to use to get the memo later")] string memoName, [Remainder, Summary("The string given back when this memo is called")] string memoResponse)
         {
             if (Context.IsCorrectRole(Moderation.StandardRoles))
             {
@@ -19,65 +20,85 @@ namespace ContactsBot.Modules
                     await ReplyAsync("The memo you submitted starts with \"add\" or \"remove\" and couldn't be added.");
                     return;
                 }
-
-                if (Global.Memos.ContainsKey(memoName))
+                using (var context = new ContactsBotDbContext())
                 {
-                    await Edit(memoName, memoResponse);
-                    return;
+                    var memo = context.Memos.FirstOrDefault(I => I.Key == memoName.ToLower());
+                    if (!string.IsNullOrEmpty(memo.Key))
+                    {
+                        memo.Message = memoResponse;
+                        context.Memos.Update(memo);
+                        await context.SaveChangesAsync();
+                        await ReplyAsync($"Updated {memoName} in the memos database");
+                        return;
+                    }
+                    else
+                    {
+                        context.Memos.Add(new Memo() { CreatedBy = Context.User.Username, Key = memoName, Message = memoResponse });
+                        await context.SaveChangesAsync();
+                    }
                 }
-
-                Global.Memos.Add(memoName, memoResponse);
-                await ReplyAsync($"Added {memoName} to the dictionary of memos");
-                await Task.Factory.StartNew(() => File.WriteAllText("memos.json", JsonConvert.SerializeObject(Global.Memos, Formatting.Indented)));
+                await ReplyAsync($"Added {memoName} in the memos database");
             }
             else
                 await ReplyAsync("Couldn't add memo: Insufficient role");
         }
 
         [Command, Summary("Retrieves a memo")]
-        public async Task Get([Summary("The memo to retrieve")] string memo)
+        public async Task GetAsync([Summary("The memo to retrieve")] string memo)
         {
-            if (Global.Memos.TryGetValue(memo, out string result))
-                await ReplyAsync($"{memo}: {result}");
-            else
-                await ReplyAsync($"Couldn't find {memo}");
+            using (var context = new ContactsBotDbContext())
+            {
+                var item = context.Memos.FirstOrDefault(I => I.Key == memo);
+                if (!string.IsNullOrEmpty(item.Key))
+                    await ReplyAsync($"{memo}: {item.Message} by {item.CreatedBy}");
+                else
+                    await ReplyAsync($"Couldn't find {memo}");
+            }
         }
 
         [Command, Summary("Edits an already existing memo")]
-        public async Task Edit([Summary("The already existing memo")] string name, [Summary("The new value the memo will use")] string newValue)
+        public async Task EditAsync([Summary("The already existing memo")] string name, [Summary("The new value the memo will use")] string newValue)
         {
-            await Remove(name);
-            await Add(name, newValue);
+            await RemoveAsync(name);
+            await AddAsync(name, newValue);
         }
 
         [Command("remove"), Summary("Removes a memo from the memo dictionary")]
-        public async Task Remove([Summary("The memo to remove")] string memoName)
+        public async Task RemoveAsync([Summary("The memo to remove")] string memoName)
         {
             if (Context.IsCorrectRole(Moderation.StandardRoles))
             {
-                if (Global.Memos.Remove(memoName))
+                using (var context = new ContactsBotDbContext())
                 {
-                    await ReplyAsync($"Removed {memoName} from the memo dictionary");
-                    await Task.Factory.StartNew(() => File.WriteAllText("memos.json", JsonConvert.SerializeObject(Global.Memos, Formatting.Indented)));
+                    var item = context.Memos.FirstOrDefault(I => I.Key == memoName);
+                    if (!string.IsNullOrEmpty(item.Key))
+                    {
+                        context.Memos.Remove(item);
+                        await context.SaveChangesAsync();
+                        await ReplyAsync($"Removed {memoName} from the memo dictionary");
+                    }
+                    else
+                        await ReplyAsync($"Couldn't find {memoName} in the dictionary");
                 }
-                else
-                    await ReplyAsync($"Couldn't find {memoName} in the dictionary");
             }
             else
                 await ReplyAsync("Couldn't remove memo: Insufficient role");
         }
 
         [Command, Summary("Lists all the existing memos")]
-        public async Task List()
+        public async Task ListAsync()
         {
             string reply = "Memos: ";
-            foreach(var memo in Global.Memos.Keys)
-            {
-                if (memo == Global.Memos.Keys.First())
-                    reply += memo;
-                else
-                    reply += $", {memo}";
-            }
+            bool first = true;
+            using (var context = new ContactsBotDbContext())
+                foreach (var memo in context.Memos)
+                {
+                    if (first)
+                        reply += memo.Key;
+                    else
+                        reply += $", {memo}";
+                    first = false;
+                }
             await ReplyAsync(reply);
         }
     }

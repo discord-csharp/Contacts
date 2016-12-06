@@ -20,17 +20,17 @@ namespace ContactsBot.Modules
 
         public void Enable()
         {
-            _client.UserJoined += ShowMotd;
+            _client.UserJoined += ShowMotdAsync;
             IsEnabled = true;
         }
 
         public void Disable()
         {
-            _client.UserJoined -= ShowMotd;
+            _client.UserJoined -= ShowMotdAsync;
             IsEnabled = false;
         }
 
-        public async Task ShowMotd(SocketGuildUser user)
+        public async Task ShowMotdAsync(SocketGuildUser user)
         {
             var channel = await user.CreateDMChannelAsync();
 

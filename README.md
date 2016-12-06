@@ -20,6 +20,10 @@ The roadmap of Contacts changed a lot since the first kickoff. A lot of people c
 - Discord User whois
 - Unflipping tables
 
+## Installation
+First, edit Postgres.json your database information.
+Second, run PostgreSQL Administration Software like PGAdmin 4 and run PostgreSQLCreationScript.psql on your designated database.
+Third, now run the bot!
 ## Contributing
 
 There are two major paths for contributing to Contacts: You can either supply the maintainers with ideas or simply add new modules and features on your own and PR them. 

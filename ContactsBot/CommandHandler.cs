@@ -17,7 +17,7 @@ namespace ContactsBot
         private BotConfiguration _config;
         IDependencyMap _map;
 
-        public async Task Install(IDependencyMap map)
+        public async Task InstallAsync(IDependencyMap map)
         {
             _map = map;
             _client = _map.Get<DiscordSocketClient>();
@@ -26,10 +26,10 @@ namespace ContactsBot
             _commands = new CommandService();
             _map.Add(_commands);
             await _commands.AddModulesAsync(Assembly.GetEntryAssembly());
-            _client.MessageReceived += HandleCommand;
+            _client.MessageReceived += HandleCommandAsync;
         }
 
-        private async Task HandleCommand(SocketMessage msg)
+        private async Task HandleCommandAsync(SocketMessage msg)
         {
             var message = msg as SocketUserMessage;
             if (message == null) return;
@@ -54,7 +54,7 @@ namespace ContactsBot
                             await message.Channel.SendMessageAsync(result.ErrorReason);
                     }
                     else
-                        await _programContext.ChannelLog_CommandLog($"\"{message.Author.Username}\" ran the following command: {message.Content}");
+                        await _programContext.ChannelLog_CommandLogAsync($"\"{message.Author.Username}\" ran the following command: {message.Content}");
                 }
         }
     }
