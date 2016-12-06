@@ -10,7 +10,7 @@ namespace ContactsBot.Modules
     public class Memos : ModuleBase
     {
         [Command("add"), Summary("Adds a memo to the memo dictionary")]
-        public async Task Add([Summary("The string to use to get the memo later")] string memoName, [Remainder, Summary("The string given back when this memo is called")] string memoResponse)
+        public async Task AddAsync([Summary("The string to use to get the memo later")] string memoName, [Remainder, Summary("The string given back when this memo is called")] string memoResponse)
         {
             if (Context.IsCorrectRole(Moderation.StandardRoles))
             {
@@ -22,11 +22,11 @@ namespace ContactsBot.Modules
 
                 if (Global.Memos.ContainsKey(memoName))
                 {
-                    await Edit(memoName, memoResponse);
+                    await EditAsync(memoName, memoResponse);
                     return;
                 }
-
-                Global.Memos.Add(memoName, memoResponse);
+                Global.NewDataWritten = true;
+                Global.Memos.AddOrUpdate(memoName, memoResponse, (key, value) => memoResponse);
                 await ReplyAsync($"Added {memoName} to the dictionary of memos");
                 await Task.Factory.StartNew(() => File.WriteAllText("memos.json", JsonConvert.SerializeObject(Global.Memos, Formatting.Indented)));
             }
@@ -35,7 +35,7 @@ namespace ContactsBot.Modules
         }
 
         [Command, Summary("Retrieves a memo")]
-        public async Task Get([Summary("The memo to retrieve")] string memo)
+        public async Task GetAsync([Summary("The memo to retrieve")] string memo)
         {
             if (Global.Memos.TryGetValue(memo, out string result))
                 await ReplyAsync($"{memo}: {result}");
@@ -44,21 +44,21 @@ namespace ContactsBot.Modules
         }
 
         [Command, Summary("Edits an already existing memo")]
-        public async Task Edit([Summary("The already existing memo")] string name, [Summary("The new value the memo will use")] string newValue)
+        public async Task EditAsync([Summary("The already existing memo")] string name, [Summary("The new value the memo will use")] string newValue)
         {
-            await Remove(name);
-            await Add(name, newValue);
+            await RemoveAsync(name);
+            await AddAsync(name, newValue);
         }
 
         [Command("remove"), Summary("Removes a memo from the memo dictionary")]
-        public async Task Remove([Summary("The memo to remove")] string memoName)
+        public async Task RemoveAsync([Summary("The memo to remove")] string memoName)
         {
             if (Context.IsCorrectRole(Moderation.StandardRoles))
             {
-                if (Global.Memos.Remove(memoName))
+                if (Global.Memos.TryRemove(memoName, out string memoNameOutput))
                 {
+                    Global.NewDataWritten = true;
                     await ReplyAsync($"Removed {memoName} from the memo dictionary");
-                    await Task.Factory.StartNew(() => File.WriteAllText("memos.json", JsonConvert.SerializeObject(Global.Memos, Formatting.Indented)));
                 }
                 else
                     await ReplyAsync($"Couldn't find {memoName} in the dictionary");
@@ -68,7 +68,7 @@ namespace ContactsBot.Modules
         }
 
         [Command, Summary("Lists all the existing memos")]
-        public async Task List()
+        public async Task ListAsync()
         {
             string reply = "Memos: ";
             foreach(var memo in Global.Memos.Keys)

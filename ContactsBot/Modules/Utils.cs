@@ -11,7 +11,7 @@ namespace ContactsBot.Modules
     public class Utils : ModuleBase
     {
         [Command("roleinfo"), Summary("Gets information about the specified role")]
-        public async Task RoleInfo([Summary("The role to find")]IRole role) // todo, make this util better
+        public async Task RoleInfoAsync([Summary("The role to find")]IRole role) // todo, make this util better
         {
             EmbedBuilder embed = new EmbedBuilder
             {
@@ -26,7 +26,7 @@ namespace ContactsBot.Modules
         }
 
         [Command("whois"), Summary("Gets info about the specified user")]
-        public async Task WhoIs([Summary("The user to display info about")] IGuildUser user)
+        public async Task WhoIsAsync([Summary("The user to display info about")] IGuildUser user)
         {
             EmbedBuilder embed = new EmbedBuilder
             {
@@ -94,7 +94,7 @@ namespace ContactsBot.Modules
     public class MessageActionModifiers : ModuleBase
     {
         [Command("list"), Summary("Lists actions installed for this bot")]
-        public async Task ListActions()
+        public async Task ListActionsAsync()
         {
             StringBuilder reply = new StringBuilder();
             reply.Append("Actions:");
@@ -108,7 +108,7 @@ namespace ContactsBot.Modules
         }
 
         [Command("enable"), Summary("Enables a disabled action")]
-        public async Task EnableAction([Summary("The action to enable")] string actionName)
+        public async Task EnableActionAsync([Summary("The action to enable")] string actionName)
         {
             if(!Context.IsCorrectRole(Moderation.StandardRoles))
             {
@@ -126,7 +126,7 @@ namespace ContactsBot.Modules
         }
 
         [Command("disable"), Summary("Disables an enabled action")]
-        public async Task DisableAction([Summary("The action to disable")] string actionName)
+        public async Task DisableActionAsync([Summary("The action to disable")] string actionName)
         {
             if (!Context.IsCorrectRole(Moderation.StandardRoles))
             {

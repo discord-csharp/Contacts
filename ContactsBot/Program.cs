@@ -1,9 +1,7 @@
-﻿using ContactsBot.Modules;
-using Discord;
+﻿using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -18,10 +16,11 @@ namespace ContactsBot
             try
             {
                 // todo: hook into application exiting to turn off bot
-                Directory.CreateDirectory("logs");
+                if (!Directory.Exists("logs"))
+                    Directory.CreateDirectory("logs");
                 _file = new FileStream(Path.Combine("logs", $"contacts-log-{DateTime.UtcNow.Ticks}-{Environment.TickCount}.txt"), FileMode.Create, FileAccess.Write);
                 _logFile = new StreamWriter(_file) { AutoFlush = true };
-                new Program().RunBot().GetAwaiter().GetResult();
+                new Program().RunBotAsync().GetAwaiter().GetResult();
             }
             catch(Exception e)
             {
@@ -46,7 +45,7 @@ namespace ContactsBot
         static StreamWriter _logFile;
         static FileStream _file;
         ISocketMessageChannel _logChannel;
-        ISocketMessageChannel logChannel
+        ISocketMessageChannel LogChannel
         {
             get
             {
@@ -56,7 +55,7 @@ namespace ContactsBot
             }
         }
 
-        public async Task RunBot()
+        public async Task RunBotAsync()
         {
             if (!File.Exists("config.json"))
             {
@@ -95,19 +94,19 @@ namespace ContactsBot
             _map.Add(this);
 
             _handler = new CommandHandler();
-            await _handler.Install(_map);
+            await _handler.InstallAsync(_map);
 
             AddAssemblyActions(_map);
 
-            _client.Log += _client_Log; // console info
+            _client.Log += _client_LogAsync; // console info
             _client.Log += FileLog; // file logs
 
             // handle logging to channel
-            _client.UserJoined += ChannelLog_UserJoin;
-            _client.UserLeft += ChannelLog_UserLeave;
-            _client.UserBanned += ChannelLog_UserBanned;
-            _client.UserUnbanned += ChannelLog_UserUnbanned;
-            _client.MessageDeleted += ChannelLog_MessageDeleted;
+            _client.UserJoined += ChannelLog_UserJoinAsync;
+            _client.UserLeft += ChannelLog_UserLeaveAsync;
+            _client.UserBanned += ChannelLog_UserBannedAsync;
+            _client.UserUnbanned += ChannelLog_UserUnbannedAsync;
+            _client.MessageDeleted += ChannelLog_MessageDeletedAsync;
 
 #if DEV
             await _client.LoginAsync(TokenType.Bot, _config.DevToken);
@@ -121,45 +120,45 @@ namespace ContactsBot
             await Task.Delay(-1);
         }
 
-        private async Task ChannelLog_MessageDeleted(ulong arg1, Optional<SocketMessage> arg2)
+        private async Task ChannelLog_MessageDeletedAsync(ulong arg1, Optional<SocketMessage> arg2)
         {
-            await logChannel?.SendMessageAsync($"Message {arg1} was deleted.");
+            await LogChannel?.SendMessageAsync($"Message {arg1} was deleted.");
             if (arg2.IsSpecified)
-                await logChannel?.SendMessageAsync($"The message was provided:\n{arg2.Value.Content}");
+                await LogChannel?.SendMessageAsync($"The message was provided:\n{arg2.Value.Content}");
         }
 
-        private async Task ChannelLog_UserUnbanned(SocketUser arg1, SocketGuild arg2)
+        private async Task ChannelLog_UserUnbannedAsync(SocketUser arg1, SocketGuild arg2)
         {
             await _logChannel?.SendMessageAsync($"\"{arg1.Username}\" was unbanned from \"{arg2.Name}\"");
         }
 
-        private async Task ChannelLog_UserBanned(SocketUser arg1, SocketGuild arg2)
+        private async Task ChannelLog_UserBannedAsync(SocketUser arg1, SocketGuild arg2)
         {
-            await logChannel?.SendMessageAsync($"\"{arg1.Username}\" was banned from \"{arg2.Name}\"");
+            await LogChannel?.SendMessageAsync($"\"{arg1.Username}\" was banned from \"{arg2.Name}\"");
         }
 
-        private async Task ChannelLog_UserLeave(SocketGuildUser arg)
+        private async Task ChannelLog_UserLeaveAsync(SocketGuildUser arg)
         {
-            await logChannel?.SendMessageAsync($"User left: Bye \"{arg.Username}\"!");
+            await LogChannel?.SendMessageAsync($"User left: Bye \"{arg.Username}\"!");
         }
 
-        private async Task ChannelLog_UserJoin(SocketGuildUser arg)
+        private async Task ChannelLog_UserJoinAsync(SocketGuildUser arg)
         {
-            await logChannel?.SendMessageAsync($"User joined: Welcome \"{arg.Username}\" to the server!");
+            await LogChannel?.SendMessageAsync($"User joined: Welcome \"{arg.Username}\" to the server!");
         }
 
-        internal async Task ChannelLog_CommandLog(string message)
+        internal async Task ChannelLog_CommandLogAsync(string message)
         {
-            await logChannel?.SendMessageAsync(message);
+            await LogChannel?.SendMessageAsync(message);
         }
 
-        private async Task _client_Log(LogMessage arg)
+        private async Task _client_LogAsync(LogMessage arg)
         {
             switch (arg.Severity)
             {
                 case LogSeverity.Critical:
                 case LogSeverity.Error:
-                    await ChannelLog_CommandLog(arg.ToString());
+                    await ChannelLog_CommandLogAsync(arg.ToString());
                     Console.ForegroundColor = ConsoleColor.Red;
                     break;
                 case LogSeverity.Warning: Console.ForegroundColor = ConsoleColor.Yellow; break;
@@ -188,7 +187,7 @@ namespace ContactsBot
 
             handler.Install(map);
             if (autoEnable) handler.Enable();
-            Global.MessageActions.Add(handler.GetType().Name, handler);
+            Global.MessageActions.TryAdd(handler.GetType().Name, handler);
         }
 
         private void AddAssemblyActions(IDependencyMap map, bool autoEnable = true)

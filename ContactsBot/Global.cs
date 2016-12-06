@@ -1,23 +1,49 @@
 ﻿using Discord;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
+using System.Collections;
 
 namespace ContactsBot
 {
     internal static class Global
     {
-        // muting users
-        internal static List<Timer> MutedTimers = new List<Timer>();
+        static Global()
+        {
+            Memos = new ConcurrentDictionary<string, string>();
+            if (File.Exists("memos.json"))
+            {
+                var enumerate = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText("memos.json")).GetEnumerator();
+                while (enumerate.MoveNext())
+                {
+                    Memos.TryAdd(enumerate.Current.Key, enumerate.Current.Value);
+                }
+            }
 
-        internal static Dictionary<IGuildUser, Timer> MutedUsers = new Dictionary<IGuildUser, Timer>();
+            GlobalMemosWriteTimer = new Timer(delegate (object state)
+            {
+                if (!NewDataWritten) return;
+                NewDataWritten = false;
+                var dictionary = new Dictionary<string, string>();
+                foreach (var pair in Memos.ToArray())
+                    dictionary.Add(pair.Key, pair.Value);
+
+                File.WriteAllText("memos.json", JsonConvert.SerializeObject(dictionary, Formatting.Indented));
+
+            }, null, new TimeSpan(0, 10, 0), new TimeSpan(0, 10, 0) );
+        }
+
+        internal static ConcurrentDictionary<IGuildUser, Timer> MutedUsers = new ConcurrentDictionary<IGuildUser, Timer>();
 
         // actions
-        internal static Dictionary<string, IMessageAction> MessageActions { get; } = new Dictionary<string, IMessageAction>(StringComparer.OrdinalIgnoreCase);
+        internal static ConcurrentDictionary<string, IMessageAction> MessageActions { get; } = new ConcurrentDictionary<string, IMessageAction>(StringComparer.OrdinalIgnoreCase);
 
         // memos
-        internal static Dictionary<string, string> Memos { get; } = (File.Exists("memos.json")) ? JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText("memos.json")) : new Dictionary<string, string>();
+        internal static ConcurrentDictionary<string, string> Memos { get; }
+        internal static volatile bool NewDataWritten = false;
+        internal static Timer GlobalMemosWriteTimer { get; }
     }
 }

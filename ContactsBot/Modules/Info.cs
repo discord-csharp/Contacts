@@ -12,7 +12,7 @@ namespace ContactsBot.Modules
         private BotConfiguration _config;
 
         [Command("help"), Summary("Displays this help message")]
-        public async Task Help()
+        public async Task HelpAsync()
         {
             StringBuilder response = new StringBuilder();
             response.AppendLine("**Contacts Commands:**");
@@ -45,14 +45,15 @@ namespace ContactsBot.Modules
             await ReplyAsync(response.ToString());
         }
 
+        /*
         [Command("motd"), Summary("Displays the current MOTD")]
         public async Task Motd()
         {
             await ReplyAsync(string.Format(_config.MessageOfTheDay, Context.User.Username));
         }
-        
+        */
         [Command("learntoask"), Summary("Prints a small info for people that dont know how to ask.")]
-        public async Task Motd()
+        public async Task MotdAsync()
         {
             await ReplyAsync("You are reading this because you probably didn´t ask for help the proper way. \n"+
                              "Please read: http://whathaveyoutried.com/ \n " +
