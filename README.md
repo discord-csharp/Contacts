@@ -1,4 +1,4 @@
-# Contacts
+# Contacts [![Build Status](https://travis-ci.org/discord-csharp/Contacts.svg?branch=dev)](https://travis-ci.org/discord-csharp/Contacts)
 
 Contacts is a Discord Bot that is actively developed and maintained by the C# Discord Server. Its aim is to make it easier to moderate the Discord Chat and to provide a small toolkit for answering questions about C# and .Net.
 
