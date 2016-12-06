@@ -60,6 +60,18 @@ namespace ContactsBot.Modules
                              "Be aware! If you continue to ask the wrong way and ignore this message, **you might get muted!**");
         }
 
+        [Command("code"), Summary("Prints how to embed code into Discord.")]
+        public async Task Code()
+        {
+            await ReplyAsync("To embed code into Discord surround it with \\```<languagename>. Example:\n" +
+                             "\\```cs\n " +
+                             "public static void Main(String[] args)\n " +
+                             "{\n" +
+                             "    Console.WriteLine(\"Hello World!\");\n" + 
+                             "}\n" + 
+                             "If you have a lot of code or more than one file to paste consider using http://pastebin.com instead");
+        }
+
         // Upon creation of this module, the command service will be loaded from the dependency map
         public Info(CommandService cs, BotConfiguration config)
         {
