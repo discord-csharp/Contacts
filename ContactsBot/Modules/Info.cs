@@ -69,7 +69,7 @@ namespace ContactsBot.Modules
                              "{\n" +
                              "    Console.WriteLine(\"Hello World!\");\n" + 
                              "}\n" + 
-                             "If you have a lot of code or more than one file to paste consider using http://pastebin.com instead");
+                             "If you have a lot of code or more than one file to paste consider using <http://hastebin.com> instead");
         }
 
         // Upon creation of this module, the command service will be loaded from the dependency map

@@ -19,5 +19,8 @@ namespace ContactsBot
 
         // memos
         internal static Dictionary<string, string> Memos { get; } = (File.Exists("memos.json")) ? JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText("memos.json")) : new Dictionary<string, string>();
+
+        // ignore messages
+        internal static int IgnoreCount { get; set; 
     }
 }
