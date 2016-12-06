@@ -52,7 +52,7 @@ namespace ContactsBot.Modules
         }
         
         [Command("learntoask"), Summary("Prints a small info for people that dont know how to ask.")]
-        public async Task Motd()
+        public async Task Learn()
         {
             await ReplyAsync("You are reading this because you probably didn´t ask for help the proper way. \n"+
                              "Please read: http://whathaveyoutried.com/ \n " +
