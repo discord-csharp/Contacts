@@ -45,15 +45,15 @@ namespace ContactsBot.Modules
             await ReplyAsync(response.ToString());
         }
 
-        /*
+        
         [Command("motd"), Summary("Displays the current MOTD")]
         public async Task Motd()
         {
             await ReplyAsync(string.Format(_config.MessageOfTheDay, Context.User.Username));
         }
-        */
+        
         [Command("learntoask"), Summary("Prints a small info for people that dont know how to ask.")]
-        public async Task MotdAsync()
+        public async Task LearnAsync()
         {
             await ReplyAsync("You are reading this because you probably didn´t ask for help the proper way. \n"+
                              "Please read: http://whathaveyoutried.com/ \n " +
