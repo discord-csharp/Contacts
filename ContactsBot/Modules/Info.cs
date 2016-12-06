@@ -47,7 +47,7 @@ namespace ContactsBot.Modules
 
         
         [Command("motd"), Summary("Displays the current MOTD")]
-        public async Task Motd()
+        public async Task MotdAsync()
         {
             await ReplyAsync(string.Format(_config.MessageOfTheDay, Context.User.Username));
         }
