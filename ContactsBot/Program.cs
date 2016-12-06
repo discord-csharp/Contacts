@@ -15,12 +15,6 @@ namespace ContactsBot
         static void Main(string[] args)
         {
             if (!PostgreSQLGlobalConfig.InitializePostgreSQLGlobalConfig()) return;
-            using (ContactsBotDbContext context = new ContactsBotDbContext())
-            {
-                context.Memos.Add(new Memo() { Key = "1", CreatedBy = "Tyler", Message = "A new message!" });
-                context.SaveChanges();
-            }
-            return;
             try
             {
                 // todo: hook into application exiting to turn off bot
