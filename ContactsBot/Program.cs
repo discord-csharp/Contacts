@@ -1,4 +1,5 @@
-﻿using Discord;
+﻿using ContactsBot.Data;
+using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using System;
@@ -13,6 +14,13 @@ namespace ContactsBot
     {
         static void Main(string[] args)
         {
+            if (!PostgreSQLGlobalConfig.InitializePostgreSQLGlobalConfig()) return;
+            using (ContactsBotDbContext context = new ContactsBotDbContext())
+            {
+                context.Memos.Add(new Memo() { Key = "1", CreatedBy = "Tyler", Message = "A new message!" });
+                context.SaveChanges();
+            }
+            return;
             try
             {
                 // todo: hook into application exiting to turn off bot
@@ -22,7 +30,7 @@ namespace ContactsBot
                 _logFile = new StreamWriter(_file) { AutoFlush = true };
                 new Program().RunBotAsync().GetAwaiter().GetResult();
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 _logFile.WriteLine();
                 _logFile.WriteLine(e.Source);
@@ -192,7 +200,7 @@ namespace ContactsBot
 
         private void AddAssemblyActions(IDependencyMap map, bool autoEnable = true)
         {
-            var allActions = Assembly.GetEntryAssembly().GetTypes().Where(d=>d.GetInterfaces().Contains(typeof(IMessageAction)));
+            var allActions = Assembly.GetEntryAssembly().GetTypes().Where(d => d.GetInterfaces().Contains(typeof(IMessageAction)));
 
             foreach (var type in allActions)
             {

@@ -1,4 +1,5 @@
-﻿using Discord.Commands;
+﻿using ContactsBot.Data;
+using Discord.Commands;
 using Newtonsoft.Json;
 using System.IO;
 using System.Linq;
@@ -19,16 +20,24 @@ namespace ContactsBot.Modules
                     await ReplyAsync("The memo you submitted starts with \"add\" or \"remove\" and couldn't be added.");
                     return;
                 }
-
-                if (Global.Memos.ContainsKey(memoName))
+                using (var context = new ContactsBotDbContext())
                 {
-                    await EditAsync(memoName, memoResponse);
-                    return;
+                    var memo = context.Memos.FirstOrDefault(I => I.Key == memoName.ToLower());
+                    if (!string.IsNullOrEmpty(memo.Key))
+                    {
+                        memo.Message = memoResponse;
+                        context.Memos.Update(memo);
+                        await context.SaveChangesAsync();
+                        await ReplyAsync($"Updated {memoName} in the memos database");
+                        return;
+                    }
+                    else
+                    {
+                        context.Memos.Add(new Memo() { CreatedBy = Context.User.Username, Key = memoName, Message = memoResponse });
+                        await context.SaveChangesAsync();
+                    }
                 }
-                Global.NewDataWritten = true;
-                Global.Memos.AddOrUpdate(memoName, memoResponse, (key, value) => memoResponse);
-                await ReplyAsync($"Added {memoName} to the dictionary of memos");
-                await Task.Factory.StartNew(() => File.WriteAllText("memos.json", JsonConvert.SerializeObject(Global.Memos, Formatting.Indented)));
+                await ReplyAsync($"Added {memoName} in the memos database");
             }
             else
                 await ReplyAsync("Couldn't add memo: Insufficient role");
@@ -37,10 +46,14 @@ namespace ContactsBot.Modules
         [Command, Summary("Retrieves a memo")]
         public async Task GetAsync([Summary("The memo to retrieve")] string memo)
         {
-            if (Global.Memos.TryGetValue(memo, out string result))
-                await ReplyAsync($"{memo}: {result}");
-            else
-                await ReplyAsync($"Couldn't find {memo}");
+            using (var context = new ContactsBotDbContext())
+            {
+                var item = context.Memos.FirstOrDefault(I => I.Key == memo);
+                if (!string.IsNullOrEmpty(item.Key))
+                    await ReplyAsync($"{memo}: {item.Message} by {item.CreatedBy}");
+                else
+                    await ReplyAsync($"Couldn't find {memo}");
+            }
         }
 
         [Command, Summary("Edits an already existing memo")]
@@ -55,13 +68,18 @@ namespace ContactsBot.Modules
         {
             if (Context.IsCorrectRole(Moderation.StandardRoles))
             {
-                if (Global.Memos.TryRemove(memoName, out string memoNameOutput))
+                using (var context = new ContactsBotDbContext())
                 {
-                    Global.NewDataWritten = true;
-                    await ReplyAsync($"Removed {memoName} from the memo dictionary");
+                    var item = context.Memos.FirstOrDefault(I => I.Key == memoName);
+                    if (!string.IsNullOrEmpty(item.Key))
+                    {
+                        context.Memos.Remove(item);
+                        await context.SaveChangesAsync();
+                        await ReplyAsync($"Removed {memoName} from the memo dictionary");
+                    }
+                    else
+                        await ReplyAsync($"Couldn't find {memoName} in the dictionary");
                 }
-                else
-                    await ReplyAsync($"Couldn't find {memoName} in the dictionary");
             }
             else
                 await ReplyAsync("Couldn't remove memo: Insufficient role");
@@ -71,13 +89,16 @@ namespace ContactsBot.Modules
         public async Task ListAsync()
         {
             string reply = "Memos: ";
-            foreach(var memo in Global.Memos.Keys)
-            {
-                if (memo == Global.Memos.Keys.First())
-                    reply += memo;
-                else
-                    reply += $", {memo}";
-            }
+            bool first = true;
+            using (var context = new ContactsBotDbContext())
+                foreach (var memo in context.Memos)
+                {
+                    if (first)
+                        reply += memo.Key;
+                    else
+                        reply += $", {memo}";
+                    first = false;
+                }
             await ReplyAsync(reply);
         }
     }
