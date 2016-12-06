@@ -21,7 +21,7 @@ namespace ContactsBot.Modules
 
         [Command("docs"), Alias("msdn")]
         [Summary("Searches official Microsoft documentation for a given query.")]
-        public async Task Msdn([Summary("The query to search for")] [Remainder] string query)
+        public async Task MsdnAsync([Summary("The query to search for")] [Remainder] string query)
         {
             try
             {
@@ -47,7 +47,7 @@ namespace ContactsBot.Modules
                     return;
                 }
 
-                await ReplyWithResponse(item);
+                await ReplyWithResponseAsync(item);
             }
             catch (WebException)
             {
@@ -61,7 +61,7 @@ namespace ContactsBot.Modules
 
         [Command("ref"), Alias("source")]
         [Summary("Searches the .NET reference source.")]
-        public async Task ReferenceSource([Summary("The query to search for")] [Remainder] string query)
+        public async Task ReferenceSourceAsync([Summary("The query to search for")] [Remainder] string query)
         {
             //Stupid hack because 1.0 lowercases command args
             query = Context.Message.Content.Substring(Context.Message.Content.IndexOf(' ') + 1);
@@ -92,7 +92,7 @@ namespace ContactsBot.Modules
                     return;
                 }
 
-                await ReplyWithResponse(new QueryResponse
+                await ReplyWithResponseAsync(new QueryResponse
                 {
                     OriginalQuery = query
                 },
@@ -118,7 +118,7 @@ namespace ContactsBot.Modules
             }
         }
 
-        private async Task ReplyWithResponse(QueryResponse response, Discord.EmbedBuilder overload = null)
+        private async Task ReplyWithResponseAsync(QueryResponse response, Discord.EmbedBuilder overload = null)
         {
             Discord.EmbedBuilder embed = overload;
 

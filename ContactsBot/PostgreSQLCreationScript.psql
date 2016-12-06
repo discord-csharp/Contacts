@@ -1,0 +1,17 @@
+﻿CREATE SCHEMA "DefaultSchema"
+    AUTHORIZATION postgres;
+
+CREATE TABLE "DefaultSchema"."Memos"
+(
+    "Key" character varying(8000) COLLATE pg_catalog."default" NOT NULL,
+    "Message" character varying(8000) COLLATE pg_catalog."default" NOT NULL,
+    "CreatedBy" character varying(8000) COLLATE pg_catalog."default" NOT NULL,
+    CONSTRAINT "Memos_pkey" PRIMARY KEY ("Key")
+)
+WITH (
+    OIDS = FALSE
+)
+TABLESPACE pg_default;
+
+ALTER TABLE "DefaultSchema"."Memos"
+    OWNER to postgres;

@@ -16,7 +16,7 @@ namespace ContactsBot.Modules
         internal static string[] StandardRoles = new[] { "Founders", "Moderators", "Regulars", "Bot" };
 
         [Command("mute"), Summary("Mutes a user for the specified amount of time")]
-        public async Task Mute([Summary("The user to mute")] IGuildUser user, [Summary("The TimeSpan to mute the user")] TimeSpan time)
+        public async Task MuteAsync([Summary("The user to mute")] IGuildUser user, [Summary("The TimeSpan to mute the user")] TimeSpan time)
         {
             var guildUser = user as SocketGuildUser;
             if (guildUser == null) return;
@@ -35,25 +35,24 @@ namespace ContactsBot.Modules
             else
                 await guildUser.AddRolesAsync(muteRole);
 
-            Timer timer = new Timer(TimerCallback, user, (int)time.TotalMilliseconds, -1);
-            Global.MutedTimers.Add(timer);
-            Global.MutedUsers.Add(user, timer);
+            Timer timer = new Timer(TimerCallbackAsync, user, (int)time.TotalMilliseconds, -1);
+            Global.MutedUsers.TryAdd(user, timer);
 
             await ReplyAsync($"Muted {guildUser.Nickname ?? guildUser.Username} for {time.Humanize(3)}");
         }
 
-        public async void TimerCallback(object user)
+        public async void TimerCallbackAsync(object user)
         {
-            await UnmuteInternal(user as IGuildUser, true);
+            await UnmuteInternalAsync(user as IGuildUser, true);
         }
 
         [Command("unmute"), Summary("Unmutes a user")]
-        public async Task Unmute([Summary("The user to unmute")] IGuildUser user)
+        public async Task UnmuteAsync([Summary("The user to unmute")] IGuildUser user)
         {
-            await UnmuteInternal(user, false);
+            await UnmuteInternalAsync(user, false);
         }
 
-        public async Task UnmuteInternal(IGuildUser user, bool isCallback)
+        public async Task UnmuteInternalAsync(IGuildUser user, bool isCallback)
         {
             if (!isCallback && !Context.IsCorrectRole(StandardRoles))
             {
@@ -75,9 +74,7 @@ namespace ContactsBot.Modules
             }
             
             await ReplyAsync($"Unmuted {user.Nickname ?? user.Username}");
-
-            Global.MutedTimers.Remove(Global.MutedUsers[user]);
-            Global.MutedUsers.Remove(user);
+            Global.MutedUsers.TryRemove(user, out var outputTimer);
         }
     }
 
@@ -85,7 +82,7 @@ namespace ContactsBot.Modules
     public class Messages : ModuleBase
     {
         [Command("deleterange"), RequireBotPermission(GuildPermission.ManageMessages), RequireContext(ContextType.Guild)]
-        public async Task Delete([Summary("The range of messages to delete")] int range)
+        public async Task DeleteAsync([Summary("The range of messages to delete")] int range)
         {
             if (Context.IsCorrectRole(Moderation.StandardRoles))
             {
@@ -100,7 +97,7 @@ namespace ContactsBot.Modules
         }
 
         [Command("deleterange"), RequireBotPermission(GuildPermission.ManageMessages), RequireContext(ContextType.Guild)]
-        public async Task Delete([Summary("The message ID to start deleting at")] ulong startMessage, [Summary("The last message ID to delete")] ulong endMessage)
+        public async Task DeleteAsync([Summary("The message ID to start deleting at")] ulong startMessage, [Summary("The last message ID to delete")] ulong endMessage)
         {
             if (Context.IsCorrectRole(Moderation.StandardRoles))
             {
