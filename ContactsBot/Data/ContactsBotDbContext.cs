@@ -5,6 +5,7 @@ namespace ContactsBot.Data
     public class ContactsBotDbContext : DbContext
     {
         public DbSet<Memo> Memos { get; set; }
+        public DbSet<Karma> Karmas { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
