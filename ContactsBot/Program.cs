@@ -125,18 +125,18 @@ namespace ContactsBot
 
         private async Task ChannelLog_MessageDeletedAsync(ulong arg1, Optional<SocketMessage> arg2)
         {
-            if (global.IgnoreCount == 0)
+            if (Global.IgnoreCount == 0)
             {
-                await logChannel?.SendMessageAsync($"Message {arg1} was deleted.");
+                await LogChannel?.SendMessageAsync($"Message {arg1} was deleted.");
                 if (arg2.IsSpecified)
-                    await logChannel?.SendMessageAsync($"The message was provided:\n{arg2.Value.Content}");
+                    await LogChannel?.SendMessageAsync($"The message was provided:\n{arg2.Value.Content}");
             }
-            else global.IgnoreCount--;
+            else Global.IgnoreCount--;
         }
 
         private async Task ChannelLog_UserUnbannedAsync(SocketUser arg1, SocketGuild arg2)
         {
-            await _logChannel?.SendMessageAsync($"\"{arg1.Username}\" was unbanned from \"{arg2.Name}\"");
+            await LogChannel?.SendMessageAsync($"\"{arg1.Username}\" was unbanned from \"{arg2.Name}\"");
         }
 
         private async Task ChannelLog_UserBannedAsync(SocketUser arg1, SocketGuild arg2)
@@ -194,7 +194,7 @@ namespace ContactsBot
 
             handler.Install(map);
             if (autoEnable) handler.Enable();
-            Global.MessageActions.TryAdd(handler.GetType().Name, handler);
+            Global.MessageActions.Add(handler.GetType().Name, handler);
         }
 
         private void AddAssemblyActions(IDependencyMap map, bool autoEnable = true)
