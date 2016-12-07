@@ -1,4 +1,5 @@
 ﻿using ContactsBot.Data;
+using Discord;
 using Discord.Commands;
 using Newtonsoft.Json;
 using System.IO;
@@ -11,11 +12,11 @@ namespace ContactsBot.Modules
     public class Karmas : ModuleBase
     {
         [Command("+1"), Summary("Give someone a +1 for solving your problem")]
-        public async Task PlusOneAsync([Summary("the username string to recieve your thanks")] string username)
+        public async Task PlusOneAsync([Summary("the username string to recieve your thanks")] IGuildUser user)
         {
             using (var context = new ContactsBotDbContext())
             {
-                var item = context.Karmas.FirstOrDefault(I => I.Username == username);
+                var item = context.Karmas.FirstOrDefault(I => I.Username == user.Username);
                 if (!string.IsNullOrEmpty(item.Username))
                 {
                     item.KarmaCount++;
@@ -24,10 +25,10 @@ namespace ContactsBot.Modules
                 }
                 else
                 {
-                    await context.Karmas.AddAsync(new Karma() { Username = username, KarmaCount = 1 });
+                    await context.Karmas.AddAsync(new Karma() { Username = user.Username, KarmaCount = 1 });
                     await context.SaveChangesAsync();
                 }
-                await ReplyAsync($"+1 Karma for {username}!");
+                await ReplyAsync($"Thanks {user.Username}");
             }
         }
 
