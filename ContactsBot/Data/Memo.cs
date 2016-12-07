@@ -7,7 +7,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ContactsBot.Data
 {
-    [Table("Memos", Schema = "DefaultSchema")]
+    [Table("Memos", Schema = "ContactsBotSchema")]
     public class Memo
     {
         [Key]

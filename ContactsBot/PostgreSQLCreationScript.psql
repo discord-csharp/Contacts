@@ -1,7 +1,7 @@
-﻿CREATE SCHEMA "DefaultSchema"
+﻿CREATE SCHEMA "ContactsBotSchema"
     AUTHORIZATION postgres;
 
-CREATE TABLE "DefaultSchema"."Memos"
+CREATE TABLE "ContactsBotSchema"."Memos"
 (
     "Key" character varying(8000) COLLATE pg_catalog."default" NOT NULL,
     "Message" character varying(8000) COLLATE pg_catalog."default" NOT NULL,
@@ -13,5 +13,19 @@ WITH (
 )
 TABLESPACE pg_default;
 
-ALTER TABLE "DefaultSchema"."Memos"
+ALTER TABLE "ContactsBotSchema"."Memos"
+    OWNER to postgres;
+
+CREATE TABLE "ContactsBotSchema"."Karmas"
+(
+    "Username" character varying(8000) COLLATE pg_catalog."default" NOT NULL,
+    "KarmaCount" bigint NOT NULL,
+    CONSTRAINT "Karmas_pkey" PRIMARY KEY ("Username")
+)
+WITH (
+    OIDS = FALSE
+)
+TABLESPACE pg_default;
+
+ALTER TABLE "ContactsBotSchema"."Karmas"
     OWNER to postgres;
