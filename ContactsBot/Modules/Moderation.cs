@@ -76,6 +76,11 @@ namespace ContactsBot.Modules
             await ReplyAsync($"Unmuted {user.Nickname ?? user.Username}");
             Global.MutedUsers.TryRemove(user, out var outputTimer);
         }
+
+        public async Task LockCommandsAsync()
+        {
+            
+        }
     }
 
     [Group("message"), Name("Message Module")]
