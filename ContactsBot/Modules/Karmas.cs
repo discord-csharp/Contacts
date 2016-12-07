@@ -1,4 +1,5 @@
-﻿using ContactsBot.Data;
+﻿using ContactsBot.Configuration;
+using ContactsBot.Data;
 using Discord;
 using Discord.Commands;
 using Newtonsoft.Json;
@@ -11,12 +12,19 @@ namespace ContactsBot.Modules
     [Group("karma"), Summary("Lets users store text for later use")]
     public class Karmas : ModuleBase
     {
+        private ConfigManager _config;
+
+        public Karmas(ConfigManager config)
+        {
+            _config = config;
+        }
+
         [Command("+1"), Summary("Give someone a +1 for solving your problem")]
         public async Task PlusOneAsync([Summary("the username string to recieve your thanks")] IGuildUser user)
         {
             if (user == null) return;
 
-            using (var context = new ContactsBotDbContext())
+            using (var context = new ContactsBotDbContext(_config))
             {
                 var item = context.Karmas.FirstOrDefault(I => I.Username == user.Username);
                 if (!string.IsNullOrEmpty(item.Username))
@@ -37,7 +45,7 @@ namespace ContactsBot.Modules
         [Command("Top5"), Summary("Get the top 5 karma users")]
         public async Task TopFiveAsync()
         {
-            using (var context = new ContactsBotDbContext())
+            using (var context = new ContactsBotDbContext(_config))
             {
                 var output = "The Top 5 Karma Users:\n";
                 var users = context.Karmas.OrderByDescending(I => I.KarmaCount).Take(5).ToArray();

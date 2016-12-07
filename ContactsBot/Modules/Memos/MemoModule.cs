@@ -81,7 +81,7 @@ namespace ContactsBot.Modules.Memos
                     await ReplyAsync("The memo you submitted starts with \"add\" or \"remove\" and couldn't be added.");
                     return;
                 }
-                using (var context = new ContactsBotDbContext())
+                using (var context = new ContactsBotDbContext(_config))
                 {
                     var memo = context.Memos.FirstOrDefault(I => I.Key == name.ToLower());
                     if (!string.IsNullOrEmpty(memo.Key))
