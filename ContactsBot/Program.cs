@@ -86,7 +86,8 @@ namespace ContactsBot
             _client = new DiscordSocketClient(new DiscordSocketConfig
             {
                 AudioMode = Discord.Audio.AudioMode.Disabled,
-                LogLevel = LogSeverity.Debug
+                LogLevel = LogSeverity.Debug,
+                MessageCacheSize = 2000
             });
 
             // Create the dependency map and inject the client and config into it
@@ -124,14 +125,18 @@ namespace ContactsBot
 
         private async Task ChannelLog_MessageDeletedAsync(ulong arg1, Optional<SocketMessage> arg2)
         {
-            await LogChannel?.SendMessageAsync($"Message {arg1} was deleted.");
-            if (arg2.IsSpecified)
-                await LogChannel?.SendMessageAsync($"The message was provided:\n{arg2.Value.Content}");
+            if (Global.IgnoreCount == 0)
+            {
+                await LogChannel?.SendMessageAsync($"Message {arg1} was deleted.");
+                if (arg2.IsSpecified)
+                    await LogChannel?.SendMessageAsync($"The message was provided:\n{arg2.Value.Content}");
+            }
+            else Global.IgnoreCount--;
         }
 
         private async Task ChannelLog_UserUnbannedAsync(SocketUser arg1, SocketGuild arg2)
         {
-            await _logChannel?.SendMessageAsync($"\"{arg1.Username}\" was unbanned from \"{arg2.Name}\"");
+            await LogChannel?.SendMessageAsync($"\"{arg1.Username}\" was unbanned from \"{arg2.Name}\"");
         }
 
         private async Task ChannelLog_UserBannedAsync(SocketUser arg1, SocketGuild arg2)
@@ -189,7 +194,7 @@ namespace ContactsBot
 
             handler.Install(map);
             if (autoEnable) handler.Enable();
-            Global.MessageActions.TryAdd(handler.GetType().Name, handler);
+            Global.MessageActions.Add(handler.GetType().Name, handler);
         }
 
         private void AddAssemblyActions(IDependencyMap map, bool autoEnable = true)

@@ -90,6 +90,7 @@ namespace ContactsBot.Modules
                 await Context.Channel.DeleteMessagesAsync(messageList);
 
                 await ReplyAsync($"Deleted the last {range} messages.");
+                Global.IgnoreCount += range;
             }
             else
                 await ReplyAsync("Couldn't delete messages: Insufficient role");
@@ -98,7 +99,7 @@ namespace ContactsBot.Modules
         [Command("deleterange"), RequireBotPermission(GuildPermission.ManageMessages), RequireContext(ContextType.Guild)]
         public async Task DeleteAsync([Summary("The message ID to start deleting at")] ulong startMessage, [Summary("The last message ID to delete")] ulong endMessage)
         {
-            if (Context.IsCorrectRole(Moderation.StandardRoles)) // todo: replace this array with something better
+            if (Context.IsCorrectRole(Moderation.StandardRoles))
             {
                 var messageList = (await Context.Channel.GetMessagesAsync(500).Flatten()).ToList();
                 int startIndex = messageList.FindIndex(m => m.Id == startMessage);
@@ -112,9 +113,20 @@ namespace ContactsBot.Modules
                 await Context.Channel.DeleteMessagesAsync(messageRange);
 
                 await ReplyAsync($"Deleted {Math.Abs(endIndex - startIndex) + 1} messages");
+                Global.IgnoreCount += Math.Abs(endIndex - startIndex) + 1;
             }
             else
                 await ReplyAsync("Couldn't delete messages: Insufficient role");
+        }
+
+        [Command("wipe"), RequireBotPermission(GuildPermission.ManageMessages), RequireUserPermission(GuildPermission.ManageMessages)]
+        public async Task Wipe(IUser user, int count, int range)
+        {
+            var messageList = (await Context.Channel.GetMessagesAsync(range).Flatten()).ToList();
+            var userMessage = messageList.Where(message => message.Author == user).Take(count);
+            await Context.Channel.DeleteMessagesAsync(userMessage);
+            await ReplyAsync($"Wiped {userMessage.Count()} messages from {user}");
+            Global.IgnoreCount += userMessage.Count();
         }
     }
 

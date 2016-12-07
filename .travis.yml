@@ -1,0 +1,16 @@
+language: csharp
+
+matrix:
+  include:
+    - os: linux # Ubuntu 14.04
+      dist: trusty
+      sudo: required
+      dotnet: 1.0.0-preview3-004056
+
+script:
+  # Run a new console app
+  - mkdir -p "test/test-dotnet-new" && pushd "test/test-dotnet-new"
+  - dotnet new
+  - dotnet restore
+  - dotnet --verbose run a b
+  - popd
