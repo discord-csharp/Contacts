@@ -14,11 +14,9 @@ namespace ContactsBot
         internal static ConcurrentDictionary<IGuildUser, Timer> MutedUsers = new ConcurrentDictionary<IGuildUser, Timer>();
 
         // actions
-        internal static Dictionary<string, IMessageAction> MessageActions { get; } = new Dictionary<string, IMessageAction>(StringComparer.OrdinalIgnoreCase);
+        internal static ConcurrentDictionary<string, IMessageAction> MessageActions { get; } = new ConcurrentDictionary<string, IMessageAction>(StringComparer.OrdinalIgnoreCase);
 
         // memos
-        internal static Dictionary<string, string> Memos { get; } = (File.Exists("memos.json")) ? JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText("memos.json")) : new Dictionary<string, string>();
-
-        internal static int IgnoreCount { get; set; }
+        internal static long IgnoreCount { get; set; }
     }
 }

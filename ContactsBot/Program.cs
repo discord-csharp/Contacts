@@ -194,7 +194,7 @@ namespace ContactsBot
 
             handler.Install(map);
             if (autoEnable) handler.Enable();
-            Global.MessageActions.Add(handler.GetType().Name, handler);
+            Global.MessageActions.TryAdd(handler.GetType().Name, handler);
         }
 
         private void AddAssemblyActions(IDependencyMap map, bool autoEnable = true)

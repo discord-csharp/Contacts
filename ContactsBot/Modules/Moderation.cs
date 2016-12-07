@@ -120,7 +120,7 @@ namespace ContactsBot.Modules
         }
 
         [Command("wipe"), RequireBotPermission(GuildPermission.ManageMessages), RequireUserPermission(GuildPermission.ManageMessages)]
-        public async Task Wipe(IUser user, int count, int range)
+        public async Task WipeAsync(IUser user, int count, int range)
         {
             var messageList = (await Context.Channel.GetMessagesAsync(range).Flatten()).ToList();
             var userMessage = messageList.Where(message => message.Author == user).Take(count);
