@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Linq;
 using Discord.Commands;
 using Discord.WebSocket;
+using ContactsBot.Configuration;
 
 namespace ContactsBot
 {
@@ -21,7 +22,7 @@ namespace ContactsBot
         {
             _map = map;
             _client = _map.Get<DiscordSocketClient>();
-            _config = _map.Get<BotConfiguration>();
+            _config = await _map.Get<ConfigManager>().GetConfig<BotConfiguration>();
             _programContext = _map.Get<Program>();
             _commands = new CommandService();
             _map.Add(_commands);
@@ -36,7 +37,7 @@ namespace ContactsBot
 
             int argPos = 0;
 #if DEV
-            if (msg.Channel.Name == (_config.DevChannel ?? msg.Channel.Name))
+            if (msg.Channel.Name == (_config.FilterChannel ?? msg.Channel.Name))
 #endif
                 if (message.HasCharPrefix(_config.PrefixCharacter, ref argPos) || message.HasMentionPrefix(_client.CurrentUser, ref argPos))
                 {

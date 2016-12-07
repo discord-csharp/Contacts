@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace ContactsBot.Data
+namespace ContactsBot.Modules.Memos
 {
     [Table("Memos", Schema = "ContactsBotSchema")]
     public class Memo

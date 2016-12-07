@@ -2,6 +2,7 @@
 using Discord.WebSocket;
 using Discord.Commands;
 using System.Threading.Tasks;
+using ContactsBot.Configuration;
 
 namespace ContactsBot.Modules
 {
@@ -15,7 +16,7 @@ namespace ContactsBot.Modules
         public void Install(IDependencyMap map)
         {
             _client = map.Get<DiscordSocketClient>();
-            _config = map.Get<BotConfiguration>();
+            _config = map.Get<ConfigManager>().GetConfig<BotConfiguration>().Result;
         }
 
         public void Enable()
