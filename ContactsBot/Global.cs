@@ -16,6 +16,7 @@ namespace ContactsBot
         // actions
         internal static ConcurrentDictionary<string, IMessageAction> MessageActions { get; } = new ConcurrentDictionary<string, IMessageAction>(StringComparer.OrdinalIgnoreCase);
 
-        internal static int IgnoreCount { get; set; }
+        // memos
+        internal static long IgnoreCount { get; set; }
     }
 }

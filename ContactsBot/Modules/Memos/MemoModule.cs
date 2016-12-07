@@ -74,8 +74,34 @@ namespace ContactsBot.Modules.Memos
         [Command, Summary("Edits an already existing memo")]
         public async Task EditAsync([Summary("The already existing memo")] string name, [Summary("The new value the memo will use")] string newValue)
         {
-            await RemoveAsync(name);
-            await AddAsync(name, newValue);
+            if (Context.IsCorrectRole(Moderation.StandardRoles))
+            {
+                if (name.StartsWith("add") || name.StartsWith("remove"))
+                {
+                    await ReplyAsync("The memo you submitted starts with \"add\" or \"remove\" and couldn't be added.");
+                    return;
+                }
+                using (var context = new ContactsBotDbContext())
+                {
+                    var memo = context.Memos.FirstOrDefault(I => I.Key == name.ToLower());
+                    if (!string.IsNullOrEmpty(memo.Key))
+                    {
+                        memo.Message = newValue;
+                        context.Memos.Update(memo);
+                        await context.SaveChangesAsync();
+                        await ReplyAsync($"Updated {name} in the memos database");
+                        return;
+                    }
+                    else
+                    {
+                        context.Memos.Add(new Memo() { CreatedBy = Context.User.Username, Key = name, Message = newValue });
+                        await context.SaveChangesAsync();
+                        await ReplyAsync($"Added {name} in the memos database");
+                    }
+                }
+            }
+            else
+                await ReplyAsync("Couldn't update memo: Insufficient role");
         }
 
         [Command("remove"), Summary("Removes a memo from the memo dictionary")]

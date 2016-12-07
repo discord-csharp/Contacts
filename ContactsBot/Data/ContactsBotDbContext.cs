@@ -9,6 +9,8 @@ namespace ContactsBot.Data
     public class ContactsBotDbContext : DbContext
     {
         public DbSet<Memo> Memos { get; set; }
+        public DbSet<Karma> Karmas { get; set; }
+
         private ConfigManager _config;
 
         public ContactsBotDbContext(ConfigManager config)
