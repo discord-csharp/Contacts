@@ -280,3 +280,6 @@ ContactsBot/memos.json
 
 # Bot logs
 /ContactsBot/logs
+
+#Config files
+/ContactsBot/Configs

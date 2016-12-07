@@ -1,4 +1,5 @@
-﻿using ContactsBot.Data;
+﻿using ContactsBot.Configuration;
+using ContactsBot.Data;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
@@ -14,7 +15,6 @@ namespace ContactsBot
     {
         static void Main(string[] args)
         {
-            if (!PostgreSQLGlobalConfig.InitializePostgreSQLGlobalConfig()) return;
             try
             {
                 // todo: hook into application exiting to turn off bot
@@ -44,6 +44,7 @@ namespace ContactsBot
         DependencyMap _map;
         BotConfiguration _config;
         CommandHandler _handler;
+        ConfigManager _cfgMgr;
         static StreamWriter _logFile;
         static FileStream _file;
         ISocketMessageChannel _logChannel;
@@ -52,36 +53,51 @@ namespace ContactsBot
             get
             {
                 if (_logChannel == null)
-                    _logChannel = _client.GetGuild(143867839282020352).Channels.FirstOrDefault(c => c.Name == _config.LoggingChannel) as ISocketMessageChannel;
+                    _logChannel = _client.GetGuild(143867839282020352)?.Channels.FirstOrDefault(c => c.Name == _config.LoggingChannel) as ISocketMessageChannel;
                 return _logChannel;
             }
         }
 
         public async Task RunBotAsync()
         {
-            if (!File.Exists("config.json"))
-            {
-                Console.Write("Please enter a bot token: ");
-                string token = Console.ReadLine();
-                _config = BotConfiguration.CreateBotConfigWithToken("config.json", token);
-            }
-            else
-            {
-                _config = BotConfiguration.ProcessBotConfig("config.json");
-                _config.SaveBotConfig("config.json");
-            }
+            // Create the dependency map and inject the client and config into it
+            _map = new DependencyMap();
+            _cfgMgr = new ConfigManager("Configs");
+
+            _map.Add(_cfgMgr);
+            _map.Add(this);
+
 #if DEV
-            if (string.IsNullOrWhiteSpace(_config.DevToken))
+            if (!_cfgMgr.ConfigExists<BotConfiguration>("dev"))
             {
                 Console.Write("Please enter a dev token: ");
                 string token = Console.ReadLine();
-                _config.DevToken = token;
                 Console.WriteLine("Please enter a dev channel name (commands sent to the bot will be restricted to this channel): ");
                 string channel = Console.ReadLine();
-                _config.DevChannel = channel;
-                _config.SaveBotConfig("config.json");
+
+                _config = new BotConfiguration
+                {
+                    Token = token,
+                    FilterChannel = channel
+                };
+
+                _cfgMgr.SaveConfig(_config, "dev");
+            }
+#else
+            if (!_cfgMgr.ConfigExists<BotConfiguration>())
+            {
+                Console.Write("Please enter a bot token: ");
+                string token = Console.ReadLine();
+                _config = new BotConfiguration
+                {
+                    Token = token
+                };
+
+                _cfgMgr.SaveConfig(_config);
             }
 #endif
+
+            _config = await _cfgMgr.GetConfig<BotConfiguration>("dev");
 
             _client = new DiscordSocketClient(new DiscordSocketConfig
             {
@@ -90,11 +106,7 @@ namespace ContactsBot
                 MessageCacheSize = 2000
             });
 
-            // Create the dependency map and inject the client and config into it
-            _map = new DependencyMap();
             _map.Add(_client);
-            _map.Add(_config);
-            _map.Add(this);
 
             _handler = new CommandHandler();
             await _handler.InstallAsync(_map);
@@ -111,11 +123,8 @@ namespace ContactsBot
             _client.UserUnbanned += ChannelLog_UserUnbannedAsync;
             _client.MessageDeleted += ChannelLog_MessageDeletedAsync;
 
-#if DEV
-            await _client.LoginAsync(TokenType.Bot, _config.DevToken);
-#else
-            await _client.LoginAsync(Discord.TokenType.Bot, _config.Token);
-#endif
+            await _client.LoginAsync(TokenType.Bot, _config.Token);
+
             await _client.ConnectAsync();
 
             await _client.SetGame("Helping you C#");
@@ -156,7 +165,7 @@ namespace ContactsBot
 
         internal async Task ChannelLog_CommandLogAsync(string message)
         {
-            await LogChannel?.SendMessageAsync(message);
+            await (LogChannel?.SendMessageAsync(message) ?? Task.CompletedTask);
         }
 
         private async Task _client_LogAsync(LogMessage arg)
