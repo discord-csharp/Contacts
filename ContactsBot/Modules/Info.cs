@@ -62,7 +62,7 @@ namespace ContactsBot.Modules
         }
 
         [Command("code"), Summary("Prints how to embed code into Discord.")]
-        public async Task Code()
+        public async Task CodeAsync()
         {
             await ReplyAsync("To embed code into Discord surround it with \\```<languagename>. Example:\n" +
                              "\\```cs\n " +
