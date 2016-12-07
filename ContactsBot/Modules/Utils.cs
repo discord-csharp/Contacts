@@ -55,13 +55,13 @@ namespace ContactsBot.Modules
             {
                 field.IsInline = true;
                 field.Name = "Joined at";
-                field.Value = user.JoinedAt.ToString();
+                field.Value = user.JoinedAt.HasValue ? user.JoinedAt.Value.ToUniversalTime().ToString() : string.Empty;
             });
             embed.AddField(field =>
             {
                 field.IsInline = true;
                 field.Name = "Created at";
-                field.Value = user.CreatedAt.ToString();
+                field.Value = user.CreatedAt.ToUniversalTime().ToString();
             });
             if(user.Nickname != null)
                 embed.AddField(field =>
