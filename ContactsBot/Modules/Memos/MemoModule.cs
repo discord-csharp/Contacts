@@ -1,15 +1,23 @@
-﻿using ContactsBot.Data;
+﻿using ContactsBot.Configuration;
+using ContactsBot.Data;
 using Discord.Commands;
 using Newtonsoft.Json;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace ContactsBot.Modules
+namespace ContactsBot.Modules.Memos
 {
     [Group("memos"), Summary("Lets users store text for later use")]
-    public class Memos : ModuleBase
+    public class MemoModule : ModuleBase
     {
+        private ConfigManager _config;
+
+        public MemoModule(ConfigManager config)
+        {
+            _config = config;
+        }
+
         [Command("add"), Summary("Adds a memo to the memo dictionary")]
         public async Task AddAsync([Summary("The string to use to get the memo later")] string memoName, [Remainder, Summary("The string given back when this memo is called")] string memoResponse)
         {
@@ -20,10 +28,10 @@ namespace ContactsBot.Modules
                     await ReplyAsync("The memo you submitted starts with \"add\" or \"remove\" and couldn't be added.");
                     return;
                 }
-                using (var context = new ContactsBotDbContext())
+                using (var context = new ContactsBotDbContext(_config))
                 {
                     var memo = context.Memos.FirstOrDefault(I => I.Key == memoName.ToLower());
-                    if (!string.IsNullOrEmpty(memo.Key))
+                    if (!string.IsNullOrEmpty(memo?.Key))
                     {
                         memo.Message = memoResponse;
                         context.Memos.Update(memo);
@@ -31,11 +39,9 @@ namespace ContactsBot.Modules
                         await ReplyAsync($"Updated {memoName} in the memos database");
                         return;
                     }
-                    else
-                    {
-                        context.Memos.Add(new Memo() { CreatedBy = Context.User.Username, Key = memoName, Message = memoResponse });
-                        await context.SaveChangesAsync();
-                    }
+
+                    context.Memos.Add(new Memo() { CreatedBy = Context.User.Username, Key = memoName, Message = memoResponse });
+                    await context.SaveChangesAsync();
                 }
                 await ReplyAsync($"Added {memoName} in the memos database");
             }
@@ -46,11 +52,20 @@ namespace ContactsBot.Modules
         [Command, Summary("Retrieves a memo")]
         public async Task GetAsync([Summary("The memo to retrieve")] string memo)
         {
-            using (var context = new ContactsBotDbContext())
+            using (var context = new ContactsBotDbContext(_config))
             {
                 var item = context.Memos.FirstOrDefault(I => I.Key == memo);
                 if (!string.IsNullOrEmpty(item.Key))
-                    await ReplyAsync($"{memo}: {item.Message} by {item.CreatedBy}");
+                    await ReplyAsync("", false, new Discord.EmbedBuilder
+                    {
+                        Title = memo,
+                        Description = item.Message,
+                        Color = new Discord.Color(173, 255, 47),
+                        Footer = new Discord.EmbedFooterBuilder
+                        {
+                            Text = $"Created by {item.CreatedBy}"
+                        }
+                    });
                 else
                     await ReplyAsync($"Couldn't find {memo}");
             }
@@ -68,7 +83,7 @@ namespace ContactsBot.Modules
         {
             if (Context.IsCorrectRole(Moderation.StandardRoles))
             {
-                using (var context = new ContactsBotDbContext())
+                using (var context = new ContactsBotDbContext(_config))
                 {
                     var item = context.Memos.FirstOrDefault(I => I.Key == memoName);
                     if (!string.IsNullOrEmpty(item.Key))
@@ -90,7 +105,7 @@ namespace ContactsBot.Modules
         {
             string reply = "Memos: ";
             bool first = true;
-            using (var context = new ContactsBotDbContext())
+            using (var context = new ContactsBotDbContext(_config))
                 foreach (var memo in context.Memos)
                 {
                     if (first)
