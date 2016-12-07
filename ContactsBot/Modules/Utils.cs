@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using System.Text;
 using Discord.WebSocket;
+using System.Globalization;
 
 namespace ContactsBot.Modules
 {
@@ -55,13 +56,13 @@ namespace ContactsBot.Modules
             {
                 field.IsInline = true;
                 field.Name = "Joined at";
-                field.Value = user.JoinedAt.HasValue ? user.JoinedAt.Value.ToUniversalTime().ToString() : string.Empty;
+                field.Value = user.JoinedAt.HasValue ? user.JoinedAt.Value.ToString(CultureInfo.InvariantCulture.DateTimeFormat.ShortDatePattern) : string.Empty;
             });
             embed.AddField(field =>
             {
                 field.IsInline = true;
                 field.Name = "Created at";
-                field.Value = user.CreatedAt.ToUniversalTime().ToString();
+                field.Value = user.CreatedAt.ToString(CultureInfo.InvariantCulture.DateTimeFormat.ShortDatePattern);
             });
             if(user.Nickname != null)
                 embed.AddField(field =>
