@@ -14,6 +14,8 @@ namespace ContactsBot.Modules
         [Command("+1"), Summary("Give someone a +1 for solving your problem")]
         public async Task PlusOneAsync([Summary("the username string to recieve your thanks")] IGuildUser user)
         {
+            if (user == null) return;
+
             using (var context = new ContactsBotDbContext())
             {
                 var item = context.Karmas.FirstOrDefault(I => I.Username == user.Username);
