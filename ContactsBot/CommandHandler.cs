@@ -10,15 +10,16 @@ using ContactsBot.Configuration;
 
 namespace ContactsBot
 {
-    public class CommandHandler
+    public class CommandHandler : IMessageAction
     {
         private Program _programContext;
         private CommandService _commands;
         private DiscordSocketClient _client;
         private BotConfiguration _config;
         IDependencyMap _map;
+        public bool IsEnabled { get; private set; }
 
-        public async Task InstallAsync(IDependencyMap map)
+        public async void Install(IDependencyMap map)
         {
             _map = map;
             _client = _map.Get<DiscordSocketClient>();
@@ -27,7 +28,18 @@ namespace ContactsBot
             _commands = new CommandService();
             _map.Add(_commands);
             await _commands.AddModulesAsync(Assembly.GetEntryAssembly());
+        }
+
+        public void Enable()
+        {
             _client.MessageReceived += HandleCommandAsync;
+            IsEnabled = true;
+        }
+
+        public void Disable()
+        {
+            _client.MessageReceived -= HandleCommandAsync;
+            IsEnabled = false;
         }
 
         private async Task HandleCommandAsync(SocketMessage msg)

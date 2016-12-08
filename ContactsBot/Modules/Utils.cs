@@ -94,7 +94,7 @@ namespace ContactsBot.Modules
     [Name("Message Actions module"), Group("actions")]
     public class MessageActionModifiers : ModuleBase
     {
-        [Command("list"), Summary("Lists actions installed for this bot")]
+        [Command, Summary("Lists actions installed for this bot")]
         public async Task ListActionsAsync()
         {
             StringBuilder reply = new StringBuilder();
