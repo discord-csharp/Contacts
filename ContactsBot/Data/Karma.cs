@@ -10,6 +10,7 @@ namespace ContactsBot.Data
     public class Karma
     {
         [Key]
+        [MaxLength(8000, ErrorMessage ="Username cannot exceed 8000 characters.")]
         public string Username { get; set; }
         public long KarmaCount { get; set; }
     }

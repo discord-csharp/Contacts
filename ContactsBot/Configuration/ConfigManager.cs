@@ -25,20 +25,16 @@ namespace ContactsBot.Configuration
 
         public async Task<T> GetConfig<T>(string name = "default", bool forceReload = false) where T : class
         {
-            string path = GetPathToConfig<T>(name);
-
             if (_firstLoaded.ContainsKey(typeof(T)) && name == "default" && !forceReload)
-            {
                 return _firstLoaded[typeof(T)] as T;
-            }
 
             if (forceReload)
             {
                 object outvar;
                 _firstLoaded.TryRemove(typeof(T), out outvar);
             }
-
-            using (StreamReader reader = new StreamReader(File.OpenRead(GetPathToConfig<T>(name))))
+            string path = GetPathToConfig<T>(name);
+            using (StreamReader reader = new StreamReader(File.OpenRead(path)))
             {
                 var deserialized = JsonConvert.DeserializeObject<T>(await reader.ReadToEndAsync());
 

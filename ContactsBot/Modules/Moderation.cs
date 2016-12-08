@@ -6,12 +6,18 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using ContactsBot.Configuration;
 
 namespace ContactsBot.Modules
 {
     [Name("Moderation Module")]
     public class Moderation : ModuleBase
     {
+        private ConfigManager _config;
+        public Moderation(ConfigManager config)
+        {
+            _config = config;
+        }
         const ulong _mutedRoleId = 251734975727009793;
         internal static string[] StandardRoles = new[] { "Founders", "Moderators", "Regulars", "Bot" };
 

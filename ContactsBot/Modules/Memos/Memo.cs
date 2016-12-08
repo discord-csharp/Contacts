@@ -11,8 +11,11 @@ namespace ContactsBot.Modules.Memos
     public class Memo
     {
         [Key]
+        [MaxLength(8000, ErrorMessage = "Username cannot exceed 8000 characters.")]
         public string Key { get; set; }
+        [MaxLength(8000, ErrorMessage = "Message cannot exceed 8000 characters.")]
         public string Message { get; set; }
+        [MaxLength(8000, ErrorMessage = "Username cannot exceed 8000 characters.")]
         public string CreatedBy { get; set; }
     }
 }
