@@ -43,7 +43,6 @@ namespace ContactsBot
         DiscordSocketClient _client;
         DependencyMap _map;
         BotConfiguration _config;
-        CommandHandler _handler;
         ConfigManager _cfgMgr;
         static StreamWriter _logFile;
         static FileStream _file;
@@ -107,10 +106,7 @@ namespace ContactsBot
             });
 
             _map.Add(_client);
-
-            _handler = new CommandHandler();
-            await _handler.InstallAsync(_map);
-
+            
             AddAssemblyActions(_map);
 
             _client.Log += _client_LogAsync; // console info
@@ -122,6 +118,7 @@ namespace ContactsBot
             _client.UserBanned += ChannelLog_UserBannedAsync;
             _client.UserUnbanned += ChannelLog_UserUnbannedAsync;
             _client.MessageDeleted += ChannelLog_MessageDeletedAsync;
+            _client.MessageReceived += _client_MessageRecieved;
 
             await _client.LoginAsync(TokenType.Bot, _config.Token);
 
@@ -130,6 +127,26 @@ namespace ContactsBot
             await _client.SetGame("Helping you C#");
 
             await Task.Delay(-1);
+        }
+
+        private async Task _client_MessageRecieved(SocketMessage msg)
+        {
+            IGuildUser user = msg.Author as IGuildUser;
+            if (user == null)
+                return;
+            if (Modules.ModerationExtensions.IsCorrectRole(user, user.Guild, Modules.Moderation.StandardRoles) && msg.Content.Equals("~actions enable commandhandler", StringComparison.OrdinalIgnoreCase))
+            {
+                var success = Global.MessageActions.TryGetValue("CommandHandler", out var commandHandler);
+                if (!success)
+                    await ChannelLog_CommandLogAsync("Internal error, couldn't find the command handler action");
+                else if (commandHandler.IsEnabled)
+                    await msg.Channel.SendMessageAsync("The command handler is already enabled");
+                else
+                {
+                    commandHandler.Enable();
+                    await msg.Channel.SendMessageAsync("Enabled commands");
+                }
+            }
         }
 
         private async Task ChannelLog_MessageDeletedAsync(ulong arg1, Optional<SocketMessage> arg2)

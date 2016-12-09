@@ -9,7 +9,7 @@ namespace ContactsBot.Modules
     public class Info : ModuleBase
     {
         private CommandService _commands;
-        private BotConfiguration _config;
+        private Configuration.ConfigManager _config;
 
         [Command("help"), Summary("Displays this help message")]
         public async Task HelpAsync()
@@ -49,7 +49,7 @@ namespace ContactsBot.Modules
         [Command("motd"), Summary("Displays the current MOTD")]
         public async Task MotdAsync()
         {
-            await ReplyAsync(string.Format(_config.MessageOfTheDay, Context.User.Username));
+            await ReplyAsync(string.Format((await _config.GetConfig<BotConfiguration>()).MessageOfTheDay, Context.User.Username));
         }
         
         [Command("learntoask"), Summary("Prints a small info for people that dont know how to ask.")]
@@ -74,7 +74,7 @@ namespace ContactsBot.Modules
         }
 
         // Upon creation of this module, the command service will be loaded from the dependency map
-        public Info(CommandService cs, BotConfiguration config)
+        public Info(CommandService cs, Configuration.ConfigManager config)
         {
             _commands = cs;
             _config = config;
