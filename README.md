@@ -21,9 +21,11 @@ The roadmap of Contacts changed a lot since the first kickoff. A lot of people c
 - Unflipping tables
 
 ## Installation
-First, edit Postgres.json your database information.
-Second, run PostgreSQL Administration Software like PGAdmin 4 and run PostgreSQLCreationScript.psql on your designated database.
-Third, now run the bot!
+ - First, run the bot to create skeleton config files for your bot.
+ - Second, modify two configuration files in two seperate directories under ContactsBot/Config/ (PostgreSQLConfiguration and BotConfiguration) and provide necessary informations and configuration.
+ - Third, run PostgreSQL Administration Software like PGAdmin 4 and run PostgreSQLCreationScript.psql on your designated database. (Make sure your PostgreSQLConfiguration file is configured toward designated database.)
+ - Finally, now run your bot!
+ 
 ## Contributing
 
 There are two major paths for contributing to Contacts: You can either supply the maintainers with ideas or simply add new modules and features on your own and PR them. 
