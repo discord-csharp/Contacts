@@ -9,7 +9,7 @@ namespace ContactsBot.NLogTargets
     {
         private ISocketMessageChannel _logChannel;
         private DiscordSocketClient _socket;
-        private static Logger discordNLogTargetLogger = LogManager.GetCurrentClassLogger();
+        private static Logger discordNLogTargetLogger { get; } = LogManager.GetCurrentClassLogger();
         public DiscordNLogTarget(ulong logGuildID, ulong logChannelID, DiscordSocketClient socket)
         {
             Name = GetType().Name;

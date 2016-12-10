@@ -7,25 +7,35 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using ContactsBot.Configuration;
+using NLog;
 
 namespace ContactsBot.Modules
 {
     [Name("Moderation Module")]
     public class ModerationModule : ModuleBase
     {
+        private static Logger moderatorLogger { get; } = LogManager.GetCurrentClassLogger();
         private ConfigManager _config;
         private IBotInterface _botInterface;
+        private ulong? _mutedRoleId = null;
         public ModerationModule(ConfigManager config, IBotInterface botInterface)
         {
             _config = config;
             _botInterface = botInterface;
+#if DEV
+            _mutedRoleId = config.GetConfig<BotConfiguration>(name: "dev").GetAwaiter().GetResult().MuteRole;
+#else
+            _mutedRoleId = config.GetConfig<BotConfiguration>().GetAwaiter().GetResult().MuteRole;
+#endif
         }
-        const ulong _mutedRoleId = 251734975727009793;
+
         internal static string[] StandardRoles = new[] { "Founders", "Administrator", "Moderators", "Regulars", "Bot" };
 
         [Command("mute"), Summary("Mutes a user for the specified amount of time")]
         public async Task MuteAsync([Summary("The user to mute")] IGuildUser user, [Summary("The TimeSpan to mute the user")] TimeSpan time)
         {
+            if (!_mutedRoleId.HasValue) return;
+
             var guildUser = user as SocketGuildUser;
             if (guildUser == null) return;
 
@@ -35,7 +45,7 @@ namespace ContactsBot.Modules
                 return;
             }
             
-            var muteRole = guildUser.Guild.GetRole(_mutedRoleId);
+            var muteRole = guildUser.Guild.GetRole(_mutedRoleId.Value);
             if (muteRole == null)
             {
                 await ReplyAsync("Couldn't mute user: The specified role doesn't exist");
@@ -62,20 +72,21 @@ namespace ContactsBot.Modules
 
         public async Task UnmuteInternalAsync(IGuildUser user, bool isCallback)
         {
+            if (!_mutedRoleId.HasValue) return;
             if (!isCallback && !Context.IsCorrectRole(StandardRoles))
             {
                 await ReplyAsync("Couldn't unmute user: Insufficient role");
                 return;
             }
             var guildUser = user as SocketGuildUser;
-            var muteRole = guildUser.Guild.GetRole(_mutedRoleId);
+            var muteRole = guildUser.Guild.GetRole(_mutedRoleId.Value);
             if (muteRole == null)
             {
                 await ReplyAsync("Couldn't unmute user: The specified role doesn't exist");
             }
             else
             {
-                if (guildUser.RoleIds.Contains(_mutedRoleId))
+                if (guildUser.RoleIds.Contains(_mutedRoleId.Value))
                     await guildUser.RemoveRolesAsync(muteRole);
                 else
                     return;

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using Discord.WebSocket;
 using System.Globalization;
+using NLog;
 
 namespace ContactsBot.Modules
 {
@@ -12,7 +13,7 @@ namespace ContactsBot.Modules
     [Group("utils"), Summary("Utility Module for getting information on Discord")]
     public class UtilsModule : ModuleBase
     {
-
+        private static Logger utilsLogger { get; } = LogManager.GetCurrentClassLogger();
         [Command("roleinfo"), Summary("Gets information about the specified role")]
         public async Task RoleInfoAsync([Summary("The role to find")]IRole role) // todo, make this util better
         {
@@ -96,6 +97,7 @@ namespace ContactsBot.Modules
     [Name("Message Actions module"), Group("actions")]
     public class MessageActionModifiers : ModuleBase
     {
+        private static Logger messageActionModifiersLogger { get; } = LogManager.GetCurrentClassLogger();
         IBotInterface _botInterface { get; set; }
         public MessageActionModifiers(IBotInterface botInterface)
         {
