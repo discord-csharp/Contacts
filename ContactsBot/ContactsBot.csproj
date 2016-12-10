@@ -2,6 +2,7 @@
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" />
   <PropertyGroup Label="Configuration">
     <DefineConstants>TRACE;DEBUG;DEV</DefineConstants>
+    <AssemblyName>ContactsBot</AssemblyName>
   </PropertyGroup>
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -15,8 +16,14 @@
     <Content Include="Assets\contacts.png">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Content>
+    <Content Include="NLog.Dev.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="NLog.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <None Include="PostgreSQLCreationScript.psql" />
   </ItemGroup>
   <ItemGroup>
@@ -41,6 +48,9 @@
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json">
       <Version>9.0.1</Version>
+    </PackageReference>
+    <PackageReference Include="NLog">
+      <Version>5.0.0-beta03</Version>
     </PackageReference>
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL">
       <Version>1.1.0</Version>

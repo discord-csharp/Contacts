@@ -1,12 +1,26 @@
 ﻿CREATE SCHEMA "ContactsBotSchema"
     AUTHORIZATION postgres;
 
+CREATE TABLE "ContactsBotSchema"."Karmas"
+(
+    "UserID" bigint NOT NULL,
+    "KarmaCount" integer NOT NULL,
+    CONSTRAINT "Karmas_pkey" PRIMARY KEY ("UserID")
+)
+WITH (
+    OIDS = FALSE
+)
+TABLESPACE pg_default;
+
+ALTER TABLE "ContactsBotSchema"."Karmas"
+    OWNER to postgres;
+
 CREATE TABLE "ContactsBotSchema"."Memos"
 (
-    "Key" character varying(8000) COLLATE pg_catalog."default" NOT NULL,
-    "Message" character varying(8000) COLLATE pg_catalog."default" NOT NULL,
-    "CreatedBy" character varying(8000) COLLATE pg_catalog."default" NOT NULL,
-    CONSTRAINT "Memos_pkey" PRIMARY KEY ("Key")
+    "MemoName" character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    "Message" character varying(500) COLLATE pg_catalog."default" NOT NULL,
+    "CreatedByUserID" bigint NOT NULL,
+    CONSTRAINT "Memos_pkey" PRIMARY KEY ("MemoName")
 )
 WITH (
     OIDS = FALSE
@@ -16,16 +30,19 @@ TABLESPACE pg_default;
 ALTER TABLE "ContactsBotSchema"."Memos"
     OWNER to postgres;
 
-CREATE TABLE "ContactsBotSchema"."Karmas"
+CREATE TABLE "ContactsBotSchema"."Logs"
 (
-    "Username" character varying(8000) COLLATE pg_catalog."default" NOT NULL,
-    "KarmaCount" bigint NOT NULL,
-    CONSTRAINT "Karmas_pkey" PRIMARY KEY ("Username")
+    "LogID" bigserial NOT NULL,
+    "Level" character varying(5) COLLATE pg_catalog."default" NOT NULL,
+    "Timestamp" timestamp without time zone NOT NULL,
+    "Message" text COLLATE pg_catalog."default",
+    "Exception" text COLLATE pg_catalog."default",
+    CONSTRAINT "Logs_pkey" PRIMARY KEY ("LogID")
 )
 WITH (
     OIDS = FALSE
 )
 TABLESPACE pg_default;
 
-ALTER TABLE "ContactsBotSchema"."Karmas"
+ALTER TABLE "ContactsBotSchema"."Logs"
     OWNER to postgres;

@@ -2,7 +2,7 @@
 
 namespace ContactsBot
 {
-    interface IMessageAction
+    public interface IMessageAction
     {
         void Install(IDependencyMap map);
 

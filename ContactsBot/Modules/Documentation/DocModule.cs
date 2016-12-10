@@ -10,7 +10,7 @@ using AngleSharp.Parser.Html;
 using Humanizer;
 using Newtonsoft.Json;
 using System.IO;
-using System.IO.Compression;
+using NLog;
 
 namespace ContactsBot.Modules.Documentation
 {
@@ -27,6 +27,7 @@ namespace ContactsBot.Modules.Documentation
         private string GetNugetHtmlUrl(string query) => $"https://www.nuget.org/packages/{Uri.EscapeDataString(query)}";
 
         private string GetGithubSearchUrl(string query) => $"https://api.github.com/search/repositories?q={Uri.EscapeDataString(query)}+language:csharp&sort=stars&order=desc";
+        private static Logger DocLogger { get; } = LogManager.GetCurrentClassLogger();
 
         [Command("github"), Alias("gh")]
         [Summary("Searches Github for a repo.")]
@@ -55,6 +56,7 @@ namespace ContactsBot.Modules.Documentation
             if (result == null)
             {
                 await ReplyAsync($"No results for **{query}**.");
+                DocLogger.Info("{0} attempted to query for {1} and no results could be found.", Context.User.Username, query);
                 return;
             }
 
@@ -116,6 +118,7 @@ namespace ContactsBot.Modules.Documentation
             if (result == null)
             {
                 await ReplyAsync($"No results for **{query}**.");
+                DocLogger.Info("{0} attempted to query for {1} and no results could be found.", Context.User.Username, query);
                 return;
             }
 
@@ -183,6 +186,7 @@ namespace ContactsBot.Modules.Documentation
                 if (!searchResults.Any())
                 {
                     await ReplyAsync($"No results for **{query}**.");
+                    DocLogger.Info("{0} attempted to query for {1} and no results could be found.", Context.User.Username, query);
                     return;
                 }
 
@@ -212,13 +216,15 @@ namespace ContactsBot.Modules.Documentation
 
                 await ReplyAsync("", false, embed);
             }
-            catch (WebException)
+            catch (WebException ex)
             {
                 await ReplyAsync("Sorry, there was a network issue.");
+                DocLogger.Debug(ex, "Sorry, there was a network issue.");
             }
-            catch (XmlException)
+            catch (XmlException ex)
             {
                 await ReplyAsync("There was a problem parsing the XML response from MSDN.");
+                DocLogger.Debug(ex, "There was a problem parsing the XML response from MSDN.");
             }
         }
 
@@ -249,6 +255,7 @@ namespace ContactsBot.Modules.Documentation
                 if (note == "No results found")
                 {
                     await ReplyAsync($"No results for **{query}**.");
+                    DocLogger.Info("{0} attempted to query for {1} and no results could be found.", Context.User.Username, query);
                     return;
                 }
 
@@ -265,13 +272,15 @@ namespace ContactsBot.Modules.Documentation
                         Color = new Discord.Color(104, 33, 122)
                     });
             }
-            catch (WebException)
+            catch (WebException ex)
             {
                 await ReplyAsync("Sorry, there was a network issue.");
+                DocLogger.Debug(ex, "There was a problem parsing the XML response from MSDN.");
             }
-            catch (HtmlParseException)
+            catch (HtmlParseException ex)
             {
                 await ReplyAsync("There was a problem parsing the HTML response from the reference source.");
+                DocLogger.Debug(ex, "There was a problem parsing the HTML response from the reference source.");
             }
         }
 

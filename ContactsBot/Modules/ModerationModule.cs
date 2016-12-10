@@ -11,15 +11,17 @@ using ContactsBot.Configuration;
 namespace ContactsBot.Modules
 {
     [Name("Moderation Module")]
-    public class Moderation : ModuleBase
+    public class ModerationModule : ModuleBase
     {
         private ConfigManager _config;
-        public Moderation(ConfigManager config)
+        private IBotInterface _botInterface;
+        public ModerationModule(ConfigManager config, IBotInterface botInterface)
         {
             _config = config;
+            _botInterface = botInterface;
         }
         const ulong _mutedRoleId = 251734975727009793;
-        internal static string[] StandardRoles = new[] { "Founders", "Moderators", "Regulars", "Bot" };
+        internal static string[] StandardRoles = new[] { "Founders", "Administrator", "Moderators", "Regulars", "Bot" };
 
         [Command("mute"), Summary("Mutes a user for the specified amount of time")]
         public async Task MuteAsync([Summary("The user to mute")] IGuildUser user, [Summary("The TimeSpan to mute the user")] TimeSpan time)
@@ -33,7 +35,7 @@ namespace ContactsBot.Modules
                 return;
             }
             
-            var muteRole = guildUser.Guild.Roles.FirstOrDefault(r => r.Id == _mutedRoleId);
+            var muteRole = guildUser.Guild.GetRole(_mutedRoleId);
             if (muteRole == null)
             {
                 await ReplyAsync("Couldn't mute user: The specified role doesn't exist");
@@ -42,7 +44,7 @@ namespace ContactsBot.Modules
                 await guildUser.AddRolesAsync(muteRole);
 
             Timer timer = new Timer(TimerCallbackAsync, user, (int)time.TotalMilliseconds, -1);
-            Global.MutedUsers.TryAdd(user, timer);
+            _botInterface.MutedUsers.TryAdd(user, timer);
 
             await ReplyAsync($"Muted {guildUser.Nickname ?? guildUser.Username} for {time.Humanize(3)}");
         }
@@ -66,7 +68,7 @@ namespace ContactsBot.Modules
                 return;
             }
             var guildUser = user as SocketGuildUser;
-            var muteRole = guildUser.Guild.Roles.FirstOrDefault(r => r.Id == _mutedRoleId);
+            var muteRole = guildUser.Guild.GetRole(_mutedRoleId);
             if (muteRole == null)
             {
                 await ReplyAsync("Couldn't unmute user: The specified role doesn't exist");
@@ -80,23 +82,30 @@ namespace ContactsBot.Modules
             }
             
             await ReplyAsync($"Unmuted {user.Nickname ?? user.Username}");
-            Global.MutedUsers.TryRemove(user, out var outputTimer);
+            _botInterface.MutedUsers.TryRemove(user, out var outputTimer);
         }
     }
 
     [Group("message"), Name("Message Module")]
-    public class Messages : ModuleBase
+    public class MessagesModule : ModuleBase
     {
+        IBotInterface _botInterface;
+
+        public MessagesModule(IBotInterface botInterface)
+        {
+            _botInterface = botInterface;
+        }
+
         [Command("deleterange"), RequireBotPermission(GuildPermission.ManageMessages), RequireContext(ContextType.Guild)]
         public async Task DeleteAsync([Summary("The range of messages to delete")] int range)
         {
-            if (Context.IsCorrectRole(Moderation.StandardRoles))
+            if (Context.IsCorrectRole(ModerationModule.StandardRoles))
             {
                 var messageList = await Context.Channel.GetMessagesAsync(range).Flatten();
                 await Context.Channel.DeleteMessagesAsync(messageList);
 
                 await ReplyAsync($"Deleted the last {range} messages.");
-                Global.IgnoreCount += range;
+                _botInterface.IgnoreCount += range;
             }
             else
                 await ReplyAsync("Couldn't delete messages: Insufficient role");
@@ -105,7 +114,7 @@ namespace ContactsBot.Modules
         [Command("deleterange"), RequireBotPermission(GuildPermission.ManageMessages), RequireContext(ContextType.Guild)]
         public async Task DeleteAsync([Summary("The message ID to start deleting at")] ulong startMessage, [Summary("The last message ID to delete")] ulong endMessage)
         {
-            if (Context.IsCorrectRole(Moderation.StandardRoles))
+            if (Context.IsCorrectRole(ModerationModule.StandardRoles))
             {
                 var messageList = (await Context.Channel.GetMessagesAsync(500).Flatten()).ToList();
                 int startIndex = messageList.FindIndex(m => m.Id == startMessage);
@@ -119,7 +128,7 @@ namespace ContactsBot.Modules
                 await Context.Channel.DeleteMessagesAsync(messageRange);
 
                 await ReplyAsync($"Deleted {Math.Abs(endIndex - startIndex) + 1} messages");
-                Global.IgnoreCount += Math.Abs(endIndex - startIndex) + 1;
+                _botInterface.IgnoreCount += Math.Abs(endIndex - startIndex) + 1;
             }
             else
                 await ReplyAsync("Couldn't delete messages: Insufficient role");
@@ -132,7 +141,7 @@ namespace ContactsBot.Modules
             var userMessage = messageList.Where(message => message.Author == user).Take(count);
             await Context.Channel.DeleteMessagesAsync(userMessage);
             await ReplyAsync($"Wiped {userMessage.Count()} messages from {user}");
-            Global.IgnoreCount += userMessage.Count();
+            _botInterface.IgnoreCount += userMessage.Count();
         }
     }
 

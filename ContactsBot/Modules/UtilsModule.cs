@@ -9,8 +9,10 @@ using System.Globalization;
 namespace ContactsBot.Modules
 {
     [Name("Utils Module")]
-    public class Utils : ModuleBase
+    [Group("utils"), Summary("Utility Module for getting information on Discord")]
+    public class UtilsModule : ModuleBase
     {
+
         [Command("roleinfo"), Summary("Gets information about the specified role")]
         public async Task RoleInfoAsync([Summary("The role to find")]IRole role) // todo, make this util better
         {
@@ -56,13 +58,13 @@ namespace ContactsBot.Modules
             {
                 field.IsInline = true;
                 field.Name = "Joined at";
-                field.Value = user.JoinedAt.HasValue ? user.JoinedAt.Value.ToString(CultureInfo.InvariantCulture.DateTimeFormat.ShortDatePattern) : string.Empty;
+                field.Value = user.JoinedAt.HasValue ? user.JoinedAt.Value.ToString(CultureInfo.InvariantCulture.DateTimeFormat.ShortDatePattern + " " + CultureInfo.InvariantCulture.DateTimeFormat.LongTimePattern) : string.Empty;
             });
             embed.AddField(field =>
             {
                 field.IsInline = true;
                 field.Name = "Created at";
-                field.Value = user.CreatedAt.ToString(CultureInfo.InvariantCulture.DateTimeFormat.ShortDatePattern);
+                field.Value = user.CreatedAt.ToString(CultureInfo.InvariantCulture.DateTimeFormat.ShortDatePattern + " " + CultureInfo.InvariantCulture.DateTimeFormat.LongTimePattern);
             });
             if(user.Nickname != null)
                 embed.AddField(field =>
@@ -94,12 +96,18 @@ namespace ContactsBot.Modules
     [Name("Message Actions module"), Group("actions")]
     public class MessageActionModifiers : ModuleBase
     {
-        [Command, Summary("Lists actions installed for this bot")]
+        IBotInterface _botInterface { get; set; }
+        public MessageActionModifiers(IBotInterface botInterface)
+        {
+            _botInterface = botInterface;
+        }
+
+        [Command("listactions"), Summary("Lists actions installed for this bot")]
         public async Task ListActionsAsync()
         {
             StringBuilder reply = new StringBuilder();
             reply.Append("Actions:");
-            foreach(var action in Global.MessageActions)
+            foreach(var action in _botInterface.MessageActions)
             {
                 reply.AppendLine();
                 var replyEnabled = action.Value.IsEnabled ? "Enabled" : "Disabled";
@@ -111,12 +119,12 @@ namespace ContactsBot.Modules
         [Command("enable"), Summary("Enables a disabled action")]
         public async Task EnableActionAsync([Summary("The action to enable")] string actionName)
         {
-            if(!Context.IsCorrectRole(Moderation.StandardRoles))
+            if(!Context.IsCorrectRole(ModerationModule.StandardRoles))
             {
                 await ReplyAsync("Couldn't enable message action: Insufficient role");
                 return;
             }
-            Global.MessageActions.TryGetValue(actionName, out var action);
+            _botInterface.MessageActions.TryGetValue(actionName, out var action);
             if (action == null) await ReplyAsync("Couldn't find the specified action");
             if (action.IsEnabled) await ReplyAsync("The action is already enabled");
             else
@@ -129,12 +137,12 @@ namespace ContactsBot.Modules
         [Command("disable"), Summary("Disables an enabled action")]
         public async Task DisableActionAsync([Summary("The action to disable")] string actionName)
         {
-            if (!Context.IsCorrectRole(Moderation.StandardRoles))
+            if (!Context.IsCorrectRole(ModerationModule.StandardRoles))
             {
                 await ReplyAsync("Couldn't disable message action: Insufficient role");
                 return;
             }
-            Global.MessageActions.TryGetValue(actionName, out var action);
+            _botInterface.MessageActions.TryGetValue(actionName, out var action);
             if (action == null) await ReplyAsync("Couldn't find the specified action");
             if (!action.IsEnabled) await ReplyAsync("The action is already disabled");
             else

@@ -7,27 +7,37 @@ using System.Linq;
 using Discord.Commands;
 using Discord.WebSocket;
 using ContactsBot.Configuration;
+using NLog;
 
 namespace ContactsBot
 {
     public class CommandHandler : IMessageAction
     {
-        private Program _programContext;
+        private ContactsBot _programContext;
         private CommandService _commands;
         private DiscordSocketClient _client;
         private BotConfiguration _config;
         IDependencyMap _map;
         public bool IsEnabled { get; private set; }
-
+        static Logger commandLogger { get; set; }
+        static CommandHandler()
+        {
+            commandLogger = LogManager.GetCurrentClassLogger();
+        }
         public async void Install(IDependencyMap map)
         {
             _map = map;
             _client = _map.Get<DiscordSocketClient>();
+#if DEV
+            _config = await _map.Get<ConfigManager>().GetConfig<BotConfiguration>(name:"dev");
+#else
             _config = await _map.Get<ConfigManager>().GetConfig<BotConfiguration>();
-            _programContext = _map.Get<Program>();
+#endif
+            _programContext = _map.Get<ContactsBot>();
             _commands = new CommandService();
             _map.Add(_commands);
             await _commands.AddModulesAsync(Assembly.GetEntryAssembly());
+            _commands.Commands.AsParallel().ForAll(I => commandLogger.Debug("Loaded command: {0} - {1}", I.Name, I.RunMode.ToString()));
         }
 
         public void Enable()
@@ -62,12 +72,12 @@ namespace ContactsBot
                         if ((result is SearchResult))
                             return;
                         if (result is ExecuteResult)
-                            await message.Channel.SendMessageAsync("```" + ((ExecuteResult)result).Exception.ToString() + "```");
+                            commandLogger.Error("```" + ((ExecuteResult)result).Exception.ToString() + "```");
                         else
-                            await message.Channel.SendMessageAsync(result.ErrorReason);
+                            commandLogger.Error(result.ErrorReason);
                     }
                     else
-                        await _programContext.ChannelLog_CommandLogAsync($"\"{message.Author.Username}\" ran the following command: {message.Content}");
+                        commandLogger.Info($"\"{message.Author.Username}\" ran the following command: {message.Content}");
                 }
         }
     }

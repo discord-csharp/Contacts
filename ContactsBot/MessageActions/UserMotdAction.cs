@@ -3,20 +3,26 @@ using Discord.WebSocket;
 using Discord.Commands;
 using System.Threading.Tasks;
 using ContactsBot.Configuration;
+using NLog;
 
 namespace ContactsBot.Modules
 {
-    class UserMotd : IMessageAction
+    public class UserMotdAction : IMessageAction
     {
         private DiscordSocketClient _client;
         private BotConfiguration _config;
+        private static Logger UserMotdLogger { get; set; } = LogManager.GetCurrentClassLogger();
 
         public bool IsEnabled { get; private set; }
 
         public void Install(IDependencyMap map)
         {
             _client = map.Get<DiscordSocketClient>();
+#if DEV
+            _config = map.Get<ConfigManager>().GetConfig<BotConfiguration>(name: "dev").Result;
+#else
             _config = map.Get<ConfigManager>().GetConfig<BotConfiguration>().Result;
+#endif
         }
 
         public void Enable()
@@ -41,7 +47,7 @@ namespace ContactsBot.Modules
             }
             catch (FormatException)
             {
-                await channel.SendMessageAsync("Tell the admin to fix the MOTD formatting!");
+                UserMotdLogger.Error("Tell the admin to fix the MOTD formatting!");
             }
         }
     }
