@@ -21,14 +21,7 @@ namespace ContactsBot.NLogTargets
 
         protected override void Write(LogEventInfo info)
         {
-            try
-            {
-                _logChannel.SendMessageAsync(Layout.Render(info)).Wait();
-            }
-            catch (Exception ex)
-            {
-                discordNLogTargetLogger.Error(ex, ex.Message);
-            }
+            _logChannel.SendMessageAsync(Layout.Render(info)).Wait();
         }
     }
 }
