@@ -8,13 +8,11 @@ namespace ContactsBot.NLogTargets
     public class DiscordNLogTarget : TargetWithLayout
     {
         private ISocketMessageChannel _logChannel;
-        private DiscordSocketClient _socket;
         private static Logger discordNLogTargetLogger { get; } = LogManager.GetCurrentClassLogger();
-        public DiscordNLogTarget(ulong logGuildID, ulong logChannelID, DiscordSocketClient socket)
+        public DiscordNLogTarget(ulong logGuildID, ulong logChannelID, DiscordSocketClient discordClient)
         {
             Name = GetType().Name;
-            _socket = socket;
-            _logChannel = _socket.GetGuild(logGuildID)?.GetChannel(logChannelID) as ISocketMessageChannel;
+            _logChannel = discordClient.GetGuild(logGuildID)?.GetChannel(logChannelID) as ISocketMessageChannel;
             if (_logChannel == null)
                 throw new ArgumentException("Log Channel for Discord NLog Target could not be found!");
         }
