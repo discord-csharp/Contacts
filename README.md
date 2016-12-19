@@ -21,10 +21,16 @@ The roadmap of Contacts changed a lot since the first kickoff. A lot of people c
 - Unflipping tables
 
 ## Installation
- - First, run the bot to create skeleton config files for your bot.
- - Second, modify two configuration files in two seperate directories under ContactsBot/Config/ (PostgreSQLConfiguration and BotConfiguration) and provide necessary informations and configuration.
- - Third, run PostgreSQL Administration Software like PGAdmin 4 and run PostgreSQLCreationScript.psql on your designated database. (Make sure your PostgreSQLConfiguration file is configured toward designated database.)
- - Finally, now run your bot!
+ - Navigate to Contacts/ContactsBot/Configs/ directory
+ - Modify two configuration files in each directory under ContactsBot/Config/ (PostgreSQLConfiguration and BotConfiguration) and provide necessary informations and configuration.
+ 
+ Note: default.json is for release build and dev.json is for debug build. (Visual Studios Solution file is configured to debug build with DEV define flag.)
+ 
+ Note: Add your bot token to "Token" line in default.json under BotConfiguration directory, to learn how to add bot to discord: https://discordapp.com/developers/applications/me
+ 
+ - Once configured both PostgreSQLConfiguration and BotConfiguration, open the solution in Visual Studios 2017 RC
+ - Open Package Manager Console under View/Other Windows/Package Manager Console and execute "Update-Database Initial" to add default schema and tables to configured PostgreSQL database.
+ - Now run your bot and see if it works. If not, please add issue.
  
 ## Contributing
 
