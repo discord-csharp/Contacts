@@ -4,7 +4,7 @@ namespace ContactsBot
 {
     public interface IMessageAction
     {
-        void Install(IDependencyMap map);
+        void InstallAsync(IDependencyMap map);
 
         void Enable();
 

@@ -50,7 +50,7 @@ namespace ContactsBot.Modules
         public async Task MotdAsync()
         {
 #if DEV
-            await ReplyAsync(string.Format((await _config.GetConfig<BotConfiguration>(name: "dev")).MessageOfTheDay, Context.User.Username));
+            await ReplyAsync(string.Format((await _config.GetConfigAsync<BotConfiguration>(name: "dev")).MessageOfTheDay, Context.User.Username));
 #else
             await ReplyAsync(string.Format((await _config.GetConfig<BotConfiguration>()).MessageOfTheDay, Context.User.Username));
 #endif

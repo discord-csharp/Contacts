@@ -15,11 +15,11 @@ namespace ContactsBot.Modules
 
         public bool IsEnabled { get; private set; }
 
-        public void Install(IDependencyMap map)
+        public void InstallAsync(IDependencyMap map)
         {
             _client = map.Get<DiscordSocketClient>();
 #if DEV
-            _config = map.Get<ConfigManager>().GetConfig<BotConfiguration>(name: "dev").Result;
+            _config = map.Get<ConfigManager>().GetConfigAsync<BotConfiguration>(name: "dev").Result;
 #else
             _config = map.Get<ConfigManager>().GetConfig<BotConfiguration>().Result;
 #endif

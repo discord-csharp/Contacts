@@ -19,17 +19,17 @@ namespace ContactsBot
         private BotConfiguration _config;
         IDependencyMap _map;
         public bool IsEnabled { get; private set; } = true;
-        static Logger commandLogger { get; set; }
+        static Logger CommandLogger { get; set; }
         static CommandHandler()
         {
-            commandLogger = LogManager.GetCurrentClassLogger();
+            CommandLogger = LogManager.GetCurrentClassLogger();
         }
-        public async void Install(IDependencyMap map)
+        public async void InstallAsync(IDependencyMap map)
         {
             _map = map;
             _client = _map.Get<DiscordSocketClient>();
 #if DEV
-            _config = await _map.Get<ConfigManager>().GetConfig<BotConfiguration>(name: "dev");
+            _config = await _map.Get<ConfigManager>().GetConfigAsync<BotConfiguration>(name: "dev");
 #else
             _config = await _map.Get<ConfigManager>().GetConfig<BotConfiguration>();
 #endif
@@ -37,7 +37,7 @@ namespace ContactsBot
             _commands = new CommandService();
             _map.Add(_commands);
             await _commands.AddModulesAsync(Assembly.GetEntryAssembly());
-            _commands.Commands.AsParallel().ForAll(I => commandLogger.Debug("Loaded command: {0} - {1}", I.Name, I.RunMode.ToString()));
+            _commands.Commands.AsParallel().ForAll(I => CommandLogger.Debug("Loaded command: {0} - {1}", I.Name, I.RunMode.ToString()));
         }
 
         public void Enable()
@@ -72,12 +72,12 @@ namespace ContactsBot
                     if ((result is SearchResult))
                         return;
                     if (result is ExecuteResult)
-                        commandLogger.Error("```" + ((ExecuteResult)result).Exception.ToString() + "```");
+                        CommandLogger.Error("```" + ((ExecuteResult)result).Exception.ToString() + "```");
                     else
-                        commandLogger.Error(result.ErrorReason);
+                        CommandLogger.Error(result.ErrorReason);
                 }
                 else
-                    commandLogger.Info($"\"{message.Author.Username}\" ran the following command: {message.Content}");
+                    CommandLogger.Info($"\"{message.Author.Username}\" ran the following command: {message.Content}");
             }
         }
     }

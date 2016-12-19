@@ -13,9 +13,9 @@ namespace ContactsBot.Modules
     [Group("utils"), Summary("Utility Module for getting information on Discord")]
     public class UtilsModule : ModuleBase
     {
-        private static Logger utilsLogger { get; } = LogManager.GetCurrentClassLogger();
+        private static Logger UtilsLogger { get; } = LogManager.GetCurrentClassLogger();
         [Command("roleinfo"), Summary("Gets information about the specified role")]
-        public async Task RoleInfoAsync([Summary("The role to find")]IRole role) // todo, make this util better
+        public async Task RoleInfoAsync([Summary("The role to find")]IRole role) // TODO: make this util better
         {
             EmbedBuilder embed = new EmbedBuilder
             {
@@ -25,7 +25,12 @@ namespace ContactsBot.Modules
             embed.AddField(field => { field.Name = "ID"; field.Value = role.Id.ToString(); });
             embed.AddField(field => { field.Name = "Discord managed"; field.Value = role.IsManaged.ToString(); });
             embed.AddField(field => { field.Name = "Mentionable"; field.Value = role.IsMentionable.ToString(); });
-            embed.AddField(async (field) => { field.Name = "Number of users"; field.Value = (await Context.Guild.GetUsersAsync()).Count(u => u.RoleIds.Contains(role.Id)).ToString(); });
+            embed.AddField(async (field) => {
+                field.Name = "Number of users";
+                field.Value = (await Context.Guild.GetUsersAsync())
+                               .Count(u => u.RoleIds.Contains(role.Id)).ToString();
+            });
+
             await ReplyAsync(string.Empty, embed: embed);
         }
 
@@ -97,11 +102,11 @@ namespace ContactsBot.Modules
     [Name("Message Actions module"), Group("actions")]
     public class MessageActionModifiers : ModuleBase
     {
-        private static Logger messageActionModifiersLogger { get; } = LogManager.GetCurrentClassLogger();
-        IBotInterface _botInterface { get; set; }
+        private static Logger MessageActionModifiersLogger { get; } = LogManager.GetCurrentClassLogger();
+        IBotInterface BotInterface { get; set; }
         public MessageActionModifiers(IBotInterface botInterface)
         {
-            _botInterface = botInterface;
+            BotInterface = botInterface;
         }
 
         [Command("listactions"), Summary("Lists actions installed for this bot")]
@@ -109,7 +114,7 @@ namespace ContactsBot.Modules
         {
             StringBuilder reply = new StringBuilder();
             reply.Append("Actions:");
-            foreach(var action in _botInterface.MessageActions)
+            foreach(var action in BotInterface.MessageActions)
             {
                 reply.AppendLine();
                 var replyEnabled = action.Value.IsEnabled ? "Enabled" : "Disabled";
@@ -126,7 +131,7 @@ namespace ContactsBot.Modules
                 await ReplyAsync("Couldn't enable message action: Insufficient role");
                 return;
             }
-            _botInterface.MessageActions.TryGetValue(actionName, out var action);
+            BotInterface.MessageActions.TryGetValue(actionName, out var action);
             if (action == null) await ReplyAsync("Couldn't find the specified action");
             if (action.IsEnabled) await ReplyAsync("The action is already enabled");
             else
@@ -144,7 +149,7 @@ namespace ContactsBot.Modules
                 await ReplyAsync("Couldn't disable message action: Insufficient role");
                 return;
             }
-            _botInterface.MessageActions.TryGetValue(actionName, out var action);
+            BotInterface.MessageActions.TryGetValue(actionName, out var action);
             if (action == null) await ReplyAsync("Couldn't find the specified action");
             if (!action.IsEnabled) await ReplyAsync("The action is already disabled");
             else

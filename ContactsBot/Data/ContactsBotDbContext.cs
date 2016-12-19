@@ -18,11 +18,10 @@ namespace ContactsBot.Data
         /// </summary>
         public ContactsBotDbContext()
         {
-            var config = new ConfigManager("Configs");
 #if DEV
-            DbConfiguration = config.GetConfig<PostgreSQLConfiguration>("dev").Result;
+            DbConfiguration = new ConfigManager("Configs").GetConfigAsync<PostgreSQLConfiguration>("dev").Result;
 #else
-            DbConfiguration = config.GetConfig<PostgreSQLConfiguration>().Result;
+            DbConfiguration = new ConfigManager("Configs").GetConfig<PostgreSQLConfiguration>().Result;
 #endif
         }
 
@@ -39,7 +38,7 @@ namespace ContactsBot.Data
 #if DEV
             if (config.ConfigExists<PostgreSQLConfiguration>(name: "dev"))
             {
-                DbConfiguration = config.GetConfig<PostgreSQLConfiguration>(name: "dev").GetAwaiter().GetResult();
+                DbConfiguration = config.GetConfigAsync<PostgreSQLConfiguration>(name: "dev").GetAwaiter().GetResult();
             }
 #else
             if (config.ConfigExists<PostgreSQLConfiguration>())
@@ -51,7 +50,7 @@ namespace ContactsBot.Data
             {
                 DbConfiguration = new PostgreSQLConfiguration();
 #if DEV
-                config.SaveConfig(DbConfiguration, name: "dev").Wait();
+                config.SaveConfigAsync(DbConfiguration, name: "dev").Wait();
 #else
                 config.SaveConfig(DbConfiguration).Wait();
 #endif

@@ -59,9 +59,9 @@ namespace ContactsBot
                     FilterChannel = channel
                 };
 
-                await _cfgMgr.SaveConfig(_config, "dev");
+                await _cfgMgr.SaveConfigAsync(_config, "dev");
             }
-            _config = await _cfgMgr.GetConfig<BotConfiguration>("dev");
+            _config = await _cfgMgr.GetConfigAsync<BotConfiguration>("dev");
 #else
             if (!_cfgMgr.ConfigExists<BotConfiguration>())
             {
@@ -88,7 +88,7 @@ namespace ContactsBot
 
             AddAssemblyActions(_map);
 
-            _client.Log += _client_LogAsync;
+            _client.Log += Client_LogAsync;
 
             // handle logging to channel
             _client.UserJoined += ChannelLog_UserJoinAsync;
@@ -96,19 +96,19 @@ namespace ContactsBot
             _client.UserBanned += ChannelLog_UserBannedAsync;
             _client.UserUnbanned += ChannelLog_UserUnbanned;
             _client.MessageDeleted += ChannelLog_MessageDeletedAsync;
-            _client.MessageReceived += _client_MessageRecieved;
+            _client.MessageReceived += Client_MessageRecievedAsync;
 
             await _client.LoginAsync(TokenType.Bot, _config.Token);
             await _client.ConnectAsync();
 
             await _client.SetGame(_config.Game);
             if (_config.EnableLoggingChannel)
-                _client_SetUpLoggingChannelForNLog();
+                Client_SetUpLoggingChannelForNLog();
 
             await Task.Delay(-1);
         }
 
-        private void _client_SetUpLoggingChannelForNLog()
+        private void Client_SetUpLoggingChannelForNLog()
         {
             try
             {
@@ -129,13 +129,13 @@ namespace ContactsBot
             }
         }
 
-        private Task _client_LogAsync(LogMessage arg)
+        private Task Client_LogAsync(LogMessage arg)
         {
             BotLogger.Log(NLogUtility.FromLogSeverity(arg.Severity), arg.ToString());
             return Task.CompletedTask;
         }
 
-        private async Task _client_MessageRecieved(SocketMessage msg)
+        private async Task Client_MessageRecievedAsync(SocketMessage msg)
         {
             IGuildUser user = msg.Author as IGuildUser;
             if (user == null)
@@ -196,7 +196,7 @@ namespace ContactsBot
         {
             var handler = Activator.CreateInstance(handlerType) as IMessageAction;
 
-            handler.Install(map);
+            handler.InstallAsync(map);
             if (autoEnable) handler.Enable();
             MessageActions.TryAdd(handler.GetType().Name, handler);
         }

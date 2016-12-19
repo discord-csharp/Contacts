@@ -14,7 +14,7 @@ namespace ContactsBot.Modules
     [Name("Moderation Module")]
     public class ModerationModule : ModuleBase
     {
-        private static Logger moderatorLogger { get; } = LogManager.GetCurrentClassLogger();
+        private static Logger ModeratorLogger { get; } = LogManager.GetCurrentClassLogger();
         private ConfigManager _config;
         private IBotInterface _botInterface;
         private ulong? _mutedRoleId = null;
@@ -23,7 +23,7 @@ namespace ContactsBot.Modules
             _config = config;
             _botInterface = botInterface;
 #if DEV
-            _mutedRoleId = config.GetConfig<BotConfiguration>(name: "dev").GetAwaiter().GetResult().MuteRole;
+            _mutedRoleId = config.GetConfigAsync<BotConfiguration>(name: "dev").GetAwaiter().GetResult().MuteRole;
 #else
             _mutedRoleId = config.GetConfig<BotConfiguration>().GetAwaiter().GetResult().MuteRole;
 #endif
