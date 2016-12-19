@@ -38,7 +38,7 @@ namespace ContactsBot.NLogTargets
 
         protected override void Write(LogEventInfo info)
         {
-            using (var context = new ContactsBotDbContext(DbConfig))
+            using (var context = new ContactsBotDbContext())
             {
                 context.Logs.Add(new Log
                 {

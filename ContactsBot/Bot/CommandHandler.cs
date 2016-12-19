@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using System.Reflection;
 using System.Linq;
 using Discord.Commands;
@@ -13,7 +10,6 @@ namespace ContactsBot
 {
     public class CommandHandler : IMessageAction
     {
-        private ContactsBot _programContext;
         private CommandService _commands;
         private DiscordSocketClient _client;
         private BotConfiguration _config;
@@ -24,19 +20,18 @@ namespace ContactsBot
         {
             CommandLogger = LogManager.GetCurrentClassLogger();
         }
-        public async void InstallAsync(IDependencyMap map)
+        public void Install(IDependencyMap map)
         {
             _map = map;
             _client = _map.Get<DiscordSocketClient>();
 #if DEV
-            _config = await _map.Get<ConfigManager>().GetConfigAsync<BotConfiguration>(name: "dev");
+            _config = _map.Get<ConfigManager>().GetConfigAsync<BotConfiguration>(name: "dev").Result;
 #else
-            _config = await _map.Get<ConfigManager>().GetConfigAsync<BotConfiguration>();
+            _config = _map.Get<ConfigManager>().GetConfigAsync<BotConfiguration>().Result;
 #endif
-            _programContext = _map.Get<ContactsBot>();
             _commands = new CommandService();
             _map.Add(_commands);
-            await _commands.AddModulesAsync(Assembly.GetEntryAssembly());
+            _commands.AddModulesAsync(Assembly.GetEntryAssembly()).Wait();
             _commands.Commands.AsParallel().ForAll(I => CommandLogger.Debug("Loaded command: {0} - {1}", I.Name, I.RunMode.ToString()));
         }
 

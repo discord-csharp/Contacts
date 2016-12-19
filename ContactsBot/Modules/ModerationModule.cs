@@ -4,20 +4,21 @@ using Discord.Commands;
 using Discord.WebSocket;
 using System;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using ContactsBot.Configuration;
 using NLog;
+using System.Threading;
 
 namespace ContactsBot.Modules
 {
     [Name("Moderation Module")]
     public class ModerationModule : ModuleBase
     {
-        private static Logger ModeratorLogger { get; } = LogManager.GetCurrentClassLogger();
+        static Logger ModeratorLogger { get; } = LogManager.GetCurrentClassLogger();
         private ConfigManager _config;
         private IBotInterface _botInterface;
         private ulong? _mutedRoleId = null;
+        private Timer MuteTimer { get; }
         public ModerationModule(ConfigManager config, IBotInterface botInterface)
         {
             _config = config;
@@ -27,6 +28,7 @@ namespace ContactsBot.Modules
 #else
             _mutedRoleId = config.GetConfigAsync<BotConfiguration>().GetAwaiter().GetResult().MuteRole;
 #endif
+            MuteTimer = new Timer(new TimerCallback(PollMuteUsers), null, new TimeSpan(0), new TimeSpan(0, 0, 10));
         }
 
         internal static string[] StandardRoles = new[] { "Founders", "Administrator", "Moderators", "Regulars", "Bot" };
@@ -53,8 +55,7 @@ namespace ContactsBot.Modules
             else
                 await guildUser.AddRolesAsync(muteRole);
 
-            Timer timer = new Timer(TimerCallbackAsync, user, (int)time.TotalMilliseconds, -1);
-            _botInterface.MutedUsers.TryAdd(user, timer);
+            _botInterface.MutedUsers.TryAdd(user, DateTime.UtcNow + time);
 
             await ReplyAsync($"Muted {guildUser.Nickname ?? guildUser.Username} for {time.Humanize(3)}");
         }
@@ -70,11 +71,24 @@ namespace ContactsBot.Modules
             await UnmuteInternalAsync(user, false);
         }
 
-        public async Task UnmuteInternalAsync(IGuildUser user, bool isCallback)
+        private void PollMuteUsers(object state)
+        {
+            if (_botInterface.MutedUsers.IsEmpty) return;
+
+            var enumerate = _botInterface.MutedUsers.GetEnumerator();
+            while (enumerate.MoveNext())
+            {
+                if (enumerate.Current.Value <= DateTime.UtcNow)
+                    UnmuteInternalAsync(enumerate.Current.Key, true).Wait();
+            }
+        }
+
+        private async Task UnmuteInternalAsync(IGuildUser user, bool isCallback)
         {
             if (!_mutedRoleId.HasValue) return;
             if (!isCallback && !Context.IsCorrectRole(StandardRoles))
             {
+                ModeratorLogger.Error("Couldn't unmute user: Insufficient role");
                 await ReplyAsync("Couldn't unmute user: Insufficient role");
                 return;
             }
@@ -82,6 +96,7 @@ namespace ContactsBot.Modules
             var muteRole = guildUser.Guild.GetRole(_mutedRoleId.Value);
             if (muteRole == null)
             {
+                ModeratorLogger.Error("Couldn't unmute user: The specified role doesn't exist");
                 await ReplyAsync("Couldn't unmute user: The specified role doesn't exist");
             }
             else
@@ -93,16 +108,17 @@ namespace ContactsBot.Modules
             }
             
             await ReplyAsync($"Unmuted {user.Nickname ?? user.Username}");
+            ModeratorLogger.Info($"Unmuted {user.Nickname ?? user.Username}");
             _botInterface.MutedUsers.TryRemove(user, out var outputTimer);
         }
     }
 
     [Group("message"), Name("Message Module")]
-    public class MessagesModule : ModuleBase
+    public class MessagesPruneModule : ModuleBase
     {
         IBotInterface _botInterface;
 
-        public MessagesModule(IBotInterface botInterface)
+        public MessagesPruneModule(IBotInterface botInterface)
         {
             _botInterface = botInterface;
         }

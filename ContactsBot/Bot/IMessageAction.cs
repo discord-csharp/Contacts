@@ -1,10 +1,11 @@
 ﻿using Discord.Commands;
+using System.Threading.Tasks;
 
 namespace ContactsBot
 {
     public interface IMessageAction
     {
-        void InstallAsync(IDependencyMap map);
+        void Install(IDependencyMap map);
 
         void Enable();
 

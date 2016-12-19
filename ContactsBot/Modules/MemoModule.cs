@@ -1,8 +1,6 @@
 ﻿using ContactsBot.Configuration;
 using ContactsBot.Data;
 using Discord.Commands;
-using Newtonsoft.Json;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -29,7 +27,7 @@ namespace ContactsBot.Modules
                     await ReplyAsync("The memo you submitted starts with \"add\" or \"remove\" and couldn't be added.");
                     return;
                 }
-                using (var context = new ContactsBotDbContext(_config))
+                using (var context = new ContactsBotDbContext())
                 {
                     var memo = context.Memos.FirstOrDefault(I => I.MemoName == memoName);
                     if (!string.IsNullOrEmpty(memo?.MemoName))
@@ -54,7 +52,7 @@ namespace ContactsBot.Modules
         public async Task GetAsync([Summary("The memo to retrieve")] string memo)
         {
             memo = memo.ToLower();
-            using (var context = new ContactsBotDbContext(_config))
+            using (var context = new ContactsBotDbContext())
             {
                 var item = context.Memos.FirstOrDefault(I => I.MemoName == memo);
                 if (!string.IsNullOrEmpty(item.MemoName))
@@ -87,7 +85,7 @@ namespace ContactsBot.Modules
                     await ReplyAsync("The memo you submitted starts with \"add\" or \"remove\" and couldn't be added.");
                     return;
                 }
-                using (var context = new ContactsBotDbContext(_config))
+                using (var context = new ContactsBotDbContext())
                 {
                     var memo = context.Memos.FirstOrDefault(I => I.MemoName == memoName);
                     if (!string.IsNullOrEmpty(memo.MemoName))
@@ -114,7 +112,7 @@ namespace ContactsBot.Modules
             if (Context.IsCorrectRole(ModerationModule.StandardRoles))
             {
                 memoName = memoName.ToLower();
-                using (var context = new ContactsBotDbContext(_config))
+                using (var context = new ContactsBotDbContext())
                 {
                     var item = context.Memos.FirstOrDefault(I => I.MemoName == memoName);
                     if (!string.IsNullOrEmpty(item.MemoName))
@@ -136,7 +134,7 @@ namespace ContactsBot.Modules
         {
             var reply = "Memos: ";
             var first = true;
-            using (var context = new ContactsBotDbContext(_config))
+            using (var context = new ContactsBotDbContext())
                 foreach (var memo in context.Memos)
                 {
                     if (first)

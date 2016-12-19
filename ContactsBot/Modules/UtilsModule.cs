@@ -3,7 +3,6 @@ using Discord.Commands;
 using System.Threading.Tasks;
 using System.Linq;
 using System.Text;
-using Discord.WebSocket;
 using System.Globalization;
 using NLog;
 

@@ -1,5 +1,4 @@
 ﻿using ContactsBot.Configuration;
-using ContactsBot.Utility;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
@@ -9,7 +8,6 @@ using NLog;
 using System.Reflection;
 using System.Linq;
 using System.Collections.Concurrent;
-using System.Threading;
 using ContactsBot.NLogTargets;
 using NLog.Layouts;
 
@@ -22,7 +20,7 @@ namespace ContactsBot
         BotConfiguration _config;
         ConfigManager _cfgMgr;
         internal static Logger BotLogger { get; set; }
-        public ConcurrentDictionary<IGuildUser, Timer> MutedUsers { get; } = new ConcurrentDictionary<IGuildUser, Timer>();
+        public ConcurrentDictionary<IGuildUser, DateTime> MutedUsers { get; } = new ConcurrentDictionary<IGuildUser, DateTime>();
         public ConcurrentDictionary<string, IMessageAction> MessageActions { get; } = new ConcurrentDictionary<string, IMessageAction>(StringComparer.OrdinalIgnoreCase);
         public long IgnoreCount { get; set; } = 0;
         private DiscordNLogTarget _discordNLogTarget;
@@ -48,31 +46,17 @@ namespace ContactsBot
 #if DEV
             if (!_cfgMgr.ConfigExists<BotConfiguration>("dev"))
             {
-                Console.Write("Please enter a dev token: ");
-                string token = Console.ReadLine();
-                Console.WriteLine("Please enter a dev channel name (commands sent to the bot will be restricted to this channel): ");
-                string channel = Console.ReadLine();
-
-                _config = new BotConfiguration
-                {
-                    Token = token,
-                    FilterChannel = channel
-                };
-
-                await _cfgMgr.SaveConfigAsync(_config, "dev");
+                await _cfgMgr.SaveConfigAsync(new BotConfiguration(), "dev");
+                BotLogger.Info("No dev.json configuration exists for BotConfiguration. Skeleton File generated. Please read the README.md for installation guide.");
+                return;
             }
             _config = await _cfgMgr.GetConfigAsync<BotConfiguration>("dev");
 #else
             if (!_cfgMgr.ConfigExists<BotConfiguration>())
             {
-                Console.Write("Please enter a bot token: ");
-                string token = Console.ReadLine();
-                _config = new BotConfiguration
-                {
-                    Token = token
-                };
-
-                await _cfgMgr.SaveConfigAsync(_config);
+                await _cfgMgr.SaveConfigAsync(new BotConfiguration());
+                BotLogger.Info("No default.json configuration exists for BotConfiguration. Skeleton File generated. Please read the README.md for installation guide.");
+                return;
             }
             _config = await _cfgMgr.GetConfigAsync<BotConfiguration>();
 #endif
@@ -131,7 +115,7 @@ namespace ContactsBot
 
         private Task Client_LogAsync(LogMessage arg)
         {
-            BotLogger.Log(NLogUtility.FromLogSeverity(arg.Severity), arg.ToString());
+            BotLogger.Log(FromLogSeverity(arg.Severity), arg.ToString());
             return Task.CompletedTask;
         }
 
@@ -196,7 +180,7 @@ namespace ContactsBot
         {
             var handler = Activator.CreateInstance(handlerType) as IMessageAction;
 
-            handler.InstallAsync(map);
+            handler.Install(map);
             if (autoEnable) handler.Enable();
             MessageActions.TryAdd(handler.GetType().Name, handler);
         }
@@ -209,6 +193,46 @@ namespace ContactsBot
             {
                 AddAction(type, map, autoEnable);
                 BotLogger.Debug("Action Added: {0}", type.FullName);
+            }
+        }
+
+        /// <summary>
+        /// Return an equivalent NLog Log Level for Discord Log Severity Level
+        /// </summary>
+        /// <param name="level">Discord Log Severity Level</param>
+        /// <returns>NLog Log Level</returns>
+        private static LogLevel FromLogSeverity(LogSeverity level)
+        {
+            switch (level)
+            {
+                case LogSeverity.Critical:
+                    {
+                        return LogLevel.Fatal;
+                    }
+                case LogSeverity.Debug:
+                    {
+                        return LogLevel.Debug;
+                    }
+                case LogSeverity.Error:
+                    {
+                        return LogLevel.Error;
+                    }
+                case LogSeverity.Info:
+                    {
+                        return LogLevel.Info;
+                    }
+                case LogSeverity.Verbose:
+                    {
+                        return LogLevel.Trace;
+                    }
+                case LogSeverity.Warning:
+                    {
+                        return LogLevel.Warn;
+                    }
+                default:
+                    {
+                        return LogLevel.Off;
+                    }
             }
         }
     }

@@ -9,8 +9,7 @@ namespace ContactsBot.Data
     {
         [Key]
         public long LogID { get; set; }
-        [Required]
-        [MaxLength(5, ErrorMessage = "Level string cannot exceed 5 characters.")]
+        [Required, MaxLength(5, ErrorMessage = "Level string cannot exceed 5 characters.")]
         public string Level { get; set; }
         [Required]
         public DateTime Timestamp { get; set; }

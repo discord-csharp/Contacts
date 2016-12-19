@@ -29,7 +29,7 @@ namespace ContactsBot.Modules
 
             try
             {
-                using (var context = new ContactsBotDbContext(_config))
+                using (var context = new ContactsBotDbContext())
                 {
                     var databaseUserID = (long)user.Id;
                     var item = context.Karmas.FirstOrDefault(I => I.UserID == databaseUserID);
@@ -55,7 +55,7 @@ namespace ContactsBot.Modules
         {
             try
             {
-                using (var context = new ContactsBotDbContext(_config))
+                using (var context = new ContactsBotDbContext())
                 {
                     var output = new StringBuilder();
                     output.AppendLine("The Top 5 Karma Users:");

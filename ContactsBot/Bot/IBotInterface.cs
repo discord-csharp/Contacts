@@ -1,4 +1,5 @@
 ﻿using Discord;
+using System;
 using System.Collections.Concurrent;
 using System.Threading;
 
@@ -9,7 +10,7 @@ namespace ContactsBot
     /// </summary>
     public interface IBotInterface
     {
-        ConcurrentDictionary<IGuildUser, Timer> MutedUsers { get; }
+        ConcurrentDictionary<IGuildUser, DateTime> MutedUsers { get; }
         ConcurrentDictionary<string, IMessageAction> MessageActions { get; }
         long IgnoreCount { get; set; }
     }

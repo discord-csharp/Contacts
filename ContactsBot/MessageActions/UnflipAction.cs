@@ -29,7 +29,7 @@ namespace ContactsBot.Modules
             IsEnabled = true;
         }
 
-        public void InstallAsync(IDependencyMap map)
+        public void Install(IDependencyMap map)
         {
             _client = map.Get<DiscordSocketClient>();
         }

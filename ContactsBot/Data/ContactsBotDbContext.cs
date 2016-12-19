@@ -10,7 +10,12 @@ namespace ContactsBot.Data
         public DbSet<Memo> Memos { get; set; }
         public DbSet<Karma> Karmas { get; set; }
         public DbSet<Log> Logs { get; set; }
-        private PostgreSQLConfiguration DbConfiguration { get; set; }
+
+#if DEV
+        private static PostgreSQLConfiguration DbConfiguration { get; } = new ConfigManager("Configs").GetConfigAsync<PostgreSQLConfiguration>("dev").Result;
+#else
+        private static PostgreSQLConfiguration DbConfiguration { get; } = new ConfigManager("Configs").GetConfigAsync<PostgreSQLConfiguration>().Result;
+#endif
         private static Logger ContactsBotDbContextLogger { get; } = LogManager.GetCurrentClassLogger();
 
         /// <summary>
@@ -18,50 +23,6 @@ namespace ContactsBot.Data
         /// </summary>
         public ContactsBotDbContext()
         {
-#if DEV
-            DbConfiguration = new ConfigManager("Configs").GetConfigAsync<PostgreSQLConfiguration>("dev").Result;
-#else
-            DbConfiguration = new ConfigManager("Configs").GetConfigAsync<PostgreSQLConfiguration>().Result;
-#endif
-        }
-
-        public ContactsBotDbContext(PostgreSQLConfiguration config)
-        {
-            DbConfiguration = config;
-        }
-
-        public ContactsBotDbContext(ConfigManager config)
-        {
-            if (config == null)
-                throw new NullReferenceException("ConfigManager was null");
-
-#if DEV
-            if (config.ConfigExists<PostgreSQLConfiguration>(name: "dev"))
-            {
-                DbConfiguration = config.GetConfigAsync<PostgreSQLConfiguration>(name: "dev").GetAwaiter().GetResult();
-            }
-#else
-            if (config.ConfigExists<PostgreSQLConfiguration>())
-            {
-                DbConfiguration = config.GetConfigAsync<PostgreSQLConfiguration>().GetAwaiter().GetResult();
-            }
-#endif
-            else
-            {
-                DbConfiguration = new PostgreSQLConfiguration();
-#if DEV
-                config.SaveConfigAsync(DbConfiguration, name: "dev").Wait();
-#else
-                config.SaveConfigAsync(DbConfiguration).Wait();
-#endif
-
-                var error = new ArgumentException("You must edit the newly created database config file & restart Contacts."
-                    + Environment.NewLine
-                    + config.GetPathToConfig<PostgreSQLConfiguration>());
-
-                ContactsBotDbContextLogger.Error("You must edit the newly created database config file & restart Contacts.", error);
-                throw error;
-            }
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
