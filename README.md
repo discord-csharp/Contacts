@@ -26,7 +26,7 @@ The roadmap of Contacts changed a lot since the first kickoff. A lot of people c
  
  Note: default.json is for release build and dev.json is for debug build. (Visual Studios Solution file is configured to debug build with DEV define flag.)
  
- Note: Add your bot token to "Token" line in default.json under BotConfiguration directory, for more information how, read below.
+ Note: Add your bot token to "Token" line in default.json under BotConfiguration directory, to learn how to add bot to discord: https://discordapp.com/developers/applications/me
  
  Note: For Logging Guild ID and LoggingChannelID, go to DiscordApp website and navigate to the logging channel you have control over and you will notice 2 sets of numbers in the URL that are seperated by a forward slash seperator "/". First number is the Guild ID and the Second number is the channel ID. discordapp.com/channels/**##################/##################**
  
