@@ -28,8 +28,6 @@ The roadmap of Contacts changed a lot since the first kickoff. A lot of people c
  
  Note: Add your bot token to "Token" line in default.json under BotConfiguration directory, to learn how to add bot to discord: https://discordapp.com/developers/applications/me
  
- Note: For Logging Guild ID and Logging Channel ID lines, go to DiscordApp website and navigate to the logging channel you have control over and you will notice 2 sets of numbers in the URL that are seperated by a forward slash seperator "/". First number is the Guild ID and the Second number is the channel ID. discordapp.com/channels/**##################/##################**
- 
  - Once configured both PostgreSQLConfiguration and BotConfiguration, open the solution in Visual Studios 2017 RC
  - Open Package Manager Console under View/Other Windows/Package Manager Console and execute "Update-Database Initial" to add default schema and tables to configured PostgreSQL database.
  - Now run your bot and see if it works. If not, please add issue.
