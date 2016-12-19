@@ -14,5 +14,6 @@ namespace ContactsBot.Configuration
         public string LoggingNLogLayout { get; set; } = "${time} | **${level}** - ${message}";
         public ulong? MuteRole { get; set; } = null;
         public string MessageOfTheDay { get; set; } = "Hello {0}! Welcome to the server!";
+        public string Game { get; set; } = "Helping you C#";
     }
 }

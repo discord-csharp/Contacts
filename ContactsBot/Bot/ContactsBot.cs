@@ -11,7 +11,6 @@ using System.Linq;
 using System.Collections.Concurrent;
 using System.Threading;
 using ContactsBot.NLogTargets;
-using NLog.LayoutRenderers;
 using NLog.Layouts;
 
 namespace ContactsBot
@@ -34,7 +33,7 @@ namespace ContactsBot
 
         public ContactsBot()
         {
-
+            
         }
 
         public async Task RunBotAsync()
@@ -102,7 +101,7 @@ namespace ContactsBot
             await _client.LoginAsync(TokenType.Bot, _config.Token);
             await _client.ConnectAsync();
 
-            await _client.SetGame("Helping you C#");
+            await _client.SetGame(_config.Game);
             if (_config.EnableLoggingChannel)
                 _client_SetUpLoggingChannelForNLog();
 

@@ -13,6 +13,19 @@ namespace ContactsBot.Data
         private PostgreSQLConfiguration DbConfiguration { get; set; }
         private static Logger ContactsBotDbContextLogger { get; } = LogManager.GetCurrentClassLogger();
 
+        /// <summary>
+        /// For migration purpose only.
+        /// </summary>
+        public ContactsBotDbContext()
+        {
+            var config = new ConfigManager("Configs");
+#if DEV
+            DbConfiguration = config.GetConfig<PostgreSQLConfiguration>("dev").Result;
+#else
+            DbConfiguration = config.GetConfig<PostgreSQLConfiguration>().Result;
+#endif
+        }
+
         public ContactsBotDbContext(PostgreSQLConfiguration config)
         {
             DbConfiguration = config;

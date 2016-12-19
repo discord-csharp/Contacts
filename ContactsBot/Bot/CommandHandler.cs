@@ -18,7 +18,7 @@ namespace ContactsBot
         private DiscordSocketClient _client;
         private BotConfiguration _config;
         IDependencyMap _map;
-        public bool IsEnabled { get; private set; }
+        public bool IsEnabled { get; private set; } = true;
         static Logger commandLogger { get; set; }
         static CommandHandler()
         {
@@ -29,7 +29,7 @@ namespace ContactsBot
             _map = map;
             _client = _map.Get<DiscordSocketClient>();
 #if DEV
-            _config = await _map.Get<ConfigManager>().GetConfig<BotConfiguration>(name:"dev");
+            _config = await _map.Get<ConfigManager>().GetConfig<BotConfiguration>(name: "dev");
 #else
             _config = await _map.Get<ConfigManager>().GetConfig<BotConfiguration>();
 #endif
@@ -59,26 +59,26 @@ namespace ContactsBot
 
             int argPos = 0;
 #if DEV
-            if (msg.Channel.Name == (_config.FilterChannel ?? msg.Channel.Name))
+            if (msg.Channel.Name != (_config.FilterChannel ?? msg.Channel.Name)) return;
 #endif
-                if (message.HasCharPrefix(_config.PrefixCharacter, ref argPos) || message.HasMentionPrefix(_client.CurrentUser, ref argPos))
-                {
-                    var context = new CommandContext(_client, message);
+            if (message.HasCharPrefix(_config.PrefixCharacter, ref argPos) || message.HasMentionPrefix(_client.CurrentUser, ref argPos))
+            {
+                var context = new CommandContext(_client, message);
 
-                    // Provide the dependency map when executing commands
-                    var result = await _commands.ExecuteAsync(context, argPos, _map);
-                    if (!result.IsSuccess)
-                    {
-                        if ((result is SearchResult))
-                            return;
-                        if (result is ExecuteResult)
-                            commandLogger.Error("```" + ((ExecuteResult)result).Exception.ToString() + "```");
-                        else
-                            commandLogger.Error(result.ErrorReason);
-                    }
+                // Provide the dependency map when executing commands
+                var result = await _commands.ExecuteAsync(context, argPos, _map);
+                if (!result.IsSuccess)
+                {
+                    if ((result is SearchResult))
+                        return;
+                    if (result is ExecuteResult)
+                        commandLogger.Error("```" + ((ExecuteResult)result).Exception.ToString() + "```");
                     else
-                        commandLogger.Info($"\"{message.Author.Username}\" ran the following command: {message.Content}");
+                        commandLogger.Error(result.ErrorReason);
                 }
+                else
+                    commandLogger.Info($"\"{message.Author.Username}\" ran the following command: {message.Content}");
+            }
         }
     }
 }
