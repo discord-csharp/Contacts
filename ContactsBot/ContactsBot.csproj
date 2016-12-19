@@ -16,8 +16,6 @@
     <Content Include="Assets\contacts.png">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Content>
-    <Content Include="Configs\BotConfiguration\dev.json" />
-    <Content Include="Configs\PostgreSQLConfiguration\dev.json" />
     <Content Include="NLog.Dev.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
