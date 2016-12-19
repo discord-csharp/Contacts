@@ -25,7 +25,7 @@ namespace ContactsBot.Modules
 #if DEV
             _mutedRoleId = config.GetConfigAsync<BotConfiguration>(name: "dev").GetAwaiter().GetResult().MuteRole;
 #else
-            _mutedRoleId = config.GetConfig<BotConfiguration>().GetAwaiter().GetResult().MuteRole;
+            _mutedRoleId = config.GetConfigAsync<BotConfiguration>().GetAwaiter().GetResult().MuteRole;
 #endif
         }
 

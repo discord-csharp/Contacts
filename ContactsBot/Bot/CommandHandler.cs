@@ -31,7 +31,7 @@ namespace ContactsBot
 #if DEV
             _config = await _map.Get<ConfigManager>().GetConfigAsync<BotConfiguration>(name: "dev");
 #else
-            _config = await _map.Get<ConfigManager>().GetConfig<BotConfiguration>();
+            _config = await _map.Get<ConfigManager>().GetConfigAsync<BotConfiguration>();
 #endif
             _programContext = _map.Get<ContactsBot>();
             _commands = new CommandService();

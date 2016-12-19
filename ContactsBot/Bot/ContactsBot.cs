@@ -74,7 +74,7 @@ namespace ContactsBot
 
                 _cfgMgr.SaveConfig(_config);
             }
-            _config = await _cfgMgr.GetConfig<BotConfiguration>();
+            _config = await _cfgMgr.GetConfigAsync<BotConfiguration>();
 #endif
 
             _client = new DiscordSocketClient(new DiscordSocketConfig

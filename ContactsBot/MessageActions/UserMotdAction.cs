@@ -21,7 +21,7 @@ namespace ContactsBot.Modules
 #if DEV
             _config = map.Get<ConfigManager>().GetConfigAsync<BotConfiguration>(name: "dev").Result;
 #else
-            _config = map.Get<ConfigManager>().GetConfig<BotConfiguration>().Result;
+            _config = map.Get<ConfigManager>().GetConfigAsync<BotConfiguration>().Result;
 #endif
         }
 

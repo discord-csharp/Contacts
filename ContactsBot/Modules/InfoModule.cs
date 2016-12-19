@@ -52,7 +52,7 @@ namespace ContactsBot.Modules
 #if DEV
             await ReplyAsync(string.Format((await _config.GetConfigAsync<BotConfiguration>(name: "dev")).MessageOfTheDay, Context.User.Username));
 #else
-            await ReplyAsync(string.Format((await _config.GetConfig<BotConfiguration>()).MessageOfTheDay, Context.User.Username));
+            await ReplyAsync(string.Format((await _config.GetConfigAsync<BotConfiguration>()).MessageOfTheDay, Context.User.Username));
 #endif
         }
 
