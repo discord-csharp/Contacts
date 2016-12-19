@@ -52,7 +52,7 @@ namespace ContactsBot.Data
 #if DEV
                 config.SaveConfigAsync(DbConfiguration, name: "dev").Wait();
 #else
-                config.SaveConfig(DbConfiguration).Wait();
+                config.SaveConfigAsync(DbConfiguration).Wait();
 #endif
 
                 var error = new ArgumentException("You must edit the newly created database config file & restart Contacts."

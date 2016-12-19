@@ -72,7 +72,7 @@ namespace ContactsBot
                     Token = token
                 };
 
-                _cfgMgr.SaveConfig(_config);
+                await _cfgMgr.SaveConfigAsync(_config);
             }
             _config = await _cfgMgr.GetConfigAsync<BotConfiguration>();
 #endif
