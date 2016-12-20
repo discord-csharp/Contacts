@@ -10,7 +10,7 @@ using System.Net;
 
 namespace ContactsBot.Modules
 {
-    class AntiAdvertisement : IMessageAction
+    class AntiAdvertisementAction : IMessageAction
     {
         private DiscordSocketClient _client;
 
@@ -39,7 +39,7 @@ namespace ContactsBot.Modules
             var guildChannel = message.Channel as IGuildChannel;
             if (guildChannel == null) return;
 
-            if (!authorAsGuildUser.IsCorrectRole(guildChannel.Guild, Moderation.StandardRoles))
+            if (!authorAsGuildUser.IsCorrectRole(guildChannel.Guild, ModerationModule.StandardRoles))
             {
                 if (ContainsInviteLink(message.Content))
                 {
@@ -67,7 +67,7 @@ namespace ContactsBot.Modules
 
             Task.WaitAll(requests.ToArray());
 
-            return requests.Where(x => x.Result).Count() != 0;
+            return requests.Where(x => x.GetAwaiter().GetResult()).Count() != 0;
         }
 
         private async Task<bool> IsHiddenInviteAsync(string link)

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace ContactsBot.Modules
 {
-    public class Unflip : IMessageAction
+    public class UnflipAction : IMessageAction
     {
         private Dictionary<ulong, int> _flips = new Dictionary<ulong, int>();
 
@@ -36,29 +36,24 @@ namespace ContactsBot.Modules
 
         public async Task PerformUnflipAsync(SocketMessage message)
         {
-            ulong uid = message.Author.Id;
-
             if (message.Content.EndsWith("(╯°□°）╯︵ ┻━┻"))
             {
-                int flipCount = (!_flips.ContainsKey(uid) ? _flips[uid] = 1 : _flips[uid]++);
-                string replyMessage = message.Author.Mention + " ┬─┬﻿ ノ( ゜-゜ノ)";
-
+                var flipCount = (_flips.ContainsKey(message.Author.Id) ? _flips[message.Author.Id]++ : _flips[message.Author.Id] = 1);
+                var replyMessage = message.Author.Mention + " ┬─┬﻿ ノ( ゜-゜ノ)";
                 if (flipCount > 1)
-                {
-                    replyMessage = $"**{replyMessage} CALM DOWN**";
-                }
-                
-                if (flipCount > 2)
-                {
-                    replyMessage = $"**{replyMessage} THIS IS NOT OKAY**";
-                }
+                    if (flipCount == 2)
+                        replyMessage = $"**{replyMessage} CALM DOWN**";
+                    else if (flipCount == 3)
+                        replyMessage = $"**{replyMessage} THIS IS NOT OKAY**";
+                    else
+                        replyMessage = @"**┻━┻ ☆︵ /(.□. \) OW!**";
 
                 await message.Channel.SendMessageAsync(replyMessage);
             }
             else
             {
-                if(_flips.ContainsKey(uid))
-                    _flips[uid] = 0;
+                if (_flips.ContainsKey(message.Author.Id))
+                    _flips[message.Author.Id] = 0;
             }
         }
     }

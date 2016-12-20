@@ -1,4 +1,5 @@
-﻿using Discord.Commands;
+﻿using ContactsBot.Configuration;
+using Discord.Commands;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -6,15 +7,15 @@ using System.Threading.Tasks;
 namespace ContactsBot.Modules
 {
     [Group("info"), Name("Info Module")]
-    public class Info : ModuleBase
+    public class InfoModule : ModuleBase
     {
         private CommandService _commands;
-        private Configuration.ConfigManager _config;
+        private ConfigManager _config;
 
         [Command("help"), Summary("Displays this help message")]
         public async Task HelpAsync()
         {
-            StringBuilder response = new StringBuilder();
+            var response = new StringBuilder();
             response.AppendLine("**Contacts Commands:**");
             response.AppendLine();
             foreach (var m in _commands.Modules)
@@ -41,7 +42,6 @@ namespace ContactsBot.Modules
                     response.AppendLine();
                 }
             }
-
             await ReplyAsync(response.ToString());
         }
 
@@ -49,13 +49,17 @@ namespace ContactsBot.Modules
         [Command("motd"), Summary("Displays the current MOTD")]
         public async Task MotdAsync()
         {
-            await ReplyAsync(string.Format((await _config.GetConfig<BotConfiguration>()).MessageOfTheDay, Context.User.Username));
+#if DEV
+            await ReplyAsync(string.Format((await _config.GetConfigAsync<BotConfiguration>(name: "dev")).MessageOfTheDay, Context.User.Username));
+#else
+            await ReplyAsync(string.Format((await _config.GetConfigAsync<BotConfiguration>()).MessageOfTheDay, Context.User.Username));
+#endif
         }
-        
+
         [Command("learntoask"), Summary("Prints a small info for people that dont know how to ask.")]
         public async Task LearnAsync()
         {
-            await ReplyAsync("You are reading this because you probably didn´t ask for help the proper way. \n"+
+            await ReplyAsync("You are reading this because you probably didn´t ask for help the proper way. \n" +
                              "Please read: http://whathaveyoutried.com/ \n " +
                              "If you are new to programming: MSDN C# Programming Guide: https://goo.gl/XzW39V \n " +
                              "Be aware! If you continue to ask the wrong way and ignore this message, **you might get muted!**");
@@ -74,7 +78,7 @@ namespace ContactsBot.Modules
         }
 
         // Upon creation of this module, the command service will be loaded from the dependency map
-        public Info(CommandService cs, Configuration.ConfigManager config)
+        public InfoModule(CommandService cs, ConfigManager config)
         {
             _commands = cs;
             _config = config;

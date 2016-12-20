@@ -3,16 +3,18 @@ using Discord.Commands;
 using System.Threading.Tasks;
 using System.Linq;
 using System.Text;
-using Discord.WebSocket;
 using System.Globalization;
+using NLog;
 
 namespace ContactsBot.Modules
 {
     [Name("Utils Module")]
-    public class Utils : ModuleBase
+    [Group("utils"), Summary("Utility Module for getting information on Discord")]
+    public class UtilsModule : ModuleBase
     {
+        private static Logger UtilsLogger { get; } = LogManager.GetCurrentClassLogger();
         [Command("roleinfo"), Summary("Gets information about the specified role")]
-        public async Task RoleInfoAsync([Summary("The role to find")]IRole role) // todo, make this util better
+        public async Task RoleInfoAsync([Summary("The role to find")]IRole role) // TODO: make this util better
         {
             EmbedBuilder embed = new EmbedBuilder
             {
@@ -22,7 +24,12 @@ namespace ContactsBot.Modules
             embed.AddField(field => { field.Name = "ID"; field.Value = role.Id.ToString(); });
             embed.AddField(field => { field.Name = "Discord managed"; field.Value = role.IsManaged.ToString(); });
             embed.AddField(field => { field.Name = "Mentionable"; field.Value = role.IsMentionable.ToString(); });
-            embed.AddField(async (field) => { field.Name = "Number of users"; field.Value = (await Context.Guild.GetUsersAsync()).Count(u => u.RoleIds.Contains(role.Id)).ToString(); });
+            embed.AddField(async (field) => {
+                field.Name = "Number of users";
+                field.Value = (await Context.Guild.GetUsersAsync())
+                               .Count(u => u.RoleIds.Contains(role.Id)).ToString();
+            });
+
             await ReplyAsync(string.Empty, embed: embed);
         }
 
@@ -56,13 +63,13 @@ namespace ContactsBot.Modules
             {
                 field.IsInline = true;
                 field.Name = "Joined at";
-                field.Value = user.JoinedAt.HasValue ? user.JoinedAt.Value.ToString(CultureInfo.InvariantCulture.DateTimeFormat.ShortDatePattern) : string.Empty;
+                field.Value = user.JoinedAt.HasValue ? user.JoinedAt.Value.ToString(CultureInfo.InvariantCulture.DateTimeFormat.ShortDatePattern + " " + CultureInfo.InvariantCulture.DateTimeFormat.LongTimePattern) : string.Empty;
             });
             embed.AddField(field =>
             {
                 field.IsInline = true;
                 field.Name = "Created at";
-                field.Value = user.CreatedAt.ToString(CultureInfo.InvariantCulture.DateTimeFormat.ShortDatePattern);
+                field.Value = user.CreatedAt.ToString(CultureInfo.InvariantCulture.DateTimeFormat.ShortDatePattern + " " + CultureInfo.InvariantCulture.DateTimeFormat.LongTimePattern);
             });
             if(user.Nickname != null)
                 embed.AddField(field =>
@@ -94,12 +101,19 @@ namespace ContactsBot.Modules
     [Name("Message Actions module"), Group("actions")]
     public class MessageActionModifiers : ModuleBase
     {
-        [Command, Summary("Lists actions installed for this bot")]
+        private static Logger MessageActionModifiersLogger { get; } = LogManager.GetCurrentClassLogger();
+        IBotInterface BotInterface { get; set; }
+        public MessageActionModifiers(IBotInterface botInterface)
+        {
+            BotInterface = botInterface;
+        }
+
+        [Command("listactions"), Summary("Lists actions installed for this bot")]
         public async Task ListActionsAsync()
         {
             StringBuilder reply = new StringBuilder();
             reply.Append("Actions:");
-            foreach(var action in Global.MessageActions)
+            foreach(var action in BotInterface.MessageActions)
             {
                 reply.AppendLine();
                 var replyEnabled = action.Value.IsEnabled ? "Enabled" : "Disabled";
@@ -111,12 +125,12 @@ namespace ContactsBot.Modules
         [Command("enable"), Summary("Enables a disabled action")]
         public async Task EnableActionAsync([Summary("The action to enable")] string actionName)
         {
-            if(!Context.IsCorrectRole(Moderation.StandardRoles))
+            if(!Context.IsCorrectRole(ModerationModule.StandardRoles))
             {
                 await ReplyAsync("Couldn't enable message action: Insufficient role");
                 return;
             }
-            Global.MessageActions.TryGetValue(actionName, out var action);
+            BotInterface.MessageActions.TryGetValue(actionName, out var action);
             if (action == null) await ReplyAsync("Couldn't find the specified action");
             if (action.IsEnabled) await ReplyAsync("The action is already enabled");
             else
@@ -129,12 +143,12 @@ namespace ContactsBot.Modules
         [Command("disable"), Summary("Disables an enabled action")]
         public async Task DisableActionAsync([Summary("The action to disable")] string actionName)
         {
-            if (!Context.IsCorrectRole(Moderation.StandardRoles))
+            if (!Context.IsCorrectRole(ModerationModule.StandardRoles))
             {
                 await ReplyAsync("Couldn't disable message action: Insufficient role");
                 return;
             }
-            Global.MessageActions.TryGetValue(actionName, out var action);
+            BotInterface.MessageActions.TryGetValue(actionName, out var action);
             if (action == null) await ReplyAsync("Couldn't find the specified action");
             if (!action.IsEnabled) await ReplyAsync("The action is already disabled");
             else

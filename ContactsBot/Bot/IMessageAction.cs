@@ -1,8 +1,9 @@
 ﻿using Discord.Commands;
+using System.Threading.Tasks;
 
 namespace ContactsBot
 {
-    interface IMessageAction
+    public interface IMessageAction
     {
         void Install(IDependencyMap map);
 
