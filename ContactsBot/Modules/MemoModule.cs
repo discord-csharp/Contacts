@@ -2,6 +2,7 @@
 using ContactsBot.Data;
 using Discord.Commands;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace ContactsBot.Modules
@@ -58,7 +59,7 @@ namespace ContactsBot.Modules
                 if (!string.IsNullOrEmpty(item.MemoName))
                 {
                     var user = await Context.Guild.GetUserAsync((ulong)item.UserID);
-                    await ReplyAsync("", false, new Discord.EmbedBuilder
+                    await ReplyAsync("", embed: new Discord.EmbedBuilder
                     {
                         Title = memo,
                         Description = item.Message,
@@ -132,18 +133,19 @@ namespace ContactsBot.Modules
         [Command, Summary("Lists all the existing memos")]
         public async Task ListAsync()
         {
-            var reply = "Memos: ";
+            var reply = new StringBuilder();
+            reply.Append("Memos: ");
             var first = true;
             using (var context = new ContactsBotDbContext())
                 foreach (var memo in context.Memos)
                 {
                     if (first)
-                        reply += memo.MemoName;
+                        reply.Append(memo.MemoName);
                     else
-                        reply += $", {memo}";
+                        reply.Append($", {memo}");
                     first = false;
                 }
-            await ReplyAsync(reply);
+            await ReplyAsync(reply.ToString());
         }
     }
 }
