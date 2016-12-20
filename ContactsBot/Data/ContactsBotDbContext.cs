@@ -12,9 +12,9 @@ namespace ContactsBot.Data
         public DbSet<Log> Logs { get; set; }
 
 #if DEV
-        private static PostgreSQLConfiguration DbConfiguration { get; } = new ConfigManager("Configs").GetConfigAsync<PostgreSQLConfiguration>("dev").Result;
+        private static PostgreSQLConfiguration DbConfiguration { get; } = new ConfigManager("Configs").GetConfigAsync<PostgreSQLConfiguration>("dev").GetAwaiter().GetResult();
 #else
-        private static PostgreSQLConfiguration DbConfiguration { get; } = new ConfigManager("Configs").GetConfigAsync<PostgreSQLConfiguration>().Result;
+        private static PostgreSQLConfiguration DbConfiguration { get; } = new ConfigManager("Configs").GetConfigAsync<PostgreSQLConfiguration>().GetAwaiter().GetResult();
 #endif
         private static Logger ContactsBotDbContextLogger { get; } = LogManager.GetCurrentClassLogger();
 

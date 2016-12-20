@@ -25,9 +25,9 @@ namespace ContactsBot
             _map = map;
             _client = _map.Get<DiscordSocketClient>();
 #if DEV
-            _config = _map.Get<ConfigManager>().GetConfigAsync<BotConfiguration>(name: "dev").Result;
+            _config = _map.Get<ConfigManager>().GetConfigAsync<BotConfiguration>(name: "dev").GetAwaiter().GetResult();
 #else
-            _config = _map.Get<ConfigManager>().GetConfigAsync<BotConfiguration>().Result;
+            _config = _map.Get<ConfigManager>().GetConfigAsync<BotConfiguration>().GetAwaiter().GetResult();
 #endif
             _commands = new CommandService();
             _map.Add(_commands);

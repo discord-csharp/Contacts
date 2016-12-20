@@ -19,9 +19,9 @@ namespace ContactsBot.Modules
         {
             _client = map.Get<DiscordSocketClient>();
 #if DEV
-            _config = map.Get<ConfigManager>().GetConfigAsync<BotConfiguration>(name: "dev").Result;
+            _config = map.Get<ConfigManager>().GetConfigAsync<BotConfiguration>(name: "dev").GetAwaiter().GetResult();
 #else
-            _config = map.Get<ConfigManager>().GetConfigAsync<BotConfiguration>().Result;
+            _config = map.Get<ConfigManager>().GetConfigAsync<BotConfiguration>().GetAwaiter().GetResult();
 #endif
         }
 

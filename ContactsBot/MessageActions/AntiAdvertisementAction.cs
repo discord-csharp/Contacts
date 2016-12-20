@@ -67,7 +67,7 @@ namespace ContactsBot.Modules
 
             Task.WaitAll(requests.ToArray());
 
-            return requests.Where(x => x.Result).Count() != 0;
+            return requests.Where(x => x.GetAwaiter().GetResult()).Count() != 0;
         }
 
         private async Task<bool> IsHiddenInviteAsync(string link)
