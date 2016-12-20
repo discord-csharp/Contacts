@@ -115,7 +115,39 @@ namespace ContactsBot
 
         private Task Client_LogAsync(LogMessage arg)
         {
-            BotLogger.Log(FromLogSeverity(arg.Severity), arg.ToString());
+            switch (arg.Severity)
+            {
+                case LogSeverity.Critical:
+                    {
+                        BotLogger.Log(LogLevel.Fatal, arg.ToString());
+                        break;
+                    }
+                case LogSeverity.Debug:
+                    {
+                        BotLogger.Log(LogLevel.Debug, arg.ToString());
+                        break;
+                    }
+                case LogSeverity.Error:
+                    {
+                        BotLogger.Log(LogLevel.Error, arg.ToString());
+                        break;
+                    }
+                case LogSeverity.Info:
+                    {
+                        BotLogger.Log(LogLevel.Info, arg.ToString());
+                        break;
+                    }
+                case LogSeverity.Verbose:
+                    {
+                        BotLogger.Log(LogLevel.Trace, arg.ToString());
+                        break;
+                    }
+                case LogSeverity.Warning:
+                    {
+                        BotLogger.Log(LogLevel.Warn, arg.ToString());
+                        break;
+                    }
+            }
             return Task.CompletedTask;
         }
 
@@ -193,46 +225,6 @@ namespace ContactsBot
             {
                 AddAction(type, map, autoEnable);
                 BotLogger.Debug("Action Added: {0}", type.FullName);
-            }
-        }
-
-        /// <summary>
-        /// Return an equivalent NLog Log Level for Discord Log Severity Level
-        /// </summary>
-        /// <param name="level">Discord Log Severity Level</param>
-        /// <returns>NLog Log Level</returns>
-        private static LogLevel FromLogSeverity(LogSeverity level)
-        {
-            switch (level)
-            {
-                case LogSeverity.Critical:
-                    {
-                        return LogLevel.Fatal;
-                    }
-                case LogSeverity.Debug:
-                    {
-                        return LogLevel.Debug;
-                    }
-                case LogSeverity.Error:
-                    {
-                        return LogLevel.Error;
-                    }
-                case LogSeverity.Info:
-                    {
-                        return LogLevel.Info;
-                    }
-                case LogSeverity.Verbose:
-                    {
-                        return LogLevel.Trace;
-                    }
-                case LogSeverity.Warning:
-                    {
-                        return LogLevel.Warn;
-                    }
-                default:
-                    {
-                        return LogLevel.Off;
-                    }
             }
         }
     }
