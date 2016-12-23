@@ -10,6 +10,8 @@ using System.Linq;
 using System.Collections.Concurrent;
 using ContactsBot.NLogTargets;
 using NLog.Layouts;
+using ContactsBot.Data;
+using Newtonsoft.Json;
 
 namespace ContactsBot
 {
@@ -81,6 +83,9 @@ namespace ContactsBot
             _client.UserUnbanned += ChannelLog_UserUnbanned;
             _client.MessageDeleted += ChannelLog_MessageDeletedAsync;
             _client.MessageReceived += Client_MessageRecievedAsync;
+            _client.ReactionAdded += OnReactionAdded;
+            _client.ReactionRemoved += OnReactionRemoved;
+            
 
             await _client.LoginAsync(TokenType.Bot, _config.Token);
             await _client.ConnectAsync();
@@ -201,6 +206,58 @@ namespace ContactsBot
         {
             BotLogger.Info($"User joined: Welcome \"{arg.Username}\" to the server!");
             return Task.CompletedTask;
+        }
+        
+        [Summary("This event will keep track of Karma given to users")]
+        private async Task OnReactionAdded(ulong arg1, Optional<SocketUserMessage> arg2, SocketReaction arg3)
+        {
+            if (arg3.Emoji.Name == "👍")
+            {
+                try
+                {
+                    using (var context = new ContactsBotDbContext())
+                    {
+                        var databaseUserID = (long)user.Id;
+                        var item = context.Karmas.FirstOrDefault(I => I.UserID == databaseUserID);
+                        if (item != null)
+                        {
+                            item.KarmaCount++;
+                            context.Karmas.Update(item);
+                        }
+                        else
+                            await context.Karmas.AddAsync(new Karma() { UserID = (long)user.Id, KarmaCount = 1 });
+                        await context.SaveChangesAsync();
+                        await arg3.Channel.SendMessageAsync($"Thanks {user.Username}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    KarmasModuleLogger.Error(ex, ex.Message);
+                }
+            }
+        }
+        
+        [Summary("This event will keep track of Karma removed from users")]
+        private async Task OnReactionRemoved(ulong arg1, Optional<SocketUserMessage> arg2, SocketReaction arg3)
+        {
+
+            if (arg3.Emoji.Name == "👍")
+            {
+                try
+                {
+                    using (var context = new ContactsBotDbContext())
+                    {
+                        var databaseUserID = (long)user.Id;
+                        var item = context.Karmas.FirstOrDefault(I => I.UserID == databaseUserID);
+                        item.KarmaCount--;
+                        context.Karmas.Update(item);                       
+                        await context.SaveChangesAsync();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    KarmasModuleLogger.Error(ex, ex.Message);
+                }
         }
 
         private void AddAction<T>(IDependencyMap map, bool autoEnable = true) where T : IMessageAction, new()
