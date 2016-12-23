@@ -213,6 +213,8 @@ namespace ContactsBot
         {
             if (arg3.Emoji.Name == "👍")
             {
+                private static Logger KarmasModuleLogger { get; } = LogManager.GetCurrentClassLogger();
+
                 try
                 {
                     using (var context = new ContactsBotDbContext())
@@ -240,6 +242,7 @@ namespace ContactsBot
         [Summary("This event will keep track of Karma removed from users")]
         private async Task OnReactionRemoved(ulong arg1, Optional<SocketUserMessage> arg2, SocketReaction arg3)
         {
+            private static Logger KarmasModuleLogger { get; } = LogManager.GetCurrentClassLogger();
 
             if (arg3.Emoji.Name == "👍")
             {
