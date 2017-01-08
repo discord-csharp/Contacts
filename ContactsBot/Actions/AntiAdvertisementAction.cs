@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Discord;
-using Discord.WebSocket;
 using Discord.Commands;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
@@ -10,27 +9,18 @@ using System.Net;
 
 namespace ContactsBot.Modules
 {
-    class AntiAdvertisementAction : IMessageAction
+    class AntiAdvertisementAction : ActionServices.ActionService
     {
-        private DiscordSocketClient _client;
+        public AntiAdvertisementAction(IDependencyMap map) : base(map) { }
 
-        public bool IsEnabled { get; private set; }
-
-        public void Install(IDependencyMap map)
-        {
-            _client = map.Get<DiscordSocketClient>();
-        }
-
-        public void Enable()
+        public override void Enable()
         {
             _client.MessageReceived += RunFilterAsync;
-            IsEnabled = true;
         }
 
-        public void Disable()
+        public override void Disable()
         {
             _client.MessageReceived -= RunFilterAsync;
-            IsEnabled = false;
         }
 
         public async Task RunFilterAsync(IMessage message)

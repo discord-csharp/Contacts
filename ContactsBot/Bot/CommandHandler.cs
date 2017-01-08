@@ -8,43 +8,36 @@ using NLog;
 
 namespace ContactsBot
 {
-    public class CommandHandler : IMessageAction
+    public class CommandHandler : ActionServices.ActionService
     {
+        private IDependencyMap _map;
         private CommandService _commands;
-        private DiscordSocketClient _client;
-        private BotConfiguration _config;
-        IDependencyMap _map;
-        public bool IsEnabled { get; private set; } = true;
+        private ServerConfiguration _config;
         static Logger CommandLogger { get; set; }
         static CommandHandler()
         {
             CommandLogger = LogManager.GetCurrentClassLogger();
         }
-        public void Install(IDependencyMap map)
+
+        public CommandHandler(IDependencyMap map) : base(map)
         {
+            CommandLogger = LogManager.GetCurrentClassLogger();
+
             _map = map;
-            _client = _map.Get<DiscordSocketClient>();
-#if DEV
-            _config = _map.Get<ConfigManager>().GetConfigAsync<BotConfiguration>(name: "dev").GetAwaiter().GetResult();
-#else
-            _config = _map.Get<ConfigManager>().GetConfigAsync<BotConfiguration>().GetAwaiter().GetResult();
-#endif
             _commands = new CommandService();
-            _map.Add(_commands);
+            map.Add(_commands);
             _commands.AddModulesAsync(Assembly.GetEntryAssembly()).Wait();
             _commands.Commands.AsParallel().ForAll(I => CommandLogger.Debug("Loaded command: {0} - {1}", I.Name, I.RunMode.ToString()));
         }
 
-        public void Enable()
+        public override void Enable()
         {
             _client.MessageReceived += HandleCommandAsync;
-            IsEnabled = true;
         }
 
-        public void Disable()
+        public override void Disable()
         {
             _client.MessageReceived -= HandleCommandAsync;
-            IsEnabled = false;
         }
 
         private async Task HandleCommandAsync(SocketMessage msg)
@@ -53,10 +46,8 @@ namespace ContactsBot
             if (message == null) return;
 
             int argPos = 0;
-#if DEV
-            if (msg.Channel.Name != (_config.FilterChannel ?? msg.Channel.Name)) return;
-#endif
-            if (message.HasCharPrefix(_config.PrefixCharacter, ref argPos) || message.HasMentionPrefix(_client.CurrentUser, ref argPos))
+
+            if (message.HasStringPrefix(_config.PrefixString, ref argPos) || message.HasMentionPrefix(_client.CurrentUser, ref argPos))
             {
                 var context = new CommandContext(_client, message);
 

@@ -1,13 +1,13 @@
-﻿using Discord;
-using Humanizer;
+﻿using ContactsBot.Configuration;
+using ContactsBot.Services;
+using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using Humanizer;
+using NLog;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using ContactsBot.Configuration;
-using NLog;
-using System.Threading;
 
 namespace ContactsBot.Modules
 {
@@ -16,23 +16,13 @@ namespace ContactsBot.Modules
     {
         static Logger ModeratorLogger { get; } = LogManager.GetCurrentClassLogger();
         private ConfigManager _config;
-        private IBotInterface _botInterface;
-        private ulong? _mutedRoleId = null;
-        private Timer MuteTimer { get; }
-        public ModerationModule(ConfigManager config, IBotInterface botInterface)
+        private MuteService _muteService;
+
+        public ModerationModule(ConfigManager config, MuteService muteService)
         {
             _config = config;
-            _botInterface = botInterface;
-#if DEV
-            _mutedRoleId = config.GetConfigAsync<BotConfiguration>(name: "dev").GetAwaiter().GetResult().MuteRole;
-#else
-            _mutedRoleId = config.GetConfigAsync<BotConfiguration>().GetAwaiter().GetResult().MuteRole;
-#endif
-            MuteTimer = new Timer(new TimerCallback(PollMuteUsers), null, new TimeSpan(0), new TimeSpan(0, 0, 10));
         }
-
-        internal static string[] StandardRoles = new[] { "Founders", "Administrator", "Moderators", "Regulars", "Bot" };
-
+        
         [Command("mute"), Summary("Mutes a user for the specified amount of time")]
         public async Task MuteAsync([Summary("The user to mute")] IGuildUser user, [Summary("The TimeSpan to mute the user")] TimeSpan time)
         {
@@ -116,9 +106,7 @@ namespace ContactsBot.Modules
     [Group("message"), Name("Message Module")]
     public class MessagesPruneModule : ModuleBase
     {
-        IBotInterface _botInterface;
-
-        public MessagesPruneModule(IBotInterface botInterface)
+        public MessagesPruneModule(ContactsBot botInterface)
         {
             _botInterface = botInterface;
         }

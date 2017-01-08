@@ -2,7 +2,6 @@
 using Discord.Commands;
 using System.Threading.Tasks;
 using System.Linq;
-using System.Text;
 using System.Globalization;
 using NLog;
 
@@ -71,7 +70,7 @@ namespace ContactsBot.Modules
                 field.Name = "Created at";
                 field.Value = user.CreatedAt.ToString(CultureInfo.InvariantCulture.DateTimeFormat.ShortDatePattern + " " + CultureInfo.InvariantCulture.DateTimeFormat.LongTimePattern);
             });
-            if(user.Nickname != null)
+            if(!string.IsNullOrEmpty(user.Nickname))
                 embed.AddField(field =>
                 {
                     field.Name = "Nickname";
@@ -95,67 +94,6 @@ namespace ContactsBot.Modules
                 embed.Color = role?.Color;
             }
             await ReplyAsync(string.Empty, embed: embed);
-        }
-    }
-
-    [Name("Message Actions module"), Group("actions")]
-    public class MessageActionModifiers : ModuleBase
-    {
-        private static Logger MessageActionModifiersLogger { get; } = LogManager.GetCurrentClassLogger();
-        IBotInterface BotInterface { get; set; }
-        public MessageActionModifiers(IBotInterface botInterface)
-        {
-            BotInterface = botInterface;
-        }
-
-        [Command("listactions"), Summary("Lists actions installed for this bot")]
-        public async Task ListActionsAsync()
-        {
-            StringBuilder reply = new StringBuilder();
-            reply.Append("Actions:");
-            foreach(var action in BotInterface.MessageActions)
-            {
-                reply.AppendLine();
-                var replyEnabled = action.Value.IsEnabled ? "Enabled" : "Disabled";
-                reply.Append($"{action.Key}: {replyEnabled}");
-            }
-            await ReplyAsync(reply.ToString());
-        }
-
-        [Command("enable"), Summary("Enables a disabled action")]
-        public async Task EnableActionAsync([Summary("The action to enable")] string actionName)
-        {
-            if(!Context.IsCorrectRole(ModerationModule.StandardRoles))
-            {
-                await ReplyAsync("Couldn't enable message action: Insufficient role");
-                return;
-            }
-            BotInterface.MessageActions.TryGetValue(actionName, out var action);
-            if (action == null) await ReplyAsync("Couldn't find the specified action");
-            if (action.IsEnabled) await ReplyAsync("The action is already enabled");
-            else
-            {
-                action.Enable();
-                await ReplyAsync($"Enabled {actionName}");
-            }
-        }
-
-        [Command("disable"), Summary("Disables an enabled action")]
-        public async Task DisableActionAsync([Summary("The action to disable")] string actionName)
-        {
-            if (!Context.IsCorrectRole(ModerationModule.StandardRoles))
-            {
-                await ReplyAsync("Couldn't disable message action: Insufficient role");
-                return;
-            }
-            BotInterface.MessageActions.TryGetValue(actionName, out var action);
-            if (action == null) await ReplyAsync("Couldn't find the specified action");
-            if (!action.IsEnabled) await ReplyAsync("The action is already disabled");
-            else
-            {
-                action.Disable();
-                await ReplyAsync($"Disabled {actionName}");
-            }
         }
     }
 }

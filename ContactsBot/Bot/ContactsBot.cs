@@ -1,27 +1,25 @@
 ﻿using ContactsBot.Configuration;
+using ContactsBot.NLogTargets;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
-using System;
-using System.Threading.Tasks;
 using NLog;
-using System.Reflection;
-using System.Linq;
-using System.Collections.Concurrent;
-using ContactsBot.NLogTargets;
 using NLog.Layouts;
+using System;
+using System.Collections.Concurrent;
+using System.Linq;
+using System.Reflection;
+using System.Threading.Tasks;
 
 namespace ContactsBot
 {
-    public class ContactsBot : IBotInterface
+    public class ContactsBot
     {
         DiscordSocketClient _client;
         DependencyMap _map;
-        BotConfiguration _config;
+        GlobalConfiguration _config;
         ConfigManager _cfgMgr;
         internal static Logger BotLogger { get; set; }
-        public ConcurrentDictionary<IGuildUser, DateTime> MutedUsers { get; } = new ConcurrentDictionary<IGuildUser, DateTime>();
-        public ConcurrentDictionary<string, IMessageAction> MessageActions { get; } = new ConcurrentDictionary<string, IMessageAction>(StringComparer.OrdinalIgnoreCase);
         public long IgnoreCount { get; set; } = 0;
         private DiscordNLogTarget _discordNLogTarget;
         static ContactsBot()
@@ -42,24 +40,8 @@ namespace ContactsBot
 
             _map.Add(_cfgMgr);
             _map.Add(this);
-
-#if DEV
-            if (!_cfgMgr.ConfigExists<BotConfiguration>("dev"))
-            {
-                await _cfgMgr.SaveConfigAsync(new BotConfiguration(), "dev");
-                BotLogger.Info("No dev.json configuration exists for BotConfiguration. Skeleton File generated. Please read the README.md for installation guide.");
-                return;
-            }
-            _config = await _cfgMgr.GetConfigAsync<BotConfiguration>("dev");
-#else
-            if (!_cfgMgr.ConfigExists<BotConfiguration>())
-            {
-                await _cfgMgr.SaveConfigAsync(new BotConfiguration());
-                BotLogger.Info("No default.json configuration exists for BotConfiguration. Skeleton File generated. Please read the README.md for installation guide.");
-                return;
-            }
-            _config = await _cfgMgr.GetConfigAsync<BotConfiguration>();
-#endif
+            
+            _config = await _cfgMgr.GetConfigAsync<GlobalConfiguration>("global");
 
             _client = new DiscordSocketClient(new DiscordSocketConfig
             {
@@ -69,8 +51,8 @@ namespace ContactsBot
             });
 
             _map.Add(_client);
+            
 
-            AddAssemblyActions(_map);
 
             _client.Log += Client_LogAsync;
 
@@ -201,31 +183,6 @@ namespace ContactsBot
         {
             BotLogger.Info($"User joined: Welcome \"{arg.Username}\" to the server!");
             return Task.CompletedTask;
-        }
-
-        private void AddAction<T>(IDependencyMap map, bool autoEnable = true) where T : IMessageAction, new()
-        {
-            AddAction(typeof(T), map, autoEnable);
-        }
-
-        private void AddAction(Type handlerType, IDependencyMap map, bool autoEnable = true)
-        {
-            var handler = Activator.CreateInstance(handlerType) as IMessageAction;
-
-            handler.Install(map);
-            if (autoEnable) handler.Enable();
-            MessageActions.TryAdd(handler.GetType().Name, handler);
-        }
-
-        private void AddAssemblyActions(IDependencyMap map, bool autoEnable = true)
-        {
-            var allActions = Assembly.GetEntryAssembly().GetTypes().Where(d => d.GetInterfaces().Contains(typeof(IMessageAction)));
-
-            foreach (var type in allActions)
-            {
-                AddAction(type, map, autoEnable);
-                BotLogger.Debug("Action Added: {0}", type.FullName);
-            }
         }
     }
 }

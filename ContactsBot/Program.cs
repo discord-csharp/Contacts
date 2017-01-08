@@ -10,11 +10,7 @@ namespace ContactsBot
         static void Main(string[] args)
         {
             LogManager.ThrowConfigExceptions = true;
-#if DEV
-            LogManager.Configuration = new XmlLoggingConfiguration("NLog.Dev.config");
-#else
             LogManager.Configuration = new XmlLoggingConfiguration("NLog.config");
-#endif
             LogManager.EnableLogging();
             try
             {
