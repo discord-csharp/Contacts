@@ -57,8 +57,8 @@ namespace ContactsBot
                 {
                     if ((result is SearchResult))
                         return;
-                    if (result is ExecuteResult)
-                        CommandLogger.Error("```" + ((ExecuteResult)result).Exception.ToString() + "```");
+                    if (result is ExecuteResult exeResult)
+                        CommandLogger.Error("```" + exeResult.Exception.ToString() + "```");
                     else
                         CommandLogger.Error(result.ErrorReason);
                 }

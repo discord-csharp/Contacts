@@ -21,22 +21,15 @@ namespace ContactsBot.Modules
         public ModerationModule(ConfigManager config, MuteService muteService)
         {
             _config = config;
+            _muteService = muteService;
         }
-        
-        [Command("mute"), Summary("Mutes a user for the specified amount of time")]
+
+        [Command("mute")] 
+        [Summary("Mutes a user for the specified amount of time")]
+        [RequireContext(ContextType.Guild)] 
+        [RequireUserPermission(ChannelPermission.MoveMembers)]
         public async Task MuteAsync([Summary("The user to mute")] IGuildUser user, [Summary("The TimeSpan to mute the user")] TimeSpan time)
         {
-            if (!_mutedRoleId.HasValue) return;
-
-            var guildUser = user as SocketGuildUser;
-            if (guildUser == null) return;
-
-            if (!Context.IsCorrectRole(StandardRoles))
-             {
-                await ReplyAsync("Couldn't mute user: Insufficient role");
-                return;
-            }
-            
             var muteRole = guildUser.Guild.GetRole(_mutedRoleId.Value);
             if (muteRole == null)
             {
@@ -106,47 +99,30 @@ namespace ContactsBot.Modules
     [Group("message"), Name("Message Module")]
     public class MessagesPruneModule : ModuleBase
     {
-        public MessagesPruneModule(ContactsBot botInterface)
-        {
-            _botInterface = botInterface;
-        }
-
         [Command("deleterange"), RequireBotPermission(GuildPermission.ManageMessages), RequireContext(ContextType.Guild)]
         public async Task DeleteAsync([Summary("The range of messages to delete")] int range)
         {
-            if (Context.IsCorrectRole(ModerationModule.StandardRoles))
-            {
-                var messageList = await Context.Channel.GetMessagesAsync(range).Flatten();
-                await Context.Channel.DeleteMessagesAsync(messageList);
+            var messageList = await Context.Channel.GetMessagesAsync(range).Flatten();
+            await Context.Channel.DeleteMessagesAsync(messageList);
 
-                await ReplyAsync($"Deleted the last {range} messages.");
-                _botInterface.IgnoreCount += range;
-            }
-            else
-                await ReplyAsync("Couldn't delete messages: Insufficient role");
+            await ReplyAsync($"Deleted the last {range} messages.");
         }
 
         [Command("deleterange"), RequireBotPermission(GuildPermission.ManageMessages), RequireContext(ContextType.Guild)]
         public async Task DeleteAsync([Summary("The message ID to start deleting at")] ulong startMessage, [Summary("The last message ID to delete")] ulong endMessage)
         {
-            if (Context.IsCorrectRole(ModerationModule.StandardRoles))
+            var messageList = (await Context.Channel.GetMessagesAsync(500).Flatten()).ToList();
+            int startIndex = messageList.FindIndex(m => m.Id == startMessage);
+            int endIndex = messageList.FindIndex(m => m.Id == endMessage);
+            if(startIndex == -1 || endIndex == -1)
             {
-                var messageList = (await Context.Channel.GetMessagesAsync(500).Flatten()).ToList();
-                int startIndex = messageList.FindIndex(m => m.Id == startMessage);
-                int endIndex = messageList.FindIndex(m => m.Id == endMessage);
-                if(startIndex == -1 || endIndex == -1)
-                {
-                    await ReplyAsync("Couldn't delete messages: The start or end message ID couldn't be found");
-                    return;
-                }
-                var messageRange = (startIndex > endIndex) ? messageList.GetRange(endIndex - 1, (startIndex - endIndex) + 1) : messageList.GetRange(startIndex, (endIndex - startIndex) + 1);
-                await Context.Channel.DeleteMessagesAsync(messageRange);
-
-                await ReplyAsync($"Deleted {Math.Abs(endIndex - startIndex) + 1} messages");
-                _botInterface.IgnoreCount += Math.Abs(endIndex - startIndex) + 1;
+                await ReplyAsync("Couldn't delete messages: The start or end message ID couldn't be found");
+                return;
             }
-            else
-                await ReplyAsync("Couldn't delete messages: Insufficient role");
+            var messageRange = (startIndex > endIndex) ? messageList.GetRange(endIndex - 1, (startIndex - endIndex) + 1) : messageList.GetRange(startIndex, (endIndex - startIndex) + 1);
+            await Context.Channel.DeleteMessagesAsync(messageRange);
+
+            await ReplyAsync($"Deleted {Math.Abs(endIndex - startIndex) + 1} messages");
         }
 
         [Command("wipe"), RequireBotPermission(GuildPermission.ManageMessages), RequireUserPermission(GuildPermission.ManageMessages)]
@@ -156,25 +132,6 @@ namespace ContactsBot.Modules
             var userMessage = messageList.Where(message => message.Author == user).Take(count);
             await Context.Channel.DeleteMessagesAsync(userMessage);
             await ReplyAsync($"Wiped {userMessage.Count()} messages from {user}");
-            _botInterface.IgnoreCount += userMessage.Count();
-        }
-    }
-
-    public static class ModerationExtensions
-    {
-        public static bool IsCorrectRole(this CommandContext Context, params string[] roleNames)
-        {
-            return (Context.User as IGuildUser).IsCorrectRole(Context.Guild, roleNames); // fucking perfect
-        }
-
-        public static bool IsCorrectRole(this IGuildUser guildUser, IGuild guild, params string[] roleNames)
-        {
-            var roles = guild.Roles;
-            if (guildUser == null || roles == null)
-                return false;
-
-            var rolesFromNames = roles.Where(r => roleNames.Any(n => r.Name == n));
-            return guildUser.RoleIds.Any(id => rolesFromNames.Any(r => r.Id == id));
         }
     }
 }

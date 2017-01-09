@@ -44,18 +44,7 @@ namespace ContactsBot.Modules
             }
             await ReplyAsync(response.ToString());
         }
-
         
-        [Command("motd"), Summary("Displays the current MOTD")]
-        public async Task MotdAsync()
-        {
-#if DEV
-            await ReplyAsync(string.Format((await _config.GetConfigAsync<BotConfiguration>(name: "dev")).MessageOfTheDay, Context.User.Username));
-#else
-            await ReplyAsync(string.Format((await _config.GetConfigAsync<BotConfiguration>()).MessageOfTheDay, Context.User.Username));
-#endif
-        }
-
         [Command("learntoask"), Summary("Prints a small info for people that dont know how to ask.")]
         public async Task LearnAsync()
         {

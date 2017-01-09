@@ -24,11 +24,7 @@ namespace ContactsBot.NLogTargets
             var config = new ConfigManager("Configs");
             try
             {
-#if DEV
-                DbConfig = config.GetConfigAsync<PostgreSQLConfiguration>(name: "dev").GetAwaiter().GetResult();
-#else
-                DbConfig = config.GetConfigAsync<PostgreSQLConfiguration>().GetAwaiter().GetResult();
-#endif
+                DbConfig = config.GetConfigAsync<PostgreSQLConfiguration>("default").GetAwaiter().GetResult();
             }
             catch (Exception ex)
             {

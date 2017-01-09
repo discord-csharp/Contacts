@@ -1,4 +1,5 @@
-﻿using Discord.WebSocket;
+﻿using Discord;
+using Discord.WebSocket;
 using NLog;
 using NLog.Targets;
 using System;
@@ -7,12 +8,15 @@ namespace ContactsBot.NLogTargets
 {
     public class DiscordNLogTarget : TargetWithLayout
     {
-        private ISocketMessageChannel _logChannel;
-        private static Logger DiscordNLogTargetLogger { get; } = LogManager.GetCurrentClassLogger();
-        public DiscordNLogTarget(ulong logGuildID, ulong logChannelID, DiscordSocketClient discordClient)
+        private ITextChannel _logChannel;
+
+        private Logger DiscordNLogTargetLogger { get; }
+
+        public DiscordNLogTarget(ITextChannel logChannel, DiscordSocketClient discordClient)
         {
+            DiscordNLogTargetLogger = LogManager.GetLogger(logChannel.Id.ToString());
             Name = GetType().Name;
-            _logChannel = discordClient.GetGuild(logGuildID)?.GetChannel(logChannelID) as ISocketMessageChannel;
+            _logChannel = logChannel;
             if (_logChannel == null)
             {
                 DiscordNLogTargetLogger.Error("Log Channel for Discord NLog Target could not be found!");
