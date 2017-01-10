@@ -12,18 +12,13 @@ namespace ContactsBot.Modules
     public class UnflipAction : ActionServices.ActionService
     {
         private Dictionary<IUser, int> _flips = new Dictionary<IUser, int>();
-
-        public override void Disable()
-        {
-            _client.MessageReceived -= PerformUnflipAsync;
-        }
-
-        public override void Enable()
-        {
-            _client.MessageReceived += PerformUnflipAsync;
-        }
-
+        
         public UnflipAction(IDependencyMap map) : base(map) { }
+
+        public override async void Invoke(SocketMessage message)
+        {
+            await PerformUnflipAsync(message);
+        }
 
         public async Task PerformUnflipAsync(SocketMessage message)
         {

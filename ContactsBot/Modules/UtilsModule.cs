@@ -9,9 +9,10 @@ namespace ContactsBot.Modules
 {
     [Name("Utils Module")]
     [Group("utils"), Summary("Utility Module for getting information on Discord")]
-    public class UtilsModule : ModuleBase
+    public class UtilsModule : ModuleBase<ServerCommandContext>
     {
         private static Logger UtilsLogger { get; } = LogManager.GetCurrentClassLogger();
+
         [Command("roleinfo"), Summary("Gets information about the specified role")]
         public async Task RoleInfoAsync([Summary("The role to find")]IRole role) // TODO: make this util better
         {
@@ -40,48 +41,15 @@ namespace ContactsBot.Modules
                 Title = user.Username,
                 ThumbnailUrl = user.AvatarUrl
             };
-            if(user.IsBot)
-                embed.AddField(field =>
-                {
-                    field.Name = "Bot user?";
-                    field.Value = "True";
-                });
-            embed.AddField(field =>
-            {
-                field.IsInline = true;
-                field.Name = "Id";
-                field.Value = user.Id.ToString();
-            });
-            embed.AddField(field =>
-            {
-                field.IsInline = true;
-                field.Name = "Status";
-                field.Value = user.Status.ToString();
-            });
-            embed.AddField(field =>
-            {
-                field.IsInline = true;
-                field.Name = "Joined at";
-                field.Value = user.JoinedAt.HasValue ? user.JoinedAt.Value.ToString(CultureInfo.InvariantCulture.DateTimeFormat.ShortDatePattern + " " + CultureInfo.InvariantCulture.DateTimeFormat.LongTimePattern) : string.Empty;
-            });
-            embed.AddField(field =>
-            {
-                field.IsInline = true;
-                field.Name = "Created at";
-                field.Value = user.CreatedAt.ToString(CultureInfo.InvariantCulture.DateTimeFormat.ShortDatePattern + " " + CultureInfo.InvariantCulture.DateTimeFormat.LongTimePattern);
-            });
-            if(!string.IsNullOrEmpty(user.Nickname))
-                embed.AddField(field =>
-                {
-                    field.Name = "Nickname";
-                    field.Value = user.Nickname;
-                });
+            if (user.IsBot)
+                AddField(embed, "Is bot?", "True");
+            AddField(embed, "ID", user.Id.ToString(), true);
+            AddField(embed, "Status", user.Status.ToString(), true);
+            AddField(embed, "Joined at", user.JoinedAt.HasValue ? user.JoinedAt.Value.ToString(CultureInfo.InvariantCulture.DateTimeFormat.ShortDatePattern + " " + CultureInfo.InvariantCulture.DateTimeFormat.LongTimePattern) : "Undetermined", true);
+            AddField(embed, "Created at", user.CreatedAt.ToString(CultureInfo.InvariantCulture.DateTimeFormat.ShortDatePattern + " " + CultureInfo.InvariantCulture.DateTimeFormat.LongTimePattern), true);
+            AddField(embed, "Nickname", user.Nickname);
             if(user.Game.HasValue)
-                embed.AddField(field =>
-                {
-                    field.Name = "Playing";
-                    field.Value = user.Game.Value.Name;
-                });
+                AddField(embed, "Game", $"Playing {user.Game.Value}");
             if (user.RoleIds.Last() != user.Guild.EveryoneRole.Id)
             {
                 IRole role = null;
@@ -94,6 +62,19 @@ namespace ContactsBot.Modules
                 embed.Color = role?.Color;
             }
             await ReplyAsync(string.Empty, embed: embed);
+        }
+
+        public static EmbedBuilder AddField(EmbedBuilder builder, string name, string value, bool inline = false)
+        {
+            if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(value))
+                return builder;
+
+            return builder.AddField(field => new EmbedFieldBuilder
+            {
+                IsInline = inline,
+                Value = value,
+                Name = name
+            });
         }
     }
 }

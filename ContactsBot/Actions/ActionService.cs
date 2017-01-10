@@ -1,19 +1,18 @@
-﻿using Discord.Commands;
+﻿using Discord;
+using Discord.Commands;
 using Discord.WebSocket;
 
 namespace ContactsBot.ActionServices
 {
     public abstract class ActionService
     {
-        protected DiscordSocketClient _client { get; }
+        protected DiscordSocketClient Client { get; }
 
-        public abstract void Enable();
-
-        public abstract void Disable();
+        public abstract void Invoke(SocketMessage message);
 
         public ActionService(IDependencyMap map)
         {
-            _client = map.Get<DiscordSocketClient>();
+            Client = map.Get<DiscordSocketClient>();
         }
     }
 }

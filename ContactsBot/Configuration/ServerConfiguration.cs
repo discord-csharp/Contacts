@@ -1,4 +1,7 @@
-﻿namespace ContactsBot.Configuration
+﻿using System.Collections.Generic;
+using Newtonsoft.Json;
+
+namespace ContactsBot.Configuration
 {
     public class ServerConfiguration
     {
@@ -15,5 +18,7 @@
         public ulong MuteRole { get; set; } = 0;
 
         public string MessageOfTheDay { get; set; } = "Hello {0}! Welcome to the server!";
+        
+        private List<string> _enabledActions { get; set; }
     }
 }

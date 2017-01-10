@@ -5,6 +5,8 @@ using Discord.Commands;
 using Discord.WebSocket;
 using ContactsBot.Configuration;
 using NLog;
+using Discord;
+using System.Collections.Concurrent;
 
 namespace ContactsBot
 {
@@ -13,11 +15,8 @@ namespace ContactsBot
         private IDependencyMap _map;
         private CommandService _commands;
         private ServerConfiguration _config;
+        private ConcurrentDictionary<IGuild, ServerConfiguration> _serverConfigs;
         static Logger CommandLogger { get; set; }
-        static CommandHandler()
-        {
-            CommandLogger = LogManager.GetCurrentClassLogger();
-        }
 
         public CommandHandler(IDependencyMap map) : base(map)
         {
@@ -26,30 +25,33 @@ namespace ContactsBot
             _map = map;
             _commands = new CommandService();
             map.Add(_commands);
+            _serverConfigs = map.Get<ConcurrentDictionary<IGuild, ServerConfiguration>>();
             _commands.AddModulesAsync(Assembly.GetEntryAssembly()).Wait();
             _commands.Commands.AsParallel().ForAll(I => CommandLogger.Debug("Loaded command: {0} - {1}", I.Name, I.RunMode.ToString()));
         }
 
         public override void Enable()
         {
-            _client.MessageReceived += HandleCommandAsync;
+            Client.MessageReceived += HandleCommandAsync;
         }
 
         public override void Disable()
         {
-            _client.MessageReceived -= HandleCommandAsync;
+            Client.MessageReceived -= HandleCommandAsync;
         }
 
         private async Task HandleCommandAsync(SocketMessage msg)
         {
             var message = msg as SocketUserMessage;
             if (message == null) return;
+            if (!_serverConfigs.TryGetValue((message.Channel as IGuildChannel).Guild, out var config))
+                return;
 
             int argPos = 0;
 
-            if (message.HasStringPrefix(_config.PrefixString, ref argPos) || message.HasMentionPrefix(_client.CurrentUser, ref argPos))
+            if (message.HasStringPrefix(_config.PrefixString, ref argPos) || message.HasMentionPrefix(Client.CurrentUser, ref argPos))
             {
-                var context = new CommandContext(_client, message);
+                var context = new ServerCommandContext(Client, message, config);
 
                 // Provide the dependency map when executing commands
                 var result = await _commands.ExecuteAsync(context, argPos, _map);

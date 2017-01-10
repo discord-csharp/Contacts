@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using System.Net.Http;
 using System.Net;
+using Discord.WebSocket;
 
 namespace ContactsBot.Modules
 {
@@ -13,14 +14,9 @@ namespace ContactsBot.Modules
     {
         public AntiAdvertisementAction(IDependencyMap map) : base(map) { }
 
-        public override void Enable()
+        public override async void Invoke(SocketMessage message)
         {
-            _client.MessageReceived += RunFilterAsync;
-        }
-
-        public override void Disable()
-        {
-            _client.MessageReceived -= RunFilterAsync;
+            await RunFilterAsync(message);
         }
 
         public async Task RunFilterAsync(IMessage message)
@@ -29,7 +25,7 @@ namespace ContactsBot.Modules
             var guildChannel = message.Channel as IGuildChannel;
             if (guildChannel == null) return;
 
-            if (!authorAsGuildUser.IsCorrectRole(guildChannel.Guild, ModerationModule.StandardRoles))
+            if (!authorAsGuildUser.GetPermissions(guildChannel).ManageMessages)
             {
                 if (ContainsInviteLink(message.Content))
                 {

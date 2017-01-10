@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace ContactsBot.Modules
 {
     [Group("info"), Name("Info Module")]
-    public class InfoModule : ModuleBase
+    public class InfoModule : ModuleBase<ServerCommandContext>
     {
         private CommandService _commands;
         private ConfigManager _config;

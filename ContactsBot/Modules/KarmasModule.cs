@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 namespace ContactsBot.Modules
 {
     [Group("karma"), Summary("Lets users store text for later use")]
-    public class KarmasModule : ModuleBase
+    public class KarmasModule : ModuleBase<ServerCommandContext>
     {
         private ConfigManager _config;
         private static Logger KarmasModuleLogger { get; } = LogManager.GetCurrentClassLogger();

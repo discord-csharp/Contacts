@@ -33,7 +33,7 @@
       <Version>0.9.9</Version>
     </PackageReference>
     <PackageReference Include="Discord.Net">
-      <Version>1.0.0-beta2-00500</Version>
+      <Version>1.0.0-rc-00544</Version>
     </PackageReference>
     <PackageReference Include="Humanizer.Core">
       <Version>2.1.0</Version>
