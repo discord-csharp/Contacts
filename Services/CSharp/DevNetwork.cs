@@ -19,7 +19,7 @@ namespace Rebase.Services.CSharp
         private string GetRefSourceUrl(string query) => $"{RefBaseUrl}/api/symbols/?symbol={Uri.EscapeDataString(query)}";
         private string GetRefHtmlUrl(string query) => $"{RefBaseUrl}/#q={Uri.EscapeDataString(query)}";
 
-        public async Task<IEnumerable<SearchResult>> ReferenceSource(string query)
+        public async Task<IEnumerable<SearchResult>> PerformReferenceSourceSearch(string query)
         {
             try
             {
@@ -44,7 +44,7 @@ namespace Rebase.Services.CSharp
             }
         }
 
-        public async Task<IEnumerable<SearchResult>> MsdnSearch(string query)
+        public async Task<IEnumerable<SearchResult>> PerformMsdnSearch(string query)
         {
             try
             {

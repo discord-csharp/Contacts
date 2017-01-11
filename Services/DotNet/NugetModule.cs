@@ -1,8 +1,8 @@
-﻿using System;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
+using System;
 using System.IO;
-using System.Collections.Generic;
+using System.Net;
+using System.Threading.Tasks;
 
 namespace Rebase.Services.DotNet
 {
@@ -11,7 +11,7 @@ namespace Rebase.Services.DotNet
         private string GetNugetFeedUrl(string query) => $"https://api-v2v3search-0.nuget.org/query?q={Uri.EscapeDataString(query)}";
         private string GetNugetHtmlUrl(string query) => $"https://www.nuget.org/packages/{Uri.EscapeDataString(query)}";
         
-        public async Task<List<NugetResult>> PerformNugetSearch(string query)
+        public async Task<NugetResult> PerformNugetSearch(string query)
         {
             var request = HttpWebRequest.CreateHttp(GetNugetFeedUrl(query));
 

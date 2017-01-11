@@ -7,15 +7,10 @@ namespace ContactsBot.Data
 {
     public class ContactsBotDbContext : DbContext
     {
-        public DbSet<Memo> Memos { get; set; }
-        public DbSet<Karma> Karmas { get; set; }
         public DbSet<Log> Logs { get; set; }
-
-#if DEV
-        private static PostgreSQLConfiguration DbConfiguration { get; } = new ConfigManager("Configs").GetConfigAsync<PostgreSQLConfiguration>("dev").GetAwaiter().GetResult();
-#else
+        
         private static PostgreSQLConfiguration DbConfiguration { get; } = new ConfigManager("Configs").GetConfigAsync<PostgreSQLConfiguration>().GetAwaiter().GetResult();
-#endif
+
         private static Logger ContactsBotDbContextLogger { get; } = LogManager.GetCurrentClassLogger();
 
         /// <summary>

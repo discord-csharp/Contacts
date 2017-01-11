@@ -6,6 +6,9 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Services", "Services\Services.csproj", "{1CF52B18-115D-4DF9-A946-E34312920C72}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Discord", "Discord\Discord.csproj", "{9C5F4B24-D387-4497-A7FC-909B0966883C}"
+	ProjectSection(ProjectDependencies) = postProject
+		{1CF52B18-115D-4DF9-A946-E34312920C72} = {1CF52B18-115D-4DF9-A946-E34312920C72}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
