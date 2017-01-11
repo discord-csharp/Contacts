@@ -279,7 +279,7 @@ ContactsBot/config.json
 ContactsBot/memos.json
 
 # Bot logs
-/ContactsBot/logs
+Discord/logs
 
 #Config files
-/ContactsBot/Configs
+Discord/Configs
