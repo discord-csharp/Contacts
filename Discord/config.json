@@ -1,0 +1,8 @@
+{
+  "Token": "MjUxMzkxNzkzMjc3NDM1OTA0.Cx8yaw.FHk2QRWZabpCu2o4J5qSjbFRpk4",
+  "DevToken": "MjUzMTc2NDM4MjAxNjQ3MTE0.Cx8scw.xBOMC8b4nJ-qamLezhBCvWkygyo",
+  "PrefixCharacter": "~",
+  "DevChannel": null,
+  "LoggingChannel": "log",
+  "MessageOfTheDay": "Hello {0}! Welcome to the server!"
+}

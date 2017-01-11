@@ -1,0 +1,57 @@
+10:15:21 Discord   Discord.Net v1.0.0-beta2-00491 (API v6)
+10:15:22 Rest      GET users/@me: 1061.71 ms
+10:15:23 Rest      GET voice/regions: 117.34 ms
+10:15:23 Gateway   Connecting
+10:15:23 Gateway   Connecting ApiClient
+10:15:23 Rest      GET gateway: 87.3 ms
+10:15:23 Gateway   Raising Event
+10:15:23 Gateway   Identifying
+10:15:23 Gateway   Sent Identify
+10:15:24 Gateway   Received Hello
+10:15:24 Discord   Heartbeat Started
+10:15:24 Gateway   Sent Heartbeat
+10:15:24 Gateway   Received Dispatch (READY)
+10:15:24 Discord   GuildDownloader Started
+10:15:24 Gateway   Ready
+10:15:24 Gateway   Sending Status
+10:15:24 Gateway   Sent StatusUpdate
+10:15:24 Gateway   Raising Event
+10:15:24 Gateway   Connected
+10:15:24 Gateway   Received Dispatch (GUILD_AVAILABLE)
+10:15:24 Gateway   Connected to C#
+10:15:24 Gateway   Received HeartbeatAck
+10:15:24 Gateway   Latency = 360 ms
+10:15:24 Discord   GuildDownloader Stopped
+10:15:24 Gateway   Sent StatusUpdate
+10:15:27 Gateway   Received Dispatch (PRESENCE_UPDATE)
+10:15:28 Gateway   Received Dispatch (TYPING_START)
+10:15:29 Gateway   Received Dispatch (TYPING_START)
+10:15:30 Gateway   Received Dispatch (MESSAGE_CREATE)
+10:15:31 Rest      POST channels/251386218351165441/messages: 192.37 ms
+10:15:31 Rest      POST channels/253967815671808001/messages: 163.75 ms
+10:15:31 Gateway   Received Dispatch (TYPING_START)
+10:15:31 Gateway   Received Dispatch (MESSAGE_CREATE)
+10:15:31 Gateway   Received Dispatch (MESSAGE_CREATE)
+10:15:31 Gateway   Received Dispatch (PRESENCE_UPDATE)
+10:15:33 Gateway   Received Dispatch (MESSAGE_CREATE)
+10:15:35 Gateway   Received Dispatch (TYPING_START)
+10:15:38 Gateway   Received Dispatch (TYPING_START)
+10:15:41 Gateway   Received Dispatch (MESSAGE_CREATE)
+10:15:41 Gateway   Received Dispatch (PRESENCE_UPDATE)
+10:15:43 Gateway   Received Dispatch (TYPING_START)
+10:15:46 Gateway   Received Dispatch (MESSAGE_CREATE)
+10:15:46 Gateway   Received Dispatch (PRESENCE_UPDATE)
+10:15:46 Gateway   Received Dispatch (PRESENCE_UPDATE)
+10:15:47 Gateway   Received Dispatch (PRESENCE_UPDATE)
+10:15:48 Gateway   Received Dispatch (PRESENCE_UPDATE)
+10:15:51 Gateway   Received Dispatch (PRESENCE_UPDATE)
+10:15:56 Gateway   Received Dispatch (PRESENCE_UPDATE)
+10:15:58 Gateway   Received Dispatch (PRESENCE_UPDATE)
+10:15:59 Gateway   Received Dispatch (MESSAGE_REACTION_ADD)
+10:16:03 Gateway   Received Dispatch (PRESENCE_UPDATE)
+10:16:05 Gateway   Sent Heartbeat
+10:16:05 Gateway   Received HeartbeatAck
+10:16:05 Gateway   Latency = 62 ms
+10:16:10 Gateway   Received Dispatch (PRESENCE_UPDATE)
+10:16:13 Gateway   Received Dispatch (PRESENCE_UPDATE)
+10:16:14 Gateway   Received Dispatch (PRESENCE_UPDATE)

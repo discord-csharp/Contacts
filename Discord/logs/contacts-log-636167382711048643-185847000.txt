@@ -1,0 +1,272 @@
+14:11:12 Discord   Discord.Net v1.0.0-beta2-00500 (API v6)
+14:11:12 Rest      GET users/@me: 383.22 ms
+14:11:13 Rest      GET voice/regions: 103.55 ms
+14:11:13 Gateway   Connecting
+14:11:13 Gateway   Connecting ApiClient
+14:11:13 Rest      GET gateway: 87.25 ms
+14:11:13 Gateway   Raising Event
+14:11:13 Gateway   Identifying
+14:11:13 Gateway   Sent Identify
+14:11:14 Gateway   Received Hello
+14:11:14 Discord   Heartbeat Started
+14:11:14 Gateway   Sent Heartbeat
+14:11:14 Gateway   Received Dispatch (READY)
+14:11:14 Discord   GuildDownloader Started
+14:11:14 Gateway   Ready
+14:11:14 Gateway   Sending Status
+14:11:14 Gateway   Sent StatusUpdate
+14:11:14 Gateway   Raising Event
+14:11:14 Gateway   Connected
+14:11:14 Gateway   Received Dispatch (GUILD_AVAILABLE)
+14:11:14 Gateway   Connected to C#
+14:11:14 Gateway   Received HeartbeatAck
+14:11:14 Gateway   Latency = 297 ms
+14:11:14 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:11:14 Discord   GuildDownloader Stopped
+14:11:14 Gateway   Sent StatusUpdate
+14:11:15 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:11:21 Gateway   Received Dispatch (TYPING_START)
+14:11:22 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:11:23 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:11:24 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:11:24 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:11:29 Gateway   Received Dispatch (TYPING_START)
+14:11:30 Gateway   Received Dispatch (MESSAGE_CREATE)
+14:11:30 Gateway   Received Dispatch (TYPING_START)
+14:11:32 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:11:38 Gateway   Received Dispatch (TYPING_START)
+14:11:40 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:11:40 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:11:44 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:11:46 Gateway   Received Dispatch (MESSAGE_CREATE)
+14:11:48 Gateway   Received Dispatch (TYPING_START)
+14:11:52 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:11:52 Gateway   Received Dispatch (MESSAGE_CREATE)
+14:11:52 Rest      POST channels/251386218351165441/messages: 173.05 ms
+14:11:52 Rest      POST channels/253967815671808001/messages: 247.28 ms
+14:11:52 Gateway   Received Dispatch (MESSAGE_CREATE)
+14:11:52 Gateway   Received Dispatch (MESSAGE_CREATE)
+14:11:52 Gateway   Received Dispatch (MESSAGE_CREATE)
+14:11:52 Gateway   Received Dispatch (MESSAGE_CREATE)
+14:11:55 Gateway   Sent Heartbeat
+14:11:55 Gateway   Received HeartbeatAck
+14:11:55 Gateway   Latency = 125 ms
+14:11:56 Gateway   Received Dispatch (TYPING_START)
+14:11:56 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:11:58 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:11:58 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:11:59 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:12:00 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:12:00 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:12:01 Gateway   Received Dispatch (MESSAGE_CREATE)
+14:12:02 Rest      POST channels/253967815671808001/messages: 151.18 ms
+14:12:02 Gateway   Received Dispatch (MESSAGE_CREATE)
+14:12:02 Gateway   Received Dispatch (MESSAGE_CREATE)
+14:12:02 Gateway   Received Dispatch (MESSAGE_CREATE)
+14:12:02 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:12:04 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:12:08 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:12:08 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:12:09 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:12:09 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:12:09 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:12:21 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:12:25 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:12:28 Gateway   Received Dispatch (TYPING_START)
+14:12:28 Gateway   Received Dispatch (MESSAGE_CREATE)
+14:12:29 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:12:35 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:12:36 Gateway   Sent Heartbeat
+14:12:36 Gateway   Received HeartbeatAck
+14:12:36 Gateway   Latency = 125 ms
+14:12:37 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:12:39 Gateway   Received Dispatch (TYPING_START)
+14:12:39 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:12:39 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:12:43 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:12:49 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:12:54 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:12:55 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:12:57 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:13:00 Gateway   Received Dispatch (TYPING_START)
+14:13:01 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:13:02 Gateway   Received Dispatch (MESSAGE_CREATE)
+14:13:28 Gateway   Sent Heartbeat
+14:13:28 Rest      POST channels/253967815671808001/messages: 165.63 ms
+14:13:28 Gateway   Received Dispatch (MESSAGE_CREATE)
+14:13:28 Gateway   Received Dispatch (MESSAGE_CREATE)
+14:13:28 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:13:28 Gateway   Received Dispatch (TYPING_START)
+14:13:28 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:13:28 Gateway   Received Dispatch (TYPING_START)
+14:13:28 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:13:28 Gateway   Received Dispatch (MESSAGE_CREATE)
+14:13:28 Rest      PATCH guilds/143867839282020352/members/251391793277435904: 89.96 ms
+14:13:28 Rest      POST channels/253967815671808001/messages: 166.21 ms
+14:13:29 Gateway   Received Dispatch (GUILD_MEMBER_UPDATE)
+14:13:29 Gateway   Received Dispatch (MESSAGE_CREATE)
+14:13:29 Gateway   Received HeartbeatAck
+14:13:29 Gateway   Latency = 4328 ms
+14:13:29 Gateway   Received Dispatch (MESSAGE_CREATE)
+14:13:29 Gateway   Received Dispatch (GUILD_MEMBER_UPDATE)
+14:13:29 Gateway   Received Dispatch (MESSAGE_CREATE)
+14:13:29 Gateway   Received Dispatch (MESSAGE_CREATE)
+14:13:29 Rest      POST channels/251386218351165441/messages: 138.12 ms
+14:13:29 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:13:30 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:13:32 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:13:35 Gateway   Received Dispatch (TYPING_START)
+14:13:35 Gateway   Received Dispatch (TYPING_START)
+14:13:35 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:13:36 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:13:39 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:13:40 Gateway   Received Dispatch (MESSAGE_CREATE)
+14:13:42 Gateway   Received Dispatch (TYPING_START)
+14:13:42 Gateway   Received Dispatch (MESSAGE_CREATE)
+14:13:43 Gateway   Received Dispatch (TYPING_START)
+14:13:44 Gateway   Received Dispatch (TYPING_START)
+14:13:45 Gateway   Received Dispatch (MESSAGE_CREATE)
+14:13:46 Gateway   Received Dispatch (MESSAGE_CREATE)
+14:13:51 Rest      POST channels/253967815671808001/messages: 115.52 ms
+14:13:51 Gateway   Received Dispatch (MESSAGE_CREATE)
+14:13:51 Gateway   Received Dispatch (MESSAGE_CREATE)
+14:13:52 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:13:52 Gateway   Received Dispatch (TYPING_START)
+14:13:54 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:13:55 Gateway   Received Dispatch (TYPING_START)
+14:13:55 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:13:56 Gateway   Received Dispatch (MESSAGE_CREATE)
+14:13:57 Rest      POST channels/253967815671808001/messages: 134.37 ms
+14:13:57 Gateway   Received Dispatch (MESSAGE_CREATE)
+14:13:57 Gateway   Received Dispatch (MESSAGE_CREATE)
+14:13:57 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:13:57 Gateway   Received Dispatch (TYPING_START)
+14:13:58 Gateway   Received Dispatch (TYPING_START)
+14:13:58 Gateway   Received Dispatch (MESSAGE_CREATE)
+14:14:01 Gateway   Received Dispatch (TYPING_START)
+14:14:05 Gateway   Received Dispatch (TYPING_START)
+14:14:07 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:14:09 Gateway   Sent Heartbeat
+14:14:09 Gateway   Received HeartbeatAck
+14:14:09 Gateway   Latency = 125 ms
+14:14:10 Gateway   Received Dispatch (TYPING_START)
+14:14:10 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:14:12 Gateway   Received Dispatch (MESSAGE_CREATE)
+14:14:12 Rest      POST channels/253967815671808001/messages: 114.87 ms
+14:14:12 Gateway   Received Dispatch (MESSAGE_CREATE)
+14:14:12 Gateway   Received Dispatch (MESSAGE_CREATE)
+14:14:12 Gateway   Received Dispatch (MESSAGE_CREATE)
+14:14:12 Gateway   Received Dispatch (MESSAGE_CREATE)
+14:14:12 Rest      POST channels/251386218351165441/messages: 135.01 ms
+14:14:12 Gateway   Received Dispatch (MESSAGE_CREATE)
+14:14:13 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:14:25 Gateway   Received Dispatch (TYPING_START)
+14:14:26 Gateway   Received Dispatch (TYPING_START)
+14:14:27 Gateway   Received Dispatch (TYPING_START)
+14:14:28 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:14:28 Gateway   Received Dispatch (MESSAGE_CREATE)
+14:14:30 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:14:31 Gateway   Received Dispatch (MESSAGE_CREATE)
+14:14:31 Rest      POST channels/253967815671808001/messages: 171.16 ms
+14:14:31 Gateway   Received Dispatch (MESSAGE_CREATE)
+14:14:34 Gateway   Received Dispatch (MESSAGE_CREATE)
+14:14:34 Rest      POST channels/251386218351165441/messages: 174.08 ms
+14:14:34 Gateway   Received Dispatch (MESSAGE_UPDATE)
+14:14:35 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:14:35 Gateway   Received Dispatch (TYPING_START)
+14:14:39 Gateway   Received Dispatch (MESSAGE_CREATE)
+14:14:42 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:14:48 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:14:50 Gateway   Sent Heartbeat
+14:14:50 Gateway   Received HeartbeatAck
+14:14:50 Gateway   Latency = 125 ms
+14:14:53 Gateway   Received Dispatch (TYPING_START)
+14:14:54 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:15:00 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:15:00 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:15:01 Gateway   Received Dispatch (MESSAGE_CREATE)
+14:15:01 Rest      POST channels/253967815671808001/messages: 117.2 ms
+14:15:01 Gateway   Received Dispatch (MESSAGE_CREATE)
+14:15:02 Gateway   Received Dispatch (MESSAGE_CREATE)
+14:15:02 Rest      POST channels/251386218351165441/messages: 191.32 ms
+14:15:02 Gateway   Received Dispatch (MESSAGE_UPDATE)
+14:15:02 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:15:02 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:15:05 Gateway   Received Dispatch (TYPING_START)
+14:15:06 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:15:06 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:15:07 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:15:08 Gateway   Received Dispatch (TYPING_START)
+14:15:09 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:15:09 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:15:13 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:15:16 Gateway   Received Dispatch (TYPING_START)
+14:15:16 Gateway   Received Dispatch (TYPING_START)
+14:15:17 Gateway   Received Dispatch (TYPING_START)
+14:15:19 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:15:19 Gateway   Received Dispatch (MESSAGE_CREATE)
+14:15:24 Gateway   Received Dispatch (TYPING_START)
+14:15:24 Gateway   Received Dispatch (TYPING_START)
+14:15:25 Gateway   Received Dispatch (MESSAGE_CREATE)
+14:15:25 Rest      POST channels/253967815671808001/messages: 164.61 ms
+14:15:25 Gateway   Received Dispatch (MESSAGE_CREATE)
+14:15:25 Gateway   Received Dispatch (MESSAGE_CREATE)
+14:15:25 Gateway   Received Dispatch (MESSAGE_CREATE)
+14:15:26 Gateway   Received Dispatch (MESSAGE_CREATE)
+14:15:26 Rest      POST channels/251386218351165441/messages: 213.42 ms
+14:15:26 Rest      POST channels/251386218351165441/messages: 213.42 ms
+14:15:26 Gateway   Received Dispatch (MESSAGE_UPDATE)
+14:15:27 Gateway   Received Dispatch (TYPING_START)
+14:15:27 Gateway   Received Dispatch (MESSAGE_CREATE)
+14:15:27 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:15:28 Gateway   Received Dispatch (TYPING_START)
+14:15:29 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:15:30 Gateway   Received Dispatch (MESSAGE_CREATE)
+14:15:30 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:15:32 Gateway   Sent Heartbeat
+14:15:32 Gateway   Received HeartbeatAck
+14:15:32 Gateway   Latency = 94 ms
+14:15:32 Gateway   Received Dispatch (TYPING_START)
+14:15:33 Gateway   Received Dispatch (MESSAGE_CREATE)
+14:15:34 Gateway   Received Dispatch (MESSAGE_CREATE)
+14:15:36 Gateway   Received Dispatch (MESSAGE_UPDATE)
+14:15:41 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:15:41 Gateway   Received Dispatch (TYPING_START)
+14:15:43 Gateway   Received Dispatch (MESSAGE_CREATE)
+14:15:44 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:15:46 Gateway   Received Dispatch (TYPING_START)
+14:15:48 Gateway   Received Dispatch (TYPING_START)
+14:15:50 Gateway   Received Dispatch (MESSAGE_CREATE)
+14:15:51 Gateway   Received Dispatch (TYPING_START)
+14:15:52 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:15:52 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:15:54 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:15:55 Gateway   Received Dispatch (MESSAGE_CREATE)
+14:15:55 Gateway   Received Dispatch (TYPING_START)
+14:15:56 Gateway   Received Dispatch (TYPING_START)
+14:15:59 Gateway   Received Dispatch (TYPING_START)
+14:16:00 Gateway   Received Dispatch (MESSAGE_CREATE)
+14:16:03 Gateway   Received Dispatch (TYPING_START)
+14:16:03 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:16:03 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:16:04 Gateway   Received Dispatch (TYPING_START)
+14:16:04 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:16:07 Gateway   Received Dispatch (MESSAGE_CREATE)
+14:16:07 Gateway   Received Dispatch (TYPING_START)
+14:16:10 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:16:11 Gateway   Received Dispatch (MESSAGE_CREATE)
+14:16:12 Gateway   Received Dispatch (MESSAGE_CREATE)
+14:16:12 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:16:13 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:16:13 Gateway   Sent Heartbeat
+14:16:13 Gateway   Received HeartbeatAck
+14:16:13 Gateway   Latency = 110 ms
+14:16:17 Gateway   Received Dispatch (TYPING_START)
+14:16:21 Gateway   Received Dispatch (MESSAGE_CREATE)
+14:16:21 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:16:22 Gateway   Received Dispatch (TYPING_START)
+14:16:23 Gateway   Received Dispatch (PRESENCE_UPDATE)
+14:16:24 Gateway   Received Dispatch (TYPING_START)
+14:16:28 Gateway   Received Dispatch (TYPING_START)
+14:16:30 Gateway   Received Dispatch (MESSAGE_CREATE)
+14:16:34 Gateway   Received Dispatch (PRESENCE_UPDATE)

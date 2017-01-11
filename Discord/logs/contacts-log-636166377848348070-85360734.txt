@@ -1,0 +1,42 @@
+10:16:28 Discord   Discord.Net v1.0.0-beta2-00491 (API v6)
+10:16:28 Rest      GET users/@me: 631.96 ms
+10:16:29 Rest      GET voice/regions: 79.37 ms
+10:16:29 Gateway   Connecting
+10:16:29 Gateway   Connecting ApiClient
+10:16:29 Rest      GET gateway: 80.33 ms
+10:16:29 Gateway   Raising Event
+10:16:29 Gateway   Identifying
+10:16:29 Gateway   Sent Identify
+10:16:29 Gateway   Received Hello
+10:16:29 Discord   Heartbeat Started
+10:16:29 Gateway   Sent Heartbeat
+10:16:29 Gateway   Received Dispatch (READY)
+10:16:30 Discord   GuildDownloader Started
+10:16:30 Gateway   Ready
+10:16:30 Gateway   Sending Status
+10:16:30 Gateway   Sent StatusUpdate
+10:16:30 Gateway   Raising Event
+10:16:30 Gateway   Connected
+10:16:30 Gateway   Received Dispatch (GUILD_AVAILABLE)
+10:16:30 Gateway   Connected to C#
+10:16:30 Gateway   Received Dispatch (PRESENCE_UPDATE)
+10:16:30 Gateway   Received HeartbeatAck
+10:16:30 Gateway   Latency = 266 ms
+10:16:30 Discord   GuildDownloader Stopped
+10:16:30 Gateway   Sent StatusUpdate
+10:16:31 Gateway   Received Dispatch (PRESENCE_UPDATE)
+10:16:34 Gateway   Received Dispatch (PRESENCE_UPDATE)
+10:16:36 Gateway   Received Dispatch (PRESENCE_UPDATE)
+10:16:48 Gateway   Received Dispatch (TYPING_START)
+10:16:50 Gateway   Received Dispatch (MESSAGE_CREATE)
+10:16:50 Gateway   Received Dispatch (TYPING_START)
+10:16:51 Gateway   Received Dispatch (PRESENCE_UPDATE)
+10:16:51 Gateway   Received Dispatch (PRESENCE_UPDATE)
+10:16:52 Gateway   Received Dispatch (MESSAGE_CREATE)
+10:16:52 Rest      POST channels/253967815671808001/messages: 186.81 ms
+10:16:52 Rest      POST channels/251386218351165441/messages: 254.26 ms
+10:16:52 Gateway   Received Dispatch (MESSAGE_CREATE)
+10:16:52 Gateway   Received Dispatch (MESSAGE_CREATE)
+10:16:58 Gateway   Received Dispatch (TYPING_START)
+10:16:59 Gateway   Received Dispatch (MESSAGE_CREATE)
+10:17:06 Gateway   Received Dispatch (PRESENCE_UPDATE)
